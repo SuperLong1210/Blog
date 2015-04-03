@@ -1,0 +1,92 @@
+﻿<h3>什么是CI</h3>
+	CI(Continuous Integration):持续集成</b>
+	Martin Fowler的定义：</b>
+	<li>一种软件开发实践，即团队的成员经常集成他们的工作，通常每个成员每天至少
+	集成一次一一这导致每天发生多次集成。每次集成都通过自动化的构建(包括测试)来
+	验证，从而尽快地检测出集成错误。许多团队发现这个过程会大大减少集成问题，让
+	团队能够更快地开发内聚的软件。本质上说，持续集成就是通过快速的反馈降低风险。
+	</li>
+
+</b></b>
+<h3>从定义中我们知道什么</h3>
+	<ol>
+		<li>所有开发者都先要在他们自己的工作站上执行私有构建，然后再将他们的代码提交
+		到版本控制库中，从而确保他们的变更不会导致集成构建的失败。</li>
+		<li>开发者每天至少向版本控制库提交一次代码</li>
+		<li>集成构建每天在一台独立的计算机上进行多次</li>
+		<li>每次构建都必须100%通过测试</li>
+		<li>生成可以进行功能测试的产品（如WAR，配件，可执行程序等）</li>
+		<li>修复失败的构建是优先级最高的事情</li>
+		<li>某些开发者复查构建生成的报告，如编码标准报告和依赖分析报告，寻找可以改进的地方</li>
+	</ol>
+
+</b></b>
+<h3>CI的价值</h3>
+	<ol>
+		<li>减少风险</li>
+			<ul>
+				<li>缺陷的检测和修复变得更快</li>
+				<li>软件的健康程度可以测量</li>
+				<li>减少假定</li>
+			</ul>
+		<li>减少重复过程,通过自动化的CI，能够确保</li>
+			<ul>
+				<li>每次都以相同的方式执行该过程</li>
+				<li>遵循有序的过程</li>
+				<li>每次将变更提交到版本控制库中，就会执行这些过程</li>
+			</ul>
+		<li>可以在任何时间发布可以部署的软件</li>
+		<li>增强项目的可见性</li>
+		<li>建立起更强大的产品中心</li>
+	</ol>
+	
+</b></b>
+<h3>什么阻碍了团队使用CI</h3>
+	<ol>
+		<li>增加了维护CI系统的开销</li>
+		<li>变化太大（老项目需要改变太多来适应CI）</li>
+		<li>失败的构建太多</li>
+		<li>额外的软件/硬件成本</li>
+		<li>开发者应该执行这些动作</li>
+	</ol>
+	
+</b></b>
+<h3>Steps of CI</h3>
+	<ol>
+		<li>从版本控制库中签出源代码</li>
+		<li>修改代码</li>
+		<li>在本地执行私有构建</li>
+		<li>出现错误，跳至2</li>
+		<li>单元测试</li>
+		<li>单元测试失败，跳至2</li>
+		<li>重新构建，根据标准增强可读性</li>
+		<li>签入代码</li>
+		<li>CI检测到变化并自动获取源代码</li>
+		<li>CI系统编译源代码</li>
+		<li>执行单元测试，特性检测，集成测试和其它测试</li>
+		<li>CI系统向相关人员反馈构建信息</li>
+		<li>构建成功，可以部署，否则跳至2</li>
+	</ol>
+	
+</b></b>
+<h3>对CI有利的习惯</h3>
+	<ol>
+		<li>经常提交代码</li>
+		<li>不要提交无法构建的代码</li>
+		<li>立即修复无法集成的构建</li>
+		<li>编写自动化的开发者测试</li>
+		<li>必须通过所有测试和审查</li>
+		<li>执行私有构建</li>
+	</ol>
+	
+</b></b>
+<h3>CI资源</h3>
+	<ol>
+		<li>CI 产品</li><p>AnthillPro,Apache Contium, Bamboo BuildForge,Continuous Integration,Sever Matrix,Cruise Control, Cruise Control.NET,Sin...</p>
+		<li>构建脚本</li><p>Ant,Groovy,Maven,NAnt,Rake</p>
+		<li>版本控制系统</li><p>ClearCase,MKS,CVS,Subversion,Git</p>
+		<li>测试资源</li><p>Agitator,DbUnit,FitNesse,Floyd,HtmlUnit,JUnit,SQLUnit</p>
+		<li>自动化测试</li><p>Checkstyle,Clover,Cobertura,EMMA,PMD</p>
+		<li>部署资源</li><p>Capistrano,Jenkins,Hudson</p>
+		<li>文档资源</li><p>Doxygen,JavaDoc,NDoc</p>
+	</ol>

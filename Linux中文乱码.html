@@ -1,0 +1,102 @@
+﻿添加中文字符编码：</br>
+<font color=red>$sudo vim /var/lib/locales/supported.d/local</font></br>
+#添加下面的中文字符集</br>
+<font color=red>
+zh_CN.GBK GBK</br>
+zh_CN.GB2312 GB2312</br>
+zh_CN.GB18030 GB18030</font>
+</br>使其生效：
+</br><font color=red>$sudo dpkg-reconfigure locales</font>
+</br>
+</br>-----------------------------------------------------------------------------------------------
+</br>Vim中文乱码:
+</br>打开vim的配置文件，~/.vimrc，如果没有的话新建一个
+</br>在其中加入
+</br>
+<font color=red>
+set fileencodings=utf-8,gb2312,gbk,gb18030</br>
+set termencoding=utf-8</br>
+set encoding=prc</font>
+</br>保存退出并使配置文件生效
+</br><font color=red>source ~/.vimrc</font>
+</br>此时vim就能正确显示中文了。
+</br>注：
+</br>
+1、支持中文编码的基础
+</br>Vim要更好地支持中文编码需要两个特性：+multi_byte和+iconv，可以在Vim命令模式下用:version命令检查当前使用的Vim是否支持。
+</br>2、影响中文编码的设置项
+</br>Vim中有几个选项会影响对多字节编码的支持：
+</br>encoding：encoding是Vim的内部使用编码，encoding的设置会影响Vim内部的Buffer、消息文字等。在 Unix环境下，
+encoding的默认设置等于locale；Windows环境下会和当前代码页相同。在中文Windows环境下encoding的 默认设置
+是cp936（GBK）。
+</br>fileencodings：Vim在打开文件时会根据fileencodings选项来识别文件编码，fileencodings可以同时设置多个编
+码，Vim会根据设置的顺序来猜测所打开文件的编码。
+</br>fileencoding：Vim在保存新建文件时会根据fileencoding的设置编码来保存。如果是打开已有文件，Vim会根据打
+开文件时所识别的编码来保存，除非在保存时重新设置fileencoding。
+</br>termencoding：在终端环境下使用Vim时，通过termencoding项来告诉Vim终端所使用的编码。
+</br>3、Vim中的编码转换
+</br>Vim内部使用iconv库进行编码转换，如果这几个选项所设置的编码不一致，Vim就有可能会转换编码。打开已有文件
+时会从文件编码转换到 encoding所设置的编码；保存文件时会从encoding设置的编码转换到fileencoding对应的编
+码。经常会看到Vim提示[已转换]，这是表明Vim内部作了编码转换。终端环境下使用Vim，会从termencoding设置的
+编码转换到encoding设置的编码。
+</br>可以用:help encoding-values列出Vim支持的所有编码。
+</br>4、具体应用环境的设置
+</br>只编辑GBK编码的文件
+<font color=red>
+</br>set fileencodings=cp936
+</br>set fileencoding=cp936
+</br>set encoding=cp936</font>
+</br></br>只编辑UTF-8编码的中文文件
+<font color=red>
+</br><set fileencodings=utf-8
+</br>set fileencoding=utf-8
+</br>set encoding=cp936</font> 或者 <font color=red>set encoding=utf-8</font>
+</br></br>同时支持GBK和UTF-8编码
+<font color=red>
+</br>set fileencodings=ucs-bom,utf-8,cp936
+</br>set fileencoding=utf-8
+</br>set encoding=cp936</font> 或者 <font color=red>set encoding=utf-8</font></br>
+</br>如果在终端环境下使用Vim，需要设置termencoding和终端所使用的编码一致。例如：
+</br><font color=red>set termencoding=cp936</font> 或者 <font color=red>set termencoding=utf-8</font>
+</br>
+</br>-----------------------------------------------------------------------------------------------
+</br>pdf中文乱码:
+</br><font color=red>$sudo apt-get install xpdf-chinese-simplifiedxpdf-chinese-traditional</font>
+	#安装pdf的中文字体
+</br><font color=red>$sudo apt-get install poppler-data</font> #安装解决pdf中文显示乱码的软件
+</br><font color=red>$cd /etc/fonts/conf.d</br>
+$sudo cp 49-sansserif.conf 49-sansserif.conf_backup</font> #先备份下
+</br><font color=red>$sudo rm 49-sansserif.conf</font> #删除
+</br>再打开pdf文件，就能正常显示中文了
+</br>
+</br>-----------------------------------------------------------------------------------------------
+</br>gedit中文乱码：
+</br>缺省配置下，用 Ubuntu 的文本编辑器（gedit）打开 GB18030/GBK/GB2312 等类型的中文编码文本文件时，
+将会出现乱码。
+</br>
+</br>出现这种情况的原因是，gedit使用一个编码匹配列表，只有在这个列表中的编码才会进行匹配，不在这个
+列表中的编码将显示为乱码。我们需要做的就是将 GB18030 加入这个匹配列表。
+</br>
+</br>命令行方式，适用于所有 Ubuntu 用户。
+</br>复制以下命令到终端中，然后回车即可：
+</br><font color=red>gconftool-2 --set --type=list --list-type=string /apps/gedit-2/preferences/encodings/auto_detected "[UTF-8,CURRENT,GB18030,GB2312,UTF-16]"</font>
+</br>
+</br>图形化方式，适用于 Ubuntu 用户，而不适用于 KUbuntu/XUbuntu 用户。
+</br>按下 Alt-F2，打开“运行应用程序”对话框。
+</br>在文本框中键入“gconf-editor”，并按下回车键，打开“配置编辑器”。
+</br>展开左边的树节点，找到 /apps/gedit-2/preferences/encodings 节点并单击它。
+</br>双击右边的 auto_detected 键，打开“编辑键”对话框。
+</br>单击列表右边的“添加”按钮，输入“GB18030”，单击确定按钮。
+</br>列表的最底部新增加了一个“GB18030”。单击选中它，并单击右边的 “向上” 按钮直到 “GB18030” 位于列表的顶部为止。
+</br>单击确定按钮，关闭配置编辑器。
+</br></br>gedit3.x版本设置
+</br>终端输入dconf-editor
+</br>展开org/gnome/gedit/preferences/encodings
+</br>auto-detected的value中加入’GB18030′，加在uft8后面；
+</br>show-in-menu的value中加入’GB18030′
+</br>现在，您的 gedit 应该能够顺利打开 GB18030 编码的文本文件了。
+</br>gedit 3.X版本命令设置：<font color=red>gsettings set org.gnome.gedit.preferences.encodings auto-detected "['UTF-8','GB18030','GB2312','GBK','BIG5','CURRENT','UTF-16']"</font>
+</br>
+Reference:</br>
+<a href=http://blog.csdn.net/feiniao1221/article/details/7000868>ubuntu下的vim和gvim中文乱码解决方法</a></br>
+<a href=http://fengjiangtao.iteye.com/blog/1926116>解决Linux(Ubuntu)中文乱码，添加中文字符集</a>

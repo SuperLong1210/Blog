@@ -1,0 +1,1130 @@
+﻿<p>离群点是一个数据对象，它显著地不同于数据集中的其它对象，好像它是被不同的机制产生的一样。离群点检测，也称为异常检测，是找出其行为很不同于预期对象的过程。除欺诈检测外，离群点检测在很许多方面都有重要的应用，例如医疗处理，公共安全，工业损毁检测，图像处理，网络入侵检测和垃圾邮件识别等。</p>
+<p>离群点检测现在有很多成熟的方法，可以按照不同方面进行分类。例如根据是否标记数据集以及标记的比例可以分为监督，半监督和无监督方法。根据对离群点与其余数据做出的假定，可以分为统计方法，基于邻近性的方法和基于聚类的方法。统计学方法对数据的正常性作出假定。它们假定正常的对象由一个统计模型产生，而不遵守该模型的数据是离群点。基于邻近性的方法假定一个对象是离群点，如果它在特征空间中的最近邻也原理它，即该对象与它的最近邻之间的邻近性显著地偏离数据集中其它对象与它们的近邻之间的邻近性。基于聚类的方法假定正常数据对象属于大的，稠密的簇，而离群点属于小或稀疏的簇，或者不属于任何簇。</p>
+<p>这里主要是实现了基于距离的CELL离群点检测方法，并对其性能，正确性，可扩展性以及后续的优化等做了分析。</p>
+<h3>CELL算法简介</h3>
+<p>CELL是一种基于距离的离群点检测的基于网格的方法。在这种方法中，数据空间被划分成多维网格，其中每个单元是一个其对角线长度为r/2的超立方体，其中r是一个距离阀值。如果有L维，则单元的每个边长为r/(2&radic;L)</p>
+<p>考虑划分后的其中一个单元C。单元C的近邻单元可以划分成两组。直接与C相邻的单元构成第1层单元，而在任意方向远离C2√l个单元距离内的单元构成第2层单元，这两层单元具有如下性质：</br>
+<ul>
+    <li>第1层单元的性质：给定C的任意点x和第1层中的任意点y，有dist(x,y)<=r。</li>
+    <li>第2层单元的性质：给定C的任意点x和任意点y，若dist(x,y)>r，则y在一个第2层单元中。</li>
+</ul>	
+</br>
+设a是单元C的对象数，b1是第一层单元中的对象数，b2是第2层单元中的对象数，可以使用如下规则：</br>
+<ul>
+
+    <li>层1单元剪枝规则：根据第1层单元的性质，如果a+b1>&lceil;&pi;n&rceil;,则C中的每个对象o都不是DB(r,&pi;)离群点，因为C和第1层单元中的所有对象都在o的r邻域中，并且至少有&lceil;&pi;n&rceil;个这样的近邻。</li>
+    <li>层2单元剪枝规则：根据第2层单元的性质，如果a+b1+b2<&lceil;&pi;n&rceil;+1，则C中的所有对象都是DB(r,&pi;)离群点，因为它们的r邻域中的其它对象都少于&lceil;&pi;n&rceil;个。</li>
+</ul>
+使用以上两个规则，CELL方法使用网格把主句分组-在一个单元中的所有对象形成一组。对于满足以上两个规则之一的组，可以确定单元中的所有对象都是离群点或者都不是离群点，因而不必逐个检查这些对象。此外，为了使用以上两个规则，只需要检查有限多个邻近的目标单元的单元，而不是整个数据集。使用以上两个规则，许多对象都可以确定为非离群点或离群点。只需要检查不能使用以上两个规则剪枝的那些对象。即使对于这样的对象o，也只需要计算o与o的第2层中的对象的距离。这是因为第一层中的所有对象到o的距离最多为r，并且不在第1层或者第2层的对象到o的距离都超过r，因而不可能在o的r邻域中。
+</p>
+<h3>具体实现</h3>
+<strong>实现流程</strong>
+<p>
+<ul>
+    <li>首先按照输入格式随机生成数据集到一个文件中。然后读取文件的每一行作为一个数据点，计算这个数据点对应的块。为了节省内存，块中并不保存这个数据点的所有信息，而只保存该数据点的ID并增加块内点的计数，然后将这个数据点的具体信息写入块对应的文件中。如此处理输入文件中的所有点。</li>
+    <li>第二步是计算每个块C的数据点数目a，层1邻近块中的数据点总数b1和层2邻近块中的对象总数b2。a在读入文件中数据点并分块的时候已经获得。为了获得b1，首先需要计算块C的层1邻近块，然后累加这些邻近块中对象数目。同理可获得b2。</li>
+    <li>第三步是对每个块C进行处理：</li>
+</ul>
+<ol>
+<li>情况1：如果a+b1>&lceil;&pi;n&rceil;,则C中的每个对象o都不是DB(r,&pi;)离群点.</li>
+<li>情况2：如果a+b1+b2<&lceil;&pi;n&rceil;+1，则C中的所有对象都是DB(r,&pi;)离群点。</li>
+<li>情况3：如果不属于以上两种情况，则需要计算块C内每个点到块C的层2邻近块中每个点的距离。</li>
+对于情况3：初始块C内每个数据点的邻居数目都是a+b1。每次处理块C层2的一个块B，计算块C内每个数据点到块B每个数据点的距离，如果小于r，则是一个r邻域内邻居，更新邻居数目，如果邻居数目达到阀值，则该数据点不是异常点，从块C中移除；如此处理每个层2块，都处理完之后仍在块C中的数据点都是异常点。
+</ol>
+<strong>程序简介</strong>
+[cpp]
+class DataNode{
+private:
+	int id;
+	vector<int> attributes;					//属性(坐标)，整型
+public:
+	DataNode(int id);
+	DataNode(int id, vector<int> attr);
+	DataNode(const DataNode &src);
+	
+	int getID()const;
+	vector<int> getAttributes()const;
+	void addAttributes(vector<int>::iterator being,vector<int>::iterator end);
+	int getCellID(double width, int base);	//根据超立方体边长和坐标基数计算所在的块
+	double distance(DataNode node);			//和另一个数据点的距离
+};
+
+class DataCell{
+private:
+	int id;
+	int flag;								//-1表示块内的都是outliers，0表示不确定，1表示都不是
+	int cellNodeCount;						//块内数据点数目
+	int layer1CellNodeCount;				//层1块的数据点数目
+	int layer2CellNodeCount;				//层2块的数据数目
+	
+	vector<DataNode> nodeList;				//块内数据点列表，为节省内存，只在需要计算数据点距离的时候从文件加载
+	vector<int> nodeIdList;					//块内数据点ID列表
+	vector<int> layer1CellIDList;			//层1块ID列表
+	vector<int> layer2CellIDList;			//层2块ID列表
+
+public:
+	DataCell(int Id);
+	DataCell(const DataCell &src);
+
+	int getID()const;						//获取块ID
+	int getFlag()const;						//获取块标记
+	int getCellNodeCount()const;			//获取块内数据点数目
+	int getLayer1CellNodeCount()const;		//获取层1数据点数目
+	int getLayer2CellNodeCount()const;		//获取层2数据点数目
+	vector<DataNode> getNodeList()const;	//获取层内数据列表
+	vector<int> getNodeIdList()const;		//获取层内数据点ID列表
+	vector<int> getLayer1CellIDList()const;	//获取层1块ID列表
+	vector<int> getLayer2CellIDList()const;	//获取层2块ID列表
+	
+	void setFlag(int f);
+	void addDataNodeId(int id);				//增加一个数据点到块
+	void removeDataNode(int id);			//移除块内的数据点
+	void loadDataNodeFromFile(int dimension);//从文件中加载数据点坐标
+	bool isLayer1Cell(int cellId);			//判断块是否属于层1
+	bool isLayer2Cell(int cellId);			//判断块是否属于层2
+	void addLayer1Cell(DataCell &cell);		//增加块到层1
+	void addLayer2Cell(DataCell &cell);		//增加块到层2
+	void calcLayer1CellList(vector<DataCell>& dataCellList, int base, int dimension);//计算层1块列表
+	void calcLayer2CellList(vector<DataCell>& dataCellList, int base, int dimension);//计算层2块列表
+};
+
+class Outliers{
+private:
+	vector<int> outliers;					//outlier ID列表
+public:
+	void addOutlier(int src);				//增加outliers
+	bool isOutlier(int index);				//判断是否为outlier
+	vector<int> getOutliers();				//获取outliers ID列表
+};
+
+class OutlierDetection{
+private:
+	vector<DataCell> dataCellList;			//数据库列表
+	string inFilepath;						//输入文件路径
+	int numOfDataNode;						//数据点总数
+	int dimension;							//坐标维度
+	int max;								//坐标上界
+	int min;								//坐标下界
+	double percentage;						//异常点百分数阀值
+	double radius;							//半径
+	
+public:
+	OutlierDetection(string infile, int num, double percent, int dimen, double r, int maxm, int mini);
+
+	void addCell(DataCell &src);			//增加数据块
+	void addNodeToCell(int cellID, DataNode);//增加数据点到块
+	
+	void randomGenerate();					//随机生成数据,坐标为整型
+	void generateCell();					//生成数据块
+	void layerNodeCount();					//计算每个块层1和层2数据点数目
+	Outliers outlierDetection();			//异常点检测
+};
+//将块ID转换为整型形式
+int vectorToIntCellID(vector<int> id, int base);
+//将块ID转换为向量形式
+vector<int> intToVectorCellID(int id, int base, int dimension);
+//通过递归计算邻近块的ID列表
+vector<int> getLayerCellIdListByRecursive(vector<int> vId ,int base, int width);
+//高斯分布
+int gaussRand(double e, double v);
+//输出结果到文件
+void resultOutput(string path, vector<int> outliers,long cost_time);
+
+主函数：
+//获取开始时间
+gettimeofday(&t_start, NULL);
+//实例化异常检测类
+OutlierDetection outlierDetection(inFile, numOfDatas, fracTotal, numOfDim, neighborRadius, 4, 0);
+//生成测试数据
+outlierDetection.randomGenerate();
+//根据测试数据生成块
+outlierDetection.generateCell();		
+//计算每个块层1和层2块数据点数目
+outlierDetection.layerNodeCount();	
+//异常点检测
+outliers = outlierDetection.outlierDetection();
+//获取结束时间
+gettimeofday(&t_end, NULL);			
+cost_time = (t_end.tv_sec - t_start.tv_sec) * 1000000  + t_end.tv_usec - t_start.tv_usec;
+//将结果写入输出文件
+resultOutput("out.txt",outliers.getOutliers(),cost_time);
+[/cpp]
+
+<h3>源代码</h3>
+outlier-detection.h
+[cpp]
+#ifndef OUTLIER_DETECTION_H_
+#define OUTLIER_DETECTION_H_
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<cmath>
+#include<iostream>
+#include<fstream>
+#include<sstream>
+#include<vector>
+#include<map>
+#include<string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include<sys/time.h>
+#include <dirent.h>
+#include<unistd.h>
+#include"methods.h"
+
+using namespace std;
+
+class DataNode{
+private:
+	int id;
+	vector<int> attributes;					//属性(坐标)，整型
+public:
+	DataNode(int id);
+	DataNode(int id, vector<int> attr);
+	DataNode(const DataNode &src);
+	
+	int getID()const;
+	vector<int> getAttributes()const;
+	void addAttributes(vector<int>::iterator being,vector<int>::iterator end);
+	int getCellID(double width, int base);	//根据超立方体边长和坐标基数计算所在的块
+	double distance(DataNode node);			//和另一个数据点的距离
+};
+
+class DataCell{
+private:
+	int id;
+	int flag;								//-1表示块内的都是outliers，0表示不确定，1表示都不是
+	int cellNodeCount;						//块内数据点数目
+	int layer1CellNodeCount;				//层1块的数据点数目
+	int layer2CellNodeCount;				//层2块的数据数目
+	
+	vector<DataNode> nodeList;				//块内数据点列表，为节省内存，只在需要计算数据点距离的时候从文件加载
+	vector<int> nodeIdList;					//块内数据点ID列表
+	vector<int> layer1CellIDList;			//层1块ID列表
+	vector<int> layer2CellIDList;			//层2块ID列表
+
+public:
+	DataCell(int Id);
+	DataCell(const DataCell &src);
+
+	int getID()const;						//获取块ID
+	int getFlag()const;						//获取块标记
+	int getCellNodeCount()const;			//获取块内数据点数目
+	int getLayer1CellNodeCount()const;		//获取层1数据点数目
+	int getLayer2CellNodeCount()const;		//获取层2数据点数目
+	vector<DataNode> getNodeList()const;	//获取层内数据列表
+	vector<int> getNodeIdList()const;		//获取层内数据点ID列表
+	vector<int> getLayer1CellIDList()const;	//获取层1块ID列表
+	vector<int> getLayer2CellIDList()const;	//获取层2块ID列表
+	
+	void setFlag(int f);
+	void addDataNodeId(int id);				//增加一个数据点到块
+	void removeDataNode(int id);			//移除块内的数据点
+	void loadDataNodeFromFile(int dimension);//从文件中加载数据点坐标
+	bool isLayer1Cell(int cellId);			//判断块是否属于层1
+	bool isLayer2Cell(int cellId);			//判断块是否属于层2
+	void addLayer1Cell(DataCell &cell);		//增加块到层1
+	void addLayer2Cell(DataCell &cell);		//增加块到层2
+	void calcLayer1CellList(vector<DataCell>& dataCellList, int base, int dimension);//计算层1块列表
+	void calcLayer2CellList(vector<DataCell>& dataCellList, int base, int dimension);//计算层2块列表
+};
+
+class Outliers{
+private:
+	vector<int> outliers;					//outlier ID列表
+public:
+	void addOutlier(int src);				//增加outliers
+	bool isOutlier(int index);				//判断是否为outlier
+	vector<int> getOutliers();				//获取outliers ID列表
+};
+
+class OutlierDetection{
+private:
+	vector<DataCell> dataCellList;			//数据库列表
+	string inFilepath;						//输入文件路径
+	int numOfDataNode;						//数据点总数
+	int dimension;							//坐标维度
+	int max;								//坐标上界
+	int min;								//坐标下界
+	double percentage;						//异常点百分数阀值
+	double radius;							//半径
+	
+public:
+	OutlierDetection(string infile, int num, double percent, int dimen, double r, int maxm, int mini);
+
+	void addCell(DataCell &src);			//增加数据块
+	void addNodeToCell(int cellID, DataNode);//增加数据点到块
+	
+	void randomGenerate();					//随机生成数据,坐标为整型
+	void generateCell();					//生成数据块
+	void layerNodeCount();					//计算每个块层1和层2数据点数目
+	Outliers outlierDetection();			//异常点检测
+};
+
+#endif
+[/cpp]
+
+outlier-detection.cpp
+[cpp]
+#include"outlier-detection.h"
+
+DataNode::DataNode(int Id)
+{
+	id = Id;
+}
+
+DataNode::DataNode(int Id, vector<int> attr)
+{
+	id = Id;
+	attributes = attr;
+}
+
+DataNode::DataNode(const DataNode &src)
+{
+	id = src.getID();
+	attributes = src.getAttributes();
+}
+
+int DataNode::getID()const
+{
+	return id;
+}
+
+vector<int> DataNode::getAttributes()const
+{
+	return attributes;
+}
+
+/*增加坐标*/
+void DataNode::addAttributes(vector<int>::iterator begin, vector<int>::iterator end)
+{
+	while(begin != end)
+	{
+		attributes.push_back(*begin);
+		begin++;
+	}
+}
+
+/*计算数据点所在块ID*/
+int DataNode::getCellID(double width,int base)
+{
+	int id = 0;
+	for(vector<int>::iterator ite = attributes.begin(); ite != attributes.end(); ite++)
+		id = id * base + (int)floor(*ite / width);
+	return id;
+}
+
+/*和另一个数据点的欧氏距离*/
+double DataNode::distance(DataNode node)
+{
+	double result = 0;
+	vector<int> attr2 = node.getAttributes();
+	vector<int>::iterator ite1 = attributes.begin();
+	vector<int>::iterator ite2 = attr2.begin();
+	for(; ite1 != attributes.end() && ite2 != attr2.end(); ite1++, ite2++)
+		result += pow((*ite1 - *ite2),2.0);
+	return sqrt(result);
+}
+
+DataCell::DataCell(int Id)
+{
+	id = Id;
+	flag = 0;
+	cellNodeCount = 0;
+	layer1CellNodeCount = 0;
+	layer2CellNodeCount = 0;
+}
+
+DataCell::DataCell(const DataCell &src)
+{
+	id = src.getID();
+	flag = src.getFlag();
+	cellNodeCount = src.getCellNodeCount();
+	nodeList = src.getNodeList();
+	nodeIdList = src.getNodeIdList();
+	layer1CellNodeCount = src.getLayer1CellNodeCount();
+	layer1CellIDList = src.getLayer1CellIDList();
+	layer2CellNodeCount = src.getLayer2CellNodeCount();
+	layer2CellIDList = src.getLayer2CellIDList();
+}
+
+int DataCell::getID()const
+{
+	return id;
+}
+
+int DataCell::getFlag()const
+{
+	return flag;
+}
+
+int DataCell::getCellNodeCount()const
+{
+	return cellNodeCount;
+}
+
+vector<DataNode> DataCell::getNodeList()const
+{
+	return nodeList;
+}
+
+vector<int> DataCell::getNodeIdList()const
+{
+	return nodeIdList;
+}
+
+int DataCell::getLayer1CellNodeCount()const
+{
+	return layer1CellNodeCount;
+}
+
+vector<int> DataCell::getLayer1CellIDList()const
+{
+	return layer1CellIDList;
+}
+
+int DataCell::getLayer2CellNodeCount()const
+{
+	return layer1CellNodeCount;
+}
+
+vector<int> DataCell::getLayer2CellIDList()const
+{
+	return layer2CellIDList;
+}
+
+void DataCell::setFlag(int f)
+{
+	flag = f;
+}
+/*增加数据点,按照ID升序排列*/
+void DataCell::addDataNodeId(int id)
+{
+	for(vector<int>::iterator ite = nodeIdList.begin(); ite != nodeIdList.end(); ite++)
+	{
+		//数据点已存在
+		if(*ite == id)
+			return ;
+		//未存在
+		else if(*ite > id)
+		{
+			nodeIdList.insert(ite, id);
+			//更新块内数据点数目
+			cellNodeCount++;
+			return ;
+		}
+	}
+	//未存在且ID最大，在后面插入
+	nodeIdList.push_back(id);
+	cellNodeCount++;
+}
+
+/*从块中移除数据点*/
+void DataCell::removeDataNode(int id)
+{
+	//从数据点ID列表中移除
+	for(vector<DataNode>::iterator ite = nodeList.begin(); ite != nodeList.end(); ite++)
+	{
+		if((*ite).getID() == id)
+		{
+			nodeList.erase(ite);
+			cellNodeCount--;
+			break ;
+		}
+	}
+	//从数据点列表中移除
+	for(vector<int>::iterator ite = nodeIdList.begin(); ite != nodeIdList.end(); ite++)
+	{
+		if(*ite == id)
+		{
+			nodeIdList.erase(ite);
+			break ;
+		}
+	}
+}
+
+/*从文件中加载数据点坐标,文件名即为块ID*/
+void DataCell::loadDataNodeFromFile(int dimension)
+{
+	ifstream ifs;
+	char path[30];
+	sprintf(path,"tmp/%d.txt",id);
+	ifs.open(path);
+	if(!ifs)
+	{
+		cout << "Can not open file " << path << endl;
+		exit(0);
+	}
+	char * line = (char *)malloc(sizeof(char) * (8 * dimension));
+	while(!ifs.eof())
+	{
+		ifs.getline(line, 8 * dimension);
+		string sline(line);
+		//根据读入的非空行产生一个数据点
+		if(sline.size() != 0)
+		{
+			string tmp;
+			size_t bpos = 0;
+			size_t epos = 0;
+			string::size_type idex;
+			vector<int> vint;
+			while(bpos != string::npos)
+			{
+				bpos++;
+				epos = sline.find_first_of(' ', bpos);
+				if(epos != string::npos)
+				{
+					tmp = sline.substr(bpos, epos - bpos);
+					vint.push_back(atoi(tmp.c_str()));
+				}
+				bpos = epos;
+			}
+			vector<int>::iterator ite = vint.begin();
+			DataNode dataNode(*ite);
+			ite++;
+			dataNode.addAttributes(ite, vint.end());
+			nodeList.push_back(dataNode);
+		}
+	}
+	ifs.close();
+}
+
+bool DataCell::isLayer1Cell(int cellId)
+{
+	for(vector<int>::iterator ite = layer1CellIDList.begin(); ite != layer1CellIDList.end(); ite++)
+		if(*ite == cellId)
+			return true;
+	return false;
+}
+
+bool DataCell::isLayer2Cell(int cellId)
+{
+	for(vector<int>::iterator ite = layer2CellIDList.begin(); ite != layer2CellIDList.end(); ite++)
+		if(*ite == cellId)
+			return true;
+	return false;
+}
+
+/*增加块到层1,块按照ID升序排列*/
+void DataCell::addLayer1Cell(DataCell &cell)
+{
+	//当前块
+	if(cell.getID() == id)
+		return ;
+	for(vector<int>::iterator ite = layer1CellIDList.begin(); ite != layer1CellIDList.end(); ite++)
+	{
+		//已存在
+		if(*ite == cell.getID())
+			return ;
+		//未存在
+		else if(*ite > cell.getID())
+		{
+			//插入块到层1
+			layer1CellIDList.insert(ite, cell.getID());
+			//更新层1数据点数目
+			layer1CellNodeCount += cell.getCellNodeCount();
+			return ;
+		}
+	}
+	//未存在且ID最大，在后面插入
+	layer1CellIDList.push_back(cell.getID());
+	layer1CellNodeCount += cell.getCellNodeCount();
+}
+
+/*增加块到层2,块按照ID升序排列*/
+void DataCell::addLayer2Cell(DataCell &cell)
+{
+	//是当前块或者是层1的块
+	if(cell.getID() == id || isLayer1Cell(cell.getID()))
+		return ;
+	for(vector<int>::iterator ite = layer2CellIDList.begin(); ite != layer2CellIDList.end(); ite++)
+	{
+		//块已在层2中存在
+		if(*ite == cell.getID())
+			return ;
+		else if(*ite > cell.getID())
+		{
+			//插入块到层2
+			layer2CellIDList.insert(ite, cell.getID());
+			//更新层2数据点数目
+			layer2CellNodeCount += cell.getCellNodeCount();
+			return ;
+		}
+	}
+	layer2CellIDList.push_back(cell.getID());
+	layer2CellNodeCount += cell.getCellNodeCount();
+}
+
+/*计算层1块列表*/
+void DataCell::calcLayer1CellList(vector<DataCell>& dataCellList, int base, int dimension)
+{
+	vector<int> vId = intToVectorCellID(id, base, dimension);
+	//通过递归计算层1块ID列表
+	layer1CellIDList = getLayerCellIdListByRecursive(vId, base, 1);
+	layer1CellNodeCount = 0;
+	vector<DataCell>::iterator cellIte = dataCellList.begin();
+	vector<int>::iterator ite = layer1CellIDList.begin();
+	//更新层1块列表和层1内数据点数目
+	for( ; cellIte != dataCellList.end() && ite != layer1CellIDList.end(); )
+	{
+		if((*cellIte).getID() == *ite)
+		{
+			addLayer1Cell(*cellIte);
+			ite++;
+			cellIte++;
+		}
+		else if((*cellIte).getID() < *ite)
+			cellIte++;
+		else
+			ite++;
+	}
+}
+
+/*计算层2块列表*/
+void DataCell::calcLayer2CellList(vector<DataCell>& dataCellList, int base, int dimension)
+{
+	vector<int> vId = intToVectorCellID(id, base, dimension);
+	//通过递归计算层2块ID列表
+	layer2CellIDList = getLayerCellIdListByRecursive(vId, base, (int)ceil(2 * sqrt(dimension)));
+	layer2CellNodeCount = 0;
+	vector<DataCell>::iterator cellIte = dataCellList.begin();
+	vector<int>::iterator ite = layer2CellIDList.begin();
+	//更新层2块列表和层1内数据点数目
+	for( ; cellIte != dataCellList.end() && ite != layer2CellIDList.end(); )
+	{
+		if((*cellIte).getID() == *ite)
+		{
+			addLayer2Cell(*cellIte);
+			ite++;
+			cellIte++;
+		}
+		else if((*cellIte).getID() < *ite)
+			cellIte++;
+		else
+			ite++;
+	}
+}
+
+/*增加异常点*/
+void Outliers::addOutlier(int src)
+{
+	for(vector<int>::iterator ite = outliers.begin();ite != outliers.end(); ite++)
+	{
+		if(*ite == src)
+			return ;
+		else if(*ite > src)
+		{
+			outliers.insert(ite, src);
+			return ;
+		}
+	}
+	outliers.push_back(src);
+}
+
+/*判断是否是异常点*/
+bool Outliers::isOutlier(int index)
+{
+	for(vector<int>::iterator ite = outliers.begin(); ite != outliers.end(); ite++)
+	{
+		if(*ite == index)
+			return true;
+	}
+	return false;
+}
+
+/*获取异常点*/
+vector<int> Outliers::getOutliers()
+{
+	return outliers;
+}
+
+OutlierDetection::OutlierDetection(string infile, int num, double percent, int dimen, double r, int maxm, int mini)
+{
+	inFilepath = infile;
+	numOfDataNode = num;
+	dimension = dimen;
+	percentage = percent;
+	radius = r;
+	max = maxm;
+	min = mini;
+}
+
+/*增加数据块,按照块ID升序排列*/
+void OutlierDetection::addCell(DataCell &cell)
+{
+	for(vector<DataCell>::iterator ite = dataCellList.begin(); ite != dataCellList.end(); ite++)
+	{
+		//数据块已存在
+		if((*ite).getID() == cell.getID())
+			return ;
+		//未存在
+		else if((*ite).getID() > cell.getID())
+		{
+			dataCellList.insert(ite, cell);
+			return ;
+		}
+	}
+	//块未存在且ID最大，在后面插入
+	dataCellList.push_back(cell);
+}
+
+/*增加数据点到块*/
+void OutlierDetection::addNodeToCell(int cellID, DataNode node)
+{
+	DIR *dp;
+	if ((dp = opendir("tmp")) == NULL)
+	{
+		if(-1 == mkdir("tmp",S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO))
+		{
+			cout << "Create tmp directory fail" << endl;
+			exit(0);
+		}
+	}
+	//在数据块文件中写入数据点
+	char tmp[30];
+	sprintf(tmp,"tmp/%d.txt",cellID);
+	ofstream ofs;
+	ofs.open(tmp,ios::out | ios::app);
+	if(!ofs)
+	{
+		cout << "Can not open file " << tmp << endl;
+		return ;
+	}
+	string line;
+	sprintf(tmp,"%d ",node.getID());
+	line.append(tmp);
+	vector<int> attr = node.getAttributes();
+	for(vector<int>::iterator ite = attr.begin(); ite != attr.end(); ite++)
+	{
+		sprintf(tmp,"%d ",*ite);
+		line.append(tmp);
+	}
+	line.append("\n");
+	ofs << line;
+	ofs.close();
+	closedir(dp);
+
+	//在数据块中按照数据点ID升序插入数据点
+	for(vector<DataCell>::iterator ite = dataCellList.begin(); ite != dataCellList.end(); ite++)
+	{
+		//数据块已存在
+		if((*ite).getID() == cellID)
+		{
+			(*ite).addDataNodeId(node.getID());
+			return ;
+		}
+		//数据块未存在
+		else if((*ite).getID() > cellID)
+		{
+			DataCell dataCell(cellID);
+			dataCell.addDataNodeId(node.getID());
+			dataCellList.insert(ite,dataCell);
+			return ;
+		}
+	}
+	//数据块未存在且ID最大
+	DataCell dataCell(cellID);
+	dataCell.addDataNodeId(node.getID());
+	dataCellList.push_back(dataCell);
+}
+
+/*随机生成数据点*/
+void OutlierDetection::randomGenerate()
+{
+	ofstream ofs;
+	ofs.open(inFilepath.c_str(), ios::out | ios::trunc);
+	if(!ofs)
+	{
+		cout << "Can not open file " << inFilepath.c_str() << endl;
+		exit(0);
+	}
+	srand( (unsigned)time( NULL ) );
+	for(int i = 1; i <= numOfDataNode; i++)
+	{
+		string line;
+		char ctmp[30];
+		sprintf(ctmp,"%d ",i);			//数据点ID
+		line.append(ctmp);	
+		for(int j = 1; j <= dimension; j++)	//数据点坐标
+		{
+			int itmp;
+			do
+			{
+				itmp = gaussRand((max + min)/2, 500);
+			}while(itmp > max || itmp < min);
+			sprintf(ctmp,"%d ",itmp);
+			line.append(ctmp);
+		}
+		line.append("\n");
+		ofs << line;
+	}
+	ofs.close();
+}
+
+/*生成数据块*/
+void OutlierDetection::generateCell()
+{
+	double width = radius / (2 * sqrt(dimension));//超立方体边长
+	int base = (int)ceil(2 * sqrt(dimension) * (max - min) / radius);//坐标基数
+	ifstream ifs;
+	ifs.open(inFilepath.c_str());
+	if(!ifs)
+	{//打开输入文件失败
+		cout << "Can not open file " << inFilepath.c_str() << endl;
+		exit(0) ;
+	}
+	char * line = (char *)malloc(sizeof(char) * (8 * dimension));
+	while(!ifs.eof())
+	{
+		ifs.getline(line, 8 * dimension);
+		string sline(line);
+		//根据行产生一个数据点
+		if(sline.size() != 0)
+		{
+			string tmp;
+			size_t bpos = 0;
+			size_t epos = 0;
+			vector<int> vint;
+			while(bpos < sline.size())
+			{
+				epos = sline.find_first_of(' ', bpos);
+				if(epos != string::npos)
+				{
+					tmp = sline.substr(bpos, epos - bpos);
+					vint.push_back(atoi(tmp.c_str()));
+				}
+				bpos = epos + 1;
+			}
+			//产生数据点
+			vector<int>::iterator ite = vint.begin();
+			DataNode dataNode(*ite);
+			ite++;
+			dataNode.addAttributes(ite, vint.end());
+			//增加数据点到数据块
+			addNodeToCell(dataNode.getCellID(width, base), dataNode);
+		}
+	}
+	ifs.close();
+}
+
+/*统计每个块层1和层2数据点数目*/
+void OutlierDetection::layerNodeCount()
+{
+	for(vector<DataCell>::iterator ite = dataCellList.begin(); ite != dataCellList.end(); ite++)
+	{
+		(*ite).calcLayer1CellList(dataCellList,(int)ceil(2 * sqrt(dimension) * (max - min) / radius), dimension);
+		(*ite).calcLayer2CellList(dataCellList,(int)ceil(2 * sqrt(dimension) * (max - min) / radius), dimension);
+	}
+}
+
+/*异常点检测*/
+Outliers OutlierDetection::outlierDetection()
+{
+	Outliers outliers;
+	int threshold = (int)ceil(numOfDataNode * percentage);
+	//检测每个块
+	for(vector<DataCell>::iterator cellIte = dataCellList.begin(); cellIte != dataCellList.end(); cellIte++)
+	{
+		//情况1：块内数据点数目大于阀值，块内数据点都不是异常点
+		if((*cellIte).getCellNodeCount() + (*cellIte).getLayer1CellNodeCount() > threshold)
+		{
+			(*cellIte).setFlag(1);
+		}
+		//情况2：块内和层1层2数据点总数小于阀值，块内数据点都是异常点
+		else if((*cellIte).getCellNodeCount() + (*cellIte).getLayer1CellNodeCount() + (*cellIte).getLayer2CellNodeCount() < threshold + 1)
+		{
+			(*cellIte).setFlag(-1);
+			vector<int> nodeIdList = (*cellIte).getNodeIdList();
+			for(vector<int>::iterator ite = nodeIdList.begin(); ite != nodeIdList.end(); ite++)
+				outliers.addOutlier(*ite);
+		}
+		//情况3：需要计算块A内每个点到层2块B中每个数据点的距离
+		/*思想：每次处理层2的一个块B，计算块A内每个数据点到块B
+		每个数据点的距离，如果小于半径，则是一个邻居，更新邻居
+		数目，如果邻居数目达到阀值，则该数据点不是异常点，从块
+		A中移除；如此处理每个层2块，都处理完之后仍在块A中的数据
+		点都是异常点*/
+		else
+		{
+			//cout << "情况3" << endl;
+			//新建一个块用于计算
+			DataCell dataCell(*cellIte);
+			//从文件中读入块内数据点坐标
+			dataCell.loadDataNodeFromFile(dimension);
+			//数据点-邻居数目 映射
+			map<int,int> nodeId_count;
+			vector<int> tmp1 = dataCell.getNodeIdList();
+			//块内和层1块内数据点都是邻居
+			for(vector<int>::iterator ite = tmp1.begin();ite != tmp1.end(); ite++)
+				nodeId_count.insert(pair<int,int>(*ite, dataCell.getCellNodeCount() + dataCell.getLayer1CellNodeCount()));
+
+			vector<int> layer2CellIdList = dataCell.getLayer2CellIDList();
+			//每次处理一个层2块
+			for(vector<int>::iterator intIte = layer2CellIdList.begin(); intIte != layer2CellIdList.end(); intIte++)
+			{
+				//新建层2的一个块
+				DataCell layer2Cell(*intIte);
+				//从文件中读入数据点坐标
+				layer2Cell.loadDataNodeFromFile(dimension);
+				vector<DataNode> nodeList = dataCell.getNodeList();
+				//计算块内每个点到层2块内每个点的距离
+				for(vector<DataNode>::iterator ite1 = nodeList.begin(); ite1 != nodeList.end(); ite1++)
+				{
+					vector<DataNode> layer2NodeList = layer2Cell.getNodeList();
+					//层2块内的每个点
+					for(vector<DataNode>::iterator ite2 = layer2NodeList.begin(); ite2 != layer2NodeList.end(); ite2++)
+					{
+						//是r半径内邻居
+						if((*ite1).distance(*ite2) < radius)
+						{
+							//获取数据点已有r邻居数目
+							map<int,int>::iterator mapIte = nodeId_count.find((*ite1).getID());
+							if(mapIte != nodeId_count.end())
+							{
+								//更新数据点r邻居数目
+								mapIte->second = mapIte->second + 1;
+								//数据点r邻居数目达到阀值，不是异常点
+								//从块中删除，不再需要检测
+								if(mapIte->second > threshold)
+								{
+									nodeId_count.erase(mapIte);
+									dataCell.removeDataNode(mapIte->first);
+								}
+							}
+						}
+					}
+				}
+			}
+			//剩下的数据点是这个块中的异常点，加入异常点列表
+			for(map<int,int>::iterator mapIte = nodeId_count.begin(); mapIte != nodeId_count.end(); mapIte++)
+				outliers.addOutlier(mapIte->first);
+		}//end 情况三
+	}//end 处理每个数据块
+	return outliers;
+}
+[/cpp]
+
+methods.h
+[cpp]
+#ifndef METHODS_H_
+#define METHODS_H_
+#include<vector>
+#include<cmath>
+#include<stdlib.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+using namespace std;
+
+int vectorToIntCellID(vector<int> id, int base);
+vector<int> intToVectorCellID(int id, int base, int dimension);
+vector<int> getLayerCellIdListByRecursive(vector<int> vId ,int base, int width);
+int gaussRand(double e, double v);
+void resultOutput(string path, vector<int> outliers,long cost_time);
+#endif
+[/cpp]
+
+methods.cpp
+[cpp]
+#include"methods.h"
+
+/*块ID转换*/
+int vectorToIntCellID(vector<int> vId, int base)
+{
+	int id = 0;
+	for(vector<int>::iterator ite = vId.begin(); ite != vId.end(); ite++)
+		id = id  * base + *ite;
+	return id;
+}
+
+/*块ID转换*/
+vector<int> intToVectorCellID(int id ,int base, int dimension)
+{
+	vector<int> vId;
+	while(id != 0)
+	{
+		vId.insert(vId.begin(), id % base);
+		id = id / base;
+	}
+	while(vId.size() < dimension)
+		vId.insert(vId.begin(), 0);
+	return vId;
+}
+
+/*
+ *通过递归计算块层1和层2块的ID列表
+ *vId：vector形式块ID
+ *base：基数
+ *层1和层2的宽度;层1即为1，层2为2*sqrt(l)，其中l是坐标维数
+*/
+
+vector<int> getLayerCellIdListByRecursive(vector<int> vId ,int base, int width)
+{
+	vector<int> result;
+	//只有一维
+	if(vId.size() == 1)
+	{
+		for(int i = -width; i <= width; i++)
+		{
+			int tmp = *vId.begin() + i;
+			if(tmp >=0 && tmp < base)
+				result.push_back(tmp);
+		}
+	}
+	else
+	{
+		vector<int>::iterator ite = vId.begin();
+		//最高维ID(左为高位)
+		int id = *ite;
+		vector<int> remain;
+		for(++ite; ite != vId.end(); ite++)
+			remain.push_back(*ite);
+		//通过递归计算低维对应的块ID
+		vector<int> idList = getLayerCellIdListByRecursive(remain, base, width);
+		int basic = (int)pow(base, vId.size() - 1);
+		for(int i = -width; i <= width; i++)
+		{
+			if(id + i >=0 && id + i < base)
+			{
+				for(vector<int>::iterator innerIte = idList.begin(); innerIte != idList.end(); innerIte++)
+					result.push_back(basic * (id + i) + *innerIte);
+			}
+		}
+	}
+	return result;
+}
+
+int gaussRand(double e, double v)
+{
+    static double V1, V2, S;
+    static int phase = 0;
+    double X;
+
+    if ( phase == 0 )
+	{
+		do{
+			double U1 = (double)rand() / RAND_MAX;
+            double U2 = (double)rand() / RAND_MAX;
+
+            V1 = 2 * U1 - 1;
+            V2 = 2 * U2 - 1;
+            S = V1 * V1 + V2 * V2;
+		} while(S >= 1 || S == 0);
+		X = V1 * sqrt(-2 * log(S) / S);
+    }
+	else
+        X = V2 * sqrt(-2 * log(S) / S);
+    phase = 1 - phase;
+    return (int)(X*v+e);
+}
+
+/*输出结果到文件*/
+void resultOutput(string path, vector<int> outliers, long cost_time)
+{/*
+	ofstream ofs;
+	ofs.open(path.c_str(), ios::out | ios::trunc);
+	ofs << "The number of outliers: " << outliers.size() << endl;
+	for(vector<int>::iterator ite = outliers.begin(); ite != outliers.end(); ite++)
+		ofs << *ite << " ";
+	ofs << "\nUsing " << cost_time << " us" << endl;
+	ofs.close();*/
+	cout << "The number of outliers: " << outliers.size() << endl;
+	cout << "Using " << cost_time << " us\n" << endl;
+}
+
+[/cpp]
+
+demo.cpp
+[cpp]
+#include"outlier-detection.h"
+//<-r>: input file
+//<-n>: num of items
+//<-a>: num of attributes
+//<-c>: a fraction of total items
+//<-d>: neighbour radius
+int gettimeofday(struct timeval *tv, struct timezone *tz);
+int main(int argc, char **argv)
+{
+	struct timeval t_start,t_end;
+	long cost_time = 0;
+	Outliers outliers;
+	bool readFileFlag, numOfItemFlag, attriNumFlag, fracTotalFlag, distFlag;
+	readFileFlag = numOfItemFlag = attriNumFlag = fracTotalFlag = distFlag = false;
+
+	string inFile;
+	int numOfDatas, numOfDim;
+	double fracTotal, neighborRadius, totalTime;
+	char ch;
+	while ((ch = getopt(argc, argv, "r:n:a:c:d:")) != -1)
+	{
+		switch (ch)
+		{
+		case 'r':
+			inFile = optarg;
+			readFileFlag = true;
+			break;
+		case 'n':
+			numOfDatas = atoi(optarg);
+			numOfItemFlag = true;
+			break;
+		case 'a':
+			numOfDim = atoi(optarg);
+			attriNumFlag = true;
+			break;
+		case 'c':
+			fracTotal = atof(optarg);
+			fracTotalFlag = true;
+			break;
+		case 'd':
+			neighborRadius = atof(optarg);
+			distFlag = true;
+			break;
+		case '?':
+			cout << "Unknown option: -" << (char)optopt << endl;
+			return 1;
+		}
+	}
+
+    if(!readFileFlag)
+    {
+	cout << "please give input file name <-r>" << endl;
+        return 2;
+    }
+    if(!fracTotalFlag)
+    {
+        cout << "please give a fraction <-c>" << endl;
+        return 2;
+    }
+    if(!distFlag)
+    {
+		cout << "please give neighbour radius <-d>" << endl;
+		return 2;
+    }
+    if(!numOfItemFlag)
+    {
+        cout << "please give number of items <-n>" << endl;
+		return 2;
+    }
+    if( !attriNumFlag)
+    {
+		cout << "please give number of attributes <-a>" << endl;
+		return 2;
+	}
+	gettimeofday(&t_start, NULL);
+	OutlierDetection outlierDetection(inFile, numOfDatas, fracTotal, numOfDim, neighborRadius, 4, 0);
+	outlierDetection.randomGenerate();
+	outlierDetection.generateCell();
+	outlierDetection.layerNodeCount();
+	outliers = outlierDetection.outlierDetection();
+	gettimeofday(&t_end, NULL);
+	cost_time = (t_end.tv_sec - t_start.tv_sec) * 1000000  + t_end.tv_usec - t_start.tv_usec;
+	resultOutput("out.txt",outliers.getOutliers(),cost_time);
+	system("rm -r tmp");
+	return 0;
+}
+[/cpp]
+
+<p>
+Reference:
+《数据挖掘-概念与技术》孟小峰等译 12.4.2基于网格的方法
+</p>

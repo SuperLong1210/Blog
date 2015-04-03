@@ -1,0 +1,262 @@
+﻿<h3>1 实验环境</h3>
+此次实验运行在虚拟机上，主机CPU是Intel Core I3，运行Windows8的系统，使用VMware WorkStation9软件虚拟三台Linux系统，具体配置如下：
+<pre>
+    -----------------------------------------------------
+       名称             操作系统           IP
+    -----------------------------------------------------
+      Master          Ubuntu14.04     192.168.96.132
+      Slave1          Ubuntu14.04     192.168.96.133
+      Slave2          Ubuntu14.04     192.168.96.135
+    -----------------------------------------------------
+</pre>
+<h3>2 新建用户和组</h3>
+这些操作在Master，Slave1和Slave2上都相同。</br>
+新建组hadoop_users：</br>
+[bash]sudo groupadd hadoop_users[/bash]
+添加用户user1
+[bash]sudo adduser user1[/bash]
+如下图</br>
+<img src="ddd" alt="alt" title="title" />
+将user1的主组修改为hadoop_users</br>
+[bash]sudo usermod -g hadoop_users user1[/bash]
+将user1添加到组hadoop_users</br>
+[bash]sudo usermod -G hadoop_users user1[/bash]
+从新建时产生的组user1中删除用户user1并删除组user1</br>
+[bash]sudo pgasswd -d user1 user1
+sudo groupdel user1[/bash]
+<h3>3 jdk安装和java环境变量设置</h3>
+<h4>下载</h4>
+由于三台Ubuntu14.04均为32位，这里下载jdk1.7的Linux的32位版本，地址为
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html">http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html</a>
+<h4>安装</h4>
+下载后得到文件jdk-7u67-linux-i586.tar.gz，解压后将文件夹重命名为java，命令如下</br>
+[bash]tar -xvf jdk-7u67-linux-i586.tar.gz
+mv jdk1.7.0_67 java[/bash]
+如下图：
+<h4>配置java环境变量</h4>
+在用户home目录下编辑文件.profile，在文件后加入如下内容：</br>
+[bash]export JAVA_HOME=/home/user1/java;
+export CLASSPATH=.:$JAVA_HOME/lib;
+export PATH=$PATH:$JAVA_HOME/bin;[/bash]
+更新配置文件</br>
+[bash]source /home/user1/.profile[/bash]
+<h3>4 配置所有节点之间SSH无密码验证</h4>
+<h4>在所有机器生成密码对</h4>
+在三台机器上用user1账户登录，运行以下命令生成密码对：</br>
+[bash]ssh-keygen -t rsa -P ''[/bash]
+Master结点截图如下，Slave1和Slave2结点同样操作</br>
+<h4>将所有datanode的公钥id_rsa.pub传送到namenode</h4>
+Slave1结点：</br>
+[bash]scp .ssh/id_rsa.pub user1@192.168.96.132:/home/user1/.ssh/slave1_id_rsa.pub[/bash]
+截图如下：
+Slave2结点：</br>
+[bash]scp .ssh/id_rsa.pub user1@192.168.96.132:/home/user1/.ssh/slave2_id_rsa.pub[/bash]
+截图如下：
+<h4>namenode节点综合所有公钥并传送到所有节点</h4>
+[bash]cp id_rsa.pub authorized_keys
+cat slave1_id_rsa.pub >> authorized_keys
+cat slave2_id_rsa.pub >> authorized_keys[/bash]
+将所有公钥复制到所有结点：</br>
+[bash]scp authorized_keys user1@192.168.96.133:/home/user1/.ssh
+scp authorized_keys user1@192.168.96.135:/home/user1/.ssh[/bash]
+如下图：
+<h4>测试</h4>
+在Master上使用ssh连接localhost和Slave1，Slave2，如下图：
+
+<h3>Hadoop集群安装配置</h3>
+以下命令均在Master结点上操作，除非特别声明。
+<h4>下载</h4>
+下载版本为2.5.1，地址是<a href="http://mirrors.koehn.com/apache/hadoop/common/hadoop-2.5.1/">http://mirrors.koehn.com/apache/hadoop/common/hadoop-2.5.1/</a>
+假设将文件hadoop-2.5.1.tar.gz下载到Downloads文件夹</br>
+<h4>安装</h4>
+这里安装目录为用户主目录/home/user1/，也可以使用其它目录，只需要将安装文件复制到相应目录即可。
+将安装文件移动到安装目录:
+[bash]mv Downloads/ hadoop-2.5.1.tar.gz /home/user1[/bash]
+解压并重命名为hadoop
+[bash]tar –xzf hadoop-2.5.1.tar.gz
+mv hadoop-2.5.1 hadoop[/bash]
+截图如下：
+<h4>配置</h4>
+假设当前目录为hadoop安装目录，即/home/user1/hadoop
+<ol>
+    <li>环境变量</li>
+        编辑.profile文件，如下图所示
+    <li>hadoop-env.sh</li>
+        [bash]gedit etc/hadoop/hadoop-env.sh[/bash]
+        增加JAVA_HOME环境变量，如下图所示：
+    <li>core-site.xml</li>
+        新建目录hadoop_tmp作为hadoop的临时目录，默认是/tmp，但由于/tmp其它非hadoop用户也可以操作，每次启动hadoop都要先进行格式化，这里将目录设在hadoop安装目录下。
+        [bash]mkdir hadoop_tmp[/bash]
+        编辑core-site.xml配置文件
+        [bash]gedit etc/hadoop/core-site.xml[/bash]
+        增加fs.defaultFS和hadoop.tmp.dir两个属性，如下图：
+    <li>hdfs-site.xml</li>
+        [bash]gedit etc/hadoop/hdfs-site.xml[/bash]
+        添加dfs.namenode.name.dir,dfs.datanode.data.dir,dfs.replication,dfs.webhdfs.enabled四个属性，其中dfs.namenode.name.dir是namenode存储数据信息的文件夹，dfs.datanode.data.dir是datanode存储数据的文件夹，dfs.replication指定数据复制的份数，由于这里仅有Slave1和Slave2两个datanode结点，故将值设为2，默认为3，dfs.webhdfs.enabled值设定能否通过web查看hdfs的数据。具体内容如下图：
+    <li>mapred-site.xml</li>
+        [bash]gedit etc/hadoop/mapred-site.xml[/bash]
+        具体内容如下图：
+    <li>yarn-site.xml</li>
+        [bash]gedit etc/hadoop/yarn-site.xml[/bash]
+        具体内容如下图:
+    <li>slaves</li>
+        [bash]gedit etc/hadoop/slaves[/bash]
+        去掉localhost，加入两个datanode结点的IP：
+        [bash]192.168.96.133
+192.168.96.135[/bash]
+    <li>配置datanode结点</li>
+        配置datanode结点只需要将namenode中相应的安装目录和配置文件复制到datanode结点即可，包括hadoop安装目录，java安装目录，.profile文件。
+        为加快复制，先将安装目录打包，复制到datanode结点后再解压，注意datanode结点的安装目录应该和namenode结点一致。
+        [bash]tar –cvf hadoop.tar hadoop
+tar –cvf java.tar java
+scp hadoop.tar user1@192.168.96.133:/home/user1/
+scp hadoop.tar user1@192.168.96.135:/home/user1/
+scp java.tar user1@192.168.96.133:/home/user1/
+scp java.tar user1@192.168.96.135:/home/user1/
+scp .profile user1@192.168.96.133:/home/user1/
+scp .profile user1@192.168.96.135:/home/user1/[/bash]
+        在Slave1中用hadoop用户user1登录，解压刚才从namenode复制过来的文件即可
+        [bash]tar –xzf hadoop.tar
+tar –xzf java.tar[/bash]
+        在Slave2中同样操作。
+</ol>
+<h3>启动Hadoop集群</h3>
+以下操作均在Master结点进行，除非特别声明，假设当前目录为hadoop安装目录/home/user1/hadoop/
+<ol>
+    <li>格式化存储目录</li>
+        [bash]bin/hdfs namenode –format[/bash]
+        格式化成功显示..has been successfully formatted.如下图所示：
+    <li>启动Hadoop</li>
+        [bash]sbin/start-all.sh[/bash]
+        可以看到启动顺序是namenode,datanode,secondary namenode,yarn,resourcemanager,datamanager,如下图所示：
+    <li>查看Hadoop运行</li>
+    在Master结点输入命令jps，如下图所示：
+    在Slave1和Slave2结点输入jps，如下图所示：
+    在Master结点输入命令：hadoop dfsadmin -report
+    在Master的浏览器中查看：192.168.96.132:50070
+</ol>
+
+<h3>HBase配置和启动</h3>
+以下操作均在Master结点中进行，除非特别声明。
+<h4>下载安装</h4>
+下载地址为<a href="http://mirrors.koehn.com/apache/hbase/">http://mirrors.koehn.com/apache/hbase/</a>
+这里选择和Hadoop2.5.1相容的0.98.6.1，注意应选择带有hadoop2的压缩包，将文件hbase-0.98.6.1-hadoop2-bin.tar.gz下载到用户主目录/home/user1/，这里选择/home/user1/hbase为安装目录。
+解压文件并重命名为hbase
+[bash]tar –zxf hbase-0.98.6.1-hadoop2-bin.tar.gz
+mv hbase-0.98.6.1-hadoop2 hbase[/bash]
+<h4>配置</h4>
+假设当前目录为用户主目录/home/user1，且配置的结果如下表：
+<pre>
+---------------------------------------------------
+    NodeName    Master  ZooKeeper   RegionServer
+---------------------------------------------------
+192.168.96.132   yes      yes           no
+192.168.96.133   no       yes           yes
+192.168.96.135   no       yes           yes
+---------------------------------------------------
+</pre>
+<ol>
+    <li>hbase-env.sh</li>
+        [bash]gedit hbase/conf/hbase-env.sh[/bash]
+        加入JAVA_HOME环境变量，如下图：
+    <li>hbase-site.xml</li>
+        [bash]gedit hbase/conf/hbase-site.xml[/bash]
+        具体内容如下图：
+    <li>regionservers</li>
+        [bash]gedit hbase/conf/regionservers[/bash]
+        加入Slave1和Slave2的IP，如下图：
+    <li>将hbase复制到Slave结点</li>
+        为加快复制，先将hbase安装目录打包，在slave结点再解压，应注意slave结点中的安装目录应该master结点一致。
+        [bash]tar –cvf hbase.tar hbase
+        scp hbase.tar user1@192.168.96.133:/home/user1
+scp hbase.tar user1@192.168.96.135:/home/user1[/bash]
+用ssh在slave1结点中用user1账户登录，解压刚才scp传送过来的文件hbase.tar并退出
+[bash]ssh 192.168.96.133
+tar –zxf hbase.tar
+exit[/bash]
+用ssh在slave2结点中用user1账户登录，解压刚才scp传送过来的文件hbase.tar并退出
+[bash]ssh 192.168.96.135
+tar –zxf hbase.tar
+exit[/bash]
+</ol>
+<h4>启动</h4>
+应先启动hadoop，启动方法同上。
+[bash]hbase/bin/start-hbase.sh[/bash]
+如下图所示：
+<h4>查看</h4>
+在Master和Slave1中输入jps
+在Slave2中输入jps
+
+<h4>数据库操作</h4>
+进入文件夹hbase/bin/hbase，运行命令shell
+create，put，scan，get，exit等，如下图：
+<h4>关闭hbase和hadoop</h4>
+[bash]hbase/bin/stop-hbase.sh
+hadoop/sbin/stop-all.sh[/bash]
+如下图：
+
+<h3>遇到的问题及解决方法</h3>
+<pre>
+ssh登录时提示ssh: Could not resolve hostname linux: Name or service not known
+原因：ssh无法识别主机名
+改正：在/etc/hosts文件上加上主机名和对应的IP
+
+ssh 登录时提示：Agent admitted failure to sign using the key
+原因：没有将私钥添加到ssh
+解决方法：输入命令ssh-add .ssh/id_rsa
+
+ssh连接时出现错误“ssh：connect to host port 22： Connection refused”
+原因：要连接的机器没有安装或者启动ssh
+解决方法：安装并启动ssh服务
+
+重启系统后不能正常运行hadoop。必须执行 bin/hadoop namenode -format 进行格式化
+原因：没有配置hadoop.tmp.dir参数，此时系统默认的临时目录为：/tmp/hadoop。而这个目录在每次重启后都会被删掉，Hadoop的tmp目录不能自动创建从而报错。
+解决方法：在core-site.xml文件中配置hadoop.tmp.dir参数，使得重启机器后不会删除这个文件夹。
+
+执行 bin/hadoop namenode -format 进行格式化后无法启动datanode
+原因：执行文件系统格式化时，会在namenode数据文件夹（即配置文件中dfs.name.dir在本地系统的路径）中保存一个current/VERSION文件，记录namespaceID，标识了所格式化的namenode的版本。如果我们频繁的格式化namenode，那么datanode中保存（即配置文件中dfs.data.dir在本地系统的路径）的current/VERSION文件只是你第一次格式化时保存的namenode的ID，因此就会造成datanode与namenode之间的id不一致。
+解决方法：1清空hadoop的tmp文件，重启格式化hdfs。2复制namenode VERSION文件里的CID值到datanode 的VERSION文件中的CID，使两个值保持一致。
+
+关于 Warning: $HADOOP_HOME is deprecated.
+原因：多处定义了环境变量$HADOOP_HOME，例如.profile文件，hadoop-env.sh文件
+解决方法：删除重复的定义，其它环境变量出现这样的问题同样处理
+
+Slave服务器中datanode启动后又自动关闭
+原因：没有关闭防火墙
+解决方法：关闭防火墙
+
+hadoop OutOfMemoryError
+原因：JVM内存不够
+解决方法：增加所有datanode的JVM内存，在mapred-site.xml中设置属性mapred.child.java.opts，可以设为-Xmx1024M，这里设置的值最好是物理内存的一半。
+
+Hdfs dfs –ls 命令报错Cannot access .: No such file or directory
+原因：这个错误是指hdfs文件系统中当前目录为空，并不是指本地文件系统中当前目录为空。当我们使用hdfs文件系统时，会默认进入/user/username下，这个目录不存在于本地文件系统，而是由hdfs内部管理的一个目录。当我们第一次使用ls命令时，/user/username下是空的，所以会提示上述错误。当我们添加新的文件之后就不再报该错。
+
+Retrying connect to server: localhost/127.0.0.1:9000
+原因：namenode没有启动
+解决方法：使用stop-all.sh关闭所有服务，再用start-all.sh重启
+
+运行hadoop程序时报错：Input path does not exist
+原因：运行hadoop程序的时候，输入文件必须先放入hdfs文件系统中，不能是本地文件，如果是本地文件就会报上述找不到文件的错误。
+解决方法：首先利用put或者copyFromLocal拷贝文件到hdfs中，然后再运行hadoop程序。
+
+运行程序提示输出文件夹错误
+原因：输出文件夹不能是已存在的，
+解决方法：每次运行应设置不同的输出文件夹名，或者先删除已存在的输出文件夹（之前的数据会丢失）。hadoop dfs -rmr output
+
+HBase Create table时报错：ERROR: java.io.IOException: Table Namespace Manager not ready yet, try again later
+解决方法：这个问题是从单机配置到多机配置的时候出的问题，修改conf/hbase-env.sh 注释掉export HBASE_MANAGES_ZK=true
+
+java.net.SocketTimeoutException: Call to datanode failed
+原因：主服务器和从服务器上hbase-site.xml中，zookeeper.session.timeout配置的时间不一致
+解决方法：
+把主服务器和从服务器上hbase-site.xml中的zookeeper.session.timeout配置一致，统一成120000
+
+hbase启动时zookeeper不能启动：java.lang.RuntimeException: Unable to run quorum server
+解决方法：建立Hbase的tmp目录，例如/home/username/hbase/tmp,并把路径加到hbase-site.xml文件
+[xml]<property>
+        <name>hbase.tmp.dir</name>
+        <value>/home/username/hbase/tmp </value>
+     </property>
+[/xml]
+</pre>
