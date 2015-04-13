@@ -1,0 +1,66 @@
+﻿<h3>什么是BOM？</h3>
+BOM: Byte Order Mark</br>
+UTF-8 BOM又叫UTF-8 签名,其实UTF-8 的BOM对UFT-8没有作用,是为了支持UTF-16,UTF-32才加上的。BOM,BOM签名的意思就是告诉编辑器当前文件采用何种编码,方便编辑器识别,但是BOM虽然在编辑器中不显示,但是会产生输出,就像多了一个空行。
+</br></br>
+Byte-order mark Description 
+EF BB BF UTF-8 
+FF FE UTF-16 aka UCS-2, little endian 
+FE FF UTF-16 aka UCS-2, big endian 
+00 00 FF FE UTF-32 aka UCS-4, little endian. 
+00 00 FE FF UTF-32 aka UCS-4, big-endian.
+
+UTF的字节序和BOM</br>
+UTF-8以字节为编码单元，没有字节序的问题。UTF-16以两个字节为编码单元，在解释一个UTF-16文本前，首先要弄清楚每个编码单元的字节序。例如收到一个“奎”的Unicode编码是594E，“乙”的Unicode编码是4E59。如果我们收到UTF-16字节流“594E”，那么这是“奎”还是“乙”？</br>
+</br>
+Unicode规范中推荐的标记字节顺序的方法是BOM。BOM不是“Bill Of Material”的BOM表，而是Byte Order Mark。BOM是一个有点小聪明的想法：</br>
+在UCS编码中有一个叫做"ZERO WIDTH NO-BREAK SPACE"的字符，它的编码是FEFF。而FFFE在UCS中是不存在的字符，所以不应该出现在实际传输中。UCS规范建议我们在传输字节流前，先传输字符"ZERO WIDTH NO-BREAK SPACE"。这样如果接收者收到FEFF，就表明这个字节流是Big-Endian的；如果收到FFFE，就表明这个字节流是Little-Endian的。因此字符"ZERO WIDTH NO-BREAK SPACE"又被称作BOM。</br>
+UTF-8不需要BOM来表明字节顺序，但可以用BOM来表明编码方式。字符"ZERO WIDTH NO-BREAK SPACE"的UTF-8编码是EF BB BF。所以如果接收者收到以EF BB BF开头的字节流，就知道这是UTF-8编码了。
+
+<h3>在vim中启用或者禁用BOM</h3>
+在vim中启用或者禁用BOM，只需要在配置分解.vimrc中添加如下语句即可：</br>
+禁用：
+[shell]
+set encoding=utf-8
+set nobomb
+[/shell]
+启用：
+[shell]
+set encoding=utf-8
+set bomb
+[/shell]
+
+<h3>Java与UTF-8</h3>
+如果用java读取UTF-8文件，在启用BOM时会在首行多出一个标记，测试程序如下：
+[java]
+public static void main(String[] args) {
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("test.txt"), "UTF-8"));
+			String line = null;
+			while((line = br.readLine()) != null) {
+				System.out.println("The length of line is " + line.length());
+				char[]chars=line.toCharArray(); //转换为字符数组 
+				  for(int i=0;i<chars.length;i++){//输出结果
+				         System.out.println(" "+chars[i]+" "+(int)chars[i]);
+				 }
+			}
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+[/java]
+用一个第一行只有一个字母a的UTF-8 BOM文件测试，运行结果如下：
+<pre>
+The length of line is 2
+ ﻿ 65279
+ a 97
+</pre>
+
+去除BOM的java程序如下：
+[java]
+if(line.length() > 0) {
+    if((int)line.charAt(0) == 65279) {
+        line = line.substring(1);
+    }
+}
+[/java]

@@ -1,0 +1,63 @@
+﻿在评价程序性能的时候，经常需要计算程序运行的时间，这里介绍一下在Windows和Linux下C程序和Java程序的精确计时方法。废话不多说，直接上代码。</br>
+Windows下C程序(微妙)：
+[cpp]
+#include<time.h>
+#include<Windows.h>
+
+LARGE_INTEGER start, end, lv;
+double secondsPerTick;
+void winTest()
+{
+    QueryPerformanceFrequency(&lv);
+	secondsPerTick=1000000.0/lv.QuadPart;
+    
+    QueryPerformanceCounter(&start);
+    /*
+    *Other code here
+    .
+    .
+    */
+    QueryPerformanceCounter(&end);
+	printf("Runing for %f  us\n", secondsPerTick * (end.QuadPart - start.QuadPart));
+}
+[/cpp]
+
+Linux下C程序(毫秒)：
+[cpp]
+void linuxTest()
+{
+    struct timeval start,end;
+    double timeuse;
+    gettimeofday(&start,NULL);
+    /*
+    *Other code here
+    .
+    .
+    */
+    gettimeofday(&end,NULL);
+    timeuse = end.tv_sec - start.tv_sec + (end.tv_usec - start.tv_usec)/1000000.0;
+    printf("Runing for %f  s\n",timeuse);
+}
+[/cpp]
+
+Java程序(毫秒)：
+[java]
+import java.util.Calendar;
+public class Test{
+    public static void main(String[] args) {
+        Calendar start = Calendar.getInstance();
+        /*
+        *Other code here
+        .
+        .
+        */
+        Calendar end = Calendar.getInstance();
+        System.out.println("Runing for " + (end.getTimeInMillis() - start.getTimeInMillis()) + " millseconds");
+    }
+}
+[/java]
+
+Reference:</br>
+<a href="http://www.cnblogs.com/dwdxdy/p/3214905.html">http://www.cnblogs.com/dwdxdy/p/3214905.html</a></br>
+<a href="http://blog.itpub.net/22259926/viewspace-668513/">http://blog.itpub.net/22259926/viewspace-668513/</a></br>
+<a href="http://stackoverflow.com/questions/510462/is-system-nanotime-completely-useless">http://stackoverflow.com/questions/510462/is-system-nanotime-completely-useless</a>
