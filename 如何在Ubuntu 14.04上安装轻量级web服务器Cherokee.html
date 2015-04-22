@@ -1,0 +1,71 @@
+﻿================================================================================</br>
+<strong>Cherokee</strong>是一个免费，开源，高性能轻量级的全功能web服务器，支持大部分主流操作系统(Linux、 Mac OS X、 Solaris 和 BSD)。它支持TLS/SSL、FastCGI、 SCGI、 PHP、 uWSGI、 SSI、 CGI、 LDAP、 HTTP代理、 视频流处理、 内容缓存、 流量控制、 虚拟主机、Apache兼容的日志文件，以及负载均衡等功能。</br>
+
+今天我们介绍一下怎样在Ubuntu Server 14.04 LTS安装和配置轻量级的web服务器Cherokee，只需要注意修改软件源列表，同样适用于Ubuntu12.04，12.10和13.04。</br>
+在Ubuntu Server上逐步安装和配置Cherokee</br>
+
+<h3> 1. 更新Ubuntu软件包索引 </h3>
+首先登陆Ubuntu Server，执行以下命令，更新Ubuntu Server的软件源并安装可用的更新。</br>
+[shell]
+sudo apt-get update
+sudo apt-get upgrade
+[/shell]
+
+<h3> 2. 加入 PPA </h3>
+通过运行以下命令增加Cherokee的PPA
+[shell]
+sudo add-apt-repository ppa:cherokee-webserver
+sudo apt-get update
+[/shell]
+对于运行14.04版本的服务器还需要执行以下步骤
+[shell]
+cd /etc/apt/sources.list.d
+nano cherokee-webserver-ppa-trusty.list
+[/shell]
+用deb http://ppa.launchpad.net/cherokee-webserver/ppa/ubuntu saucy main 替换 deb http://ppa.launchpad.net/cherokee-webserver/ppa/ubuntu trusty main</br>
+
+<strong>再次运行命令:</strong>
+[shell]
+sudo apt-get update
+[/shell]
+
+<h3> 3. 使用apt-get安装Cherokee </h3>
+使用如下命令安装Cherokee和SSL模块</br>
+[shell]
+sudo apt-get install cherokee cherokee-admin cherokee-doc libcherokee-mod-libssl libcherokee-mod-streaming libcherokee-mod-rrd
+[/shell]
+
+<h3> 4. 配置Cherokee </h3>
+
+重启Cherokee服务
+[shell]
+sudo service cherokee start
+[/shell]
+使用Cherokee最大的好处就是能通过一个简单易用的web界面 cherokee-admin 来管理所有的配置选项。推荐通过浏览器来管理Cherokee。使用如下命令启动cherokee-admin
+[shell]
+sudo cherokee-admin
+[/shell]
+<strong>注意： cherokee-admin 会显示用户名，一次性密码和web管理界面地址。</strong>
+
+<strong>请记录下这个一次性密码，登录到管理界面时需要它。</strong>
+
+</br>默认情况下，只能通过localhost访问Cherokee-admin，如果需要通过其它网络地址来访问，可以使用‘**-b**’参数。如果不指定任何IP地址，Cherokee-admin会自动监听所有网络端口。然后就可以通过网络访问Cherokee-admin
+[shell]
+sudo cherokee-admin -b
+[/shell]
+通过指定IP地址访问Cherokee-admin
+[shell]
+sudo cherokee-admin -b 192.168.1.102
+[/shell]
+
+<h3> 5. 浏览cherokee-admin面板 </h3>
+在你喜欢的浏览器中输入地址 "http://主机名或 IP 地址:9090/" 就可以进入控制面板了。例如我的是"http://127.0.0.1:9090/"，在浏览器中显示如下图
+
+<img src="http://blog.linoxide.com/wp-content/uploads/2014/12/cherokee-admin.png">cherokee-admin-panel</img>
+
+</br>好了，到这里我们已经成功地在Ubuntu Server上安装和配置了Cherokee。</br>
+
+--------------------------------------------------------------------------------</br>
+</br>
+Reference
+<a href="">如何在Ubuntu 14.04上安装轻量级web服务器Cherokee</a>
