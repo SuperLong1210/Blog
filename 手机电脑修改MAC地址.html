@@ -1,0 +1,70 @@
+﻿我们可能会遇到自己的电脑或者手机MAC地址被过滤而连不了的WI-FI的苦恼。楼主就因为不能使用联通WIFI感到很气愤，手机电脑都连不上WIFI，平时信号还那么差，要联通卡有个毛用。之前只是电脑连不上也就算了，现在手机也给我断了。实在不能忍，想到它(路由器设置)可能过滤了我的MAC地址，我想把MAC地址改一下不就可以了。说干就干，经过一番折腾，终于修改成功，继续用联通WIFI！</br>
+
+废话不多说，直接介绍步骤。
+
+<h3>Windows 修改 MAC 地址</h3>
+我自己的本本跑的是 Windows 8.1 64bit 操作系统，电脑系统环境应该影响不会太大(比起各种手机系统来说)。
+<h4>下载安装 Mac Address Changer</h4>
+大家可以百度 Mac Address Changer 然后下载，一般大网站都不会下到病毒。当然，我还是去最可靠的官网下载：
+<a href="http://www.technitium.com/tmac/">http://www.technitium.com/tmac/</a></br>
+下载完成后安装这个软件，傻瓜式安装，这里不再详述，安装完成后就可以使用了。
+<h4>使用 Mac Address Changer 更改网卡地址</h4>
+安装完成后打开软件，主界面如下图所示：
+<img src="http://www.technitium.com/tmac/ScreenShot1.png" alt="Mac Address Changer 主界面" /></br>
+
+在网卡列表中点击想要更改 MAC 地址的网卡，在 Information 中显示了一些该网卡的信息，包括连接状态、设备、硬件ID、IPv4支持等等。</br>
+在最下面的 Change MAC Address 部分，可以点击 Random MAC Address 随机生成新的MAC地址，或者自己在地址框中填写、还可以在下面的一些公司列表中选择。</br>
+填写好新的MAC地址后，选中下面的三个复选项，分别表示：完成更改后自动重启网络连接，永久使用新的 MAC 地址，MAC地址以 02 开头。</br>
+都选好后点击下面的 Change Now！，提示更改成功。再看最上面的网卡列表，在 Changed 选项显示YES，在MAC Address项可以看到已经变为新的MAC地址。在下面的Information信息栏中可以看到原来的MAC地址。</br>
+
+<strong>如果需要使用原来的MAC地址，只需要打开软件选中网卡点击最下面的 Restore Original</strong>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/newmac.jpg" alt="New MAC" />
+更改 MAC 地址后结果。</br>
+现在再连接联通的WIFI，发现可以连上去了，而且用了几个小时也没有掉线，妈妈再也不用担心我的流量了。。。。。
+
+<h3>手机修改 MAC 地址</h3>
+本人的手机是红米1，运行 Android 4.2.1 系统。其它 Android 手机没有亲测，但应该类似。
+<h4>取得手机root权限</h4>
+现在root软件千奇百怪，百度搜索一大堆，我一开始使用百度一键root，结果一直在跑，苦等无结果，然后换了刷机精灵。这在小米应用商店可以找到，如果没有的话百度一下，你就知道！</br>
+安装完 刷机精灵 后，打开软件，点击 一键root，等了一会它就显示root成功，不过貌似会马上自动给你安装一个 授权管理 软件。不过这都不是重点了，你可以后面卸载嘛。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/rooted.jpg" alt="root 成功" />
+取得root权限</br>
+
+<h4>安装 ES文件浏览器</h4>
+在应用商店搜索 ES 文件浏览器，下载安装。安装完成后打开刚才自动安装的 授权管理，点击 root管理，把 ES文件浏览器 root 权限改为允许。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/allowes.jpg" alt="允许 ES文件浏览器 root权限" />
+允许 ES文件浏览器 root权限</br>
+
+打开 ES文件浏览器，点击手机的 菜单 按键打开ES文件浏览器菜单，选中“Root工具箱” 和 “显示隐藏文件”。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/esmenu.jpg" alt="更改ES菜单" />
+选中“Root工具箱”和“显示隐藏文件”</br>
+
+<h4>备份并复制文件 WIFI 到电脑</h4>
+进入根目录(/)，进入 data/nvram/APCFG/APRDEB 文件夹，备份文件 “WIFI” 并把它复制到手机连接电脑时电脑能访问的地方。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/backupwifi.jpg" alt="备份 WIFI 文件" />
+备份 WIFI 文件</br>
+
+将手机和电脑连接，将刚才复制出来的文件 “WIFI” 复制到电脑上。
+
+<h4>在电脑上安装 WinHex</h4>
+百度搜索下载安装，也可以去官网下载：<a href="http://www.winhex.com/winhex/index-m.html">http://www.winhex.com/winhex/index-m.html</a></br>
+安装完成后，打开 WinHex 软件，用 WinHex 打开复制到电脑上的 “WIFI” 文件。将第4至9个字节的内容更改为新的MAC地址，入股不知道选择怎样的MAC地址，
+可以使用刚才的MAC Address Changer软件生成一个。更改完成后保存，如下图所示：
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/openwifi.jpg" alt="用WinHex更改文件WIFI"/ >
+用WinHex更改文件WIFI</br>
+
+<h4>更新手机WIFI文件并更改属性</h4>
+把 WinHex 更改后的 WIFI 文件复制到手机，用 ES文件浏览器 替换文件夹 data/nvram/APCFG/APRDEB 中原来的 WIFI 文件。</br>
+在ES文件浏览器中长按 WIFI 文件选中文件，点击 更多->属性，更改权限为全部可读，如下图所示：
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/attrreadable.jpg" alt="更改属性为可读"/ >
+更改属性为可读</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/attrresult.jpg" alt="更改属性结果"/ >
+更改属性结果</br>
+
+完成后打开 设置->WLAN->高级设置，可以看到 MAC 地址已经变为原来设定的了。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/newmaca.jpg" alt="新的MAC地址"/ >
+新的MAC地址</br>
+这时候连接联通WIFI，发现又能连上了。
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/connect.jpg" alt="成功连接联通WIFI"/ >
+成功连接联通WIFI</br>
+<strong>What a pity，重启手机后如果发现 MAC 地址又变为原来的了，只需好再把电脑上更改的 WIFI 文件复制到 data/nvram/APCFG/APRDEB，有人反映会出现这个问题，不过我重启后发现不会，而且还是能轻松脸上联通WIFI，看来解释只能是 RP 了。</strong>
