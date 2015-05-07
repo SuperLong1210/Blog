@@ -1,0 +1,389 @@
+<p>前面我们介绍了基于隐马尔科夫模型(HMM)的中文分词方法，这里我们介绍一下利用开源工具CRF++实现基于条件随机场(CRFs)的中文分词。</p>
+<h3>条件随机场</h3>
+<p>条件随机场跟隐式马可夫模型常被一起提及，条件随机场对于输入和输出的机率分布，没有如隐式马可夫模型那般强烈的假设存在。</p>
+<p>条件随机场（Conditional Random Fields，简称 CRF，或CRFs），是一种判别式概率模型，是随机场的一种，常用于标注或分析序列资料，如自然语言文字或是生物序列。</p>
+<p>如同马尔可夫随机场，条件随机场为具有无向的图模型，图中的顶点代表随机变量，顶点间的连线代表随机变量间的相依关系，在条件随机场中，随机变量 Y 的分布为条件机率，给定的观察值则为随机变量 X。原则上，条件随机场的图模型布局是可以任意给定的，一般常用的布局是链结式的架构，链结式架构不论在训练（training）、推论（inference）、或是解码（decoding）上，都存在效率较高的算法可供演算。</p>
+<p>“条件随机场”被用于中文分词和词性标注等词法分析工作，一般序列分类模型常常采用隐马尔可夫模型（HMM），像基于类的中文分词。但隐马尔可夫模型中存在两个假设：输出独立性假设和马尔可夫性假设。其中，输出独立性假设要求序列数据严格相互独立才能保证推导的正确性，而事实上大多数序列数据不能被表示成一系列独立事件。而条件随机场则使用一种概率图模型，具有表达长距离依赖性和交叠性特征的能力，能够较好地解决标注（分类）偏置等问题的优点，而且所有特征可以进行全局归一化，能够求得全局的最优解。</p>
+<p>更多关于条件随机场的介绍，可以参考以下文章：</br>
+<ul>
+<li><a href="http://wenku.baidu.com/link?url=7LBbXiKPWAPnqYexmBOhz4iCUSny6Ayg3M53Ls0IiVKdqLq-9YPNAiW3WKJ5UgihjWKmm4yTpahIIeu75BB_mM_Q1QicaLIGrOiwHUO8ktu">条件随机场PPT</a></li>
+<li><a href="http://1.guzili.sinaapp.com/?p=133">隐马尔可夫模型 最大熵马尔可夫模型 条件随机场 区别和联系</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Conditional_random_field">Conditional_random_field in Wikipedia</a></li>
+<li><a href="http://www.inference.phy.cam.ac.uk/hmw26/crf/">Papers of Conditional_random_field by year</a></li>
+</ul>
+</p>
+
+<h3>CRF++</h3>
+<p>CRF++ 是一个简单、可定制的条件随机场开源实现，它可用于切分/标记序列化数据。CRF++ 为通用目的设计，能用于多种自然语言处理任务，例如命名实体识别、信息抽取和文本切分。</p>
+<h4>下载安装CRF++</h4>
+<strong>下载CRF++</strong></br>
+<p>CRF++ 是免费软件，你可以在<a href="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public License</a> 或者 <a href="http://www.opensource.org/licenses/bsd-license.php">BSD License</a> 协议下修改或重新发布。</p>
+<p>
+<ul>
+<li><strong>源码</strong>:CRF++-0.58.tar.gz<a href="https://drive.google.com/folderview?id=0B4y35FiV1wh7fngteFhHQUN2Y1B5eUJBNHZUemJYQV9VWlBUb3JlX0xBdWVZTWtSbVBneU0&usp=drive_web#list">HTTP</a></li>
+<li><strong>Windows二进制安装包</strong><a href="https://drive.google.com/folderview?id=0B4y35FiV1wh7fngteFhHQUN2Y1B5eUJBNHZUemJYQV9VWlBUb3JlX0xBdWVZTWtSbVBneU0&usp=drive_web#list">HTTP</a></li>
+</ul>
+</p>
+
+<strong>安装CRF++</strong></br>
+这里只介绍 Linux 系统下 CRF++ 的安装和使用。</br>
+<p>
+首先解压下载的源码包，之后进入解压后的文件夹，运行以下命令编译安装：
+[shell]
+./configure
+make
+sudo make install
+[/shell]
+<strong>我编译安装的时候报错size_t undefined，在文件 path.h 中添加头文件<stdlib.h></strong>如果编译时遇到其它问题，请检查GCC编译器是否正确安装或者根据提示信息进行修正。然后重新编译安装直到没有错误发生。
+</p>
+<p>由于这里使用 python 工具包进行训练和测试，需要安装 python 工具包。进入 python 文件夹，运行以下命令安装：
+[shell]
+python setup.py build
+sudo python setup.py install
+[/shell]
+更多关于安装python工具包的信息可以查看里面的README文件。</br>
+<strong>安装的时候报错找不到头文件<Python.h>，原因是没有安装 python-dev软件包，安装完后重新运行以上命令即可。</strong>
+</p>
+
+<h4>训练文件和测试文件格式</h4>
+<p>训练文件和测试文件都要符合特定的格式 CRF++ 才能正常工作。一般来说，训练文件和测试文件都包含很多tokens(记录)，一个token由固定数目的列组成。记录的定义取决于具体的任务，一般来说，一个字就是一个记录。每个记录在文件中用单独一行表示，列之间用空格(space or tab)间隔。多个连续的token组成一个句子，<strong>为了识别句子的边界，会加入一个空行。</strong></p>
+<p>你可以在一个记录中设置很多列，但是所有记录的列数必须相同。在列中有一些常用的语义，例如第一列是字，第二列是字的标签，第三列是子标签等等。</p>
+<p>在 example/seg 文件夹里面，可以看到四个文件：</br>
+<ul>
+<li>exec.sh（执行脚本）</li>
+<li>template（特征模板）</li>
+<li>test.data（测试集）</li>
+<li>train.data（训练集)</li>
+</ul>
+</p>
+训练文件如下：
+[shell]
+毎 k B
+日 k I
+新 k I
+聞 k I
+社 k I
+特 k B
+別 k I
+顧 k B
+[/shell]
+这里第一列是待分词的日文字，第二列暂且认为其是词性标记，第三列是字标注中的2-tag(B, I)标记，这个很重要，对于我们需要准备的训练集，主要是把这一列的标记做好，不过需要注意的是，其断句是靠空行来完成的。</br>
+再来看测试文件：
+[shell]
+よ h I
+っ h I
+て h I
+私 k B
+た h B
+ち h I
+世 k B
+代 k I
+が h B
+[/shell]
+同样也有3列，第一列是日文字，第二列第三列与上面是相似的，不过在测试集里第三列主要是占位作用。事实上，CRF++对于训练集和测试集文件格式的要求是比较灵活的，首先需要多列，但不能不一致，既在一个文件里有的行是两列，有的行是三列；其次第一列代表的是需要标注的“字或词”，最后一列是输出位”标记tag”，如果有额外的特征，例如词性什么的，可以加到中间列里，所以训练集或者测试集的文件最少要有两列。</br>
+特征模板文件：
+[shell]
+# Unigram
+U00:%x[-2,0]
+U01:%x[-1,0]
+U02:%x[0,0]
+U03:%x[1,0]
+U04:%x[2,0]
+U05:%x[-2,0]/%x[-1,0]/%x[0,0]
+U06:%x[-1,0]/%x[0,0]/%x[1,0]
+U07:%x[0,0]/%x[1,0]/%x[2,0]
+U08:%x[-1,0]/%x[0,0] 
+U09:%x[0,0]/%x[1,0]
+
+# Bigram
+B
+[/shell]
+<p>关于CRF++中特征模板的说明和举例，请大家参考官方文档上的“<a href="http://crfpp.googlecode.com/svn/trunk/doc/index.html#templ">Preparing feature templates</a>”这一节，而以下部分的说明拿上述日文分词数据举例。在特征模板文件中，每一行(如U00:%x[-2,0]）代表一个特征，而宏“%x[行位置,列位置]”则代表了相对于当前指向的token的行偏移和列的绝对位置，以上述训练集为例，如果当前扫描到“新	k	I”这一行，</p>
+[shell]
+毎 k B
+日 k I
+新 k I &lt;== 扫描到这一行，代表当前位置
+聞 k I
+社 k I
+特 k B
+別 k I
+顧 k B
+問 k I
+４ n B
+[/shell]
+<p>那么依据特征模板文件抽取的特征如下：</p>
+[shell]
+# Unigram
+U00:%x[-2,0] ==> 毎
+U01:%x[-1,0] ==> 日
+U02:%x[0,0]  ==> 新
+U03:%x[1,0]  ==> 聞
+U04:%x[2,0]  ==> 社
+U05:%x[-2,0]/%x[-1,0]/%x[0,0] ==> 每/日/新
+U06:%x[-1,0]/%x[0,0]/%x[1,0]  ==> 日/新/聞
+U07:%x[0,0]/%x[1,0]/%x[2,0]   ==> 新/聞/社
+U08:%x[-1,0]/%x[0,0]          ==> 日/新
+U09:%x[0,0]/%x[1,0]           ==> 新/聞
+
+# Bigram
+B
+[/shell]
+<p>CRF++里将特征分成两种类型，一种是Unigram的，“U”起头，另外一种是Bigram的，“B”起头。对于Unigram的特征，假如一个特征模板是&#8221;U01:%x[-1,0]&#8221;, CRF++会自动的生成一组特征函数(func1 &#8230; funcN) 集合:</p>
+[java]
+func1 = if (output = B and feature="U01:日") return 1 else return 0
+func2 = if (output = I and feature="U01:日") return 1 else return 0
+....
+funcXX = if (output = B and feature="U01:問") return 1  else return 0
+funcXY = if (output = I and feature="U01:問") return 1  else return 0
+[/java]
+<p>生成的特征函数的数目 = (L * N)，其中L是输出的类型的个数，这里是B，I这两个tag，N是通过模板扩展出来的所有单个字符串(特征）的个数，这里指的是在扫描所有训练集的过程中找到的日文字（特征）。</p>
+<p>而Bigram特征主要是当前的token和前面一个位置token的自动组合生成的bigram特征集合。最后需要注意的是U01和U02这些标志位，与特征token组合到一起主要是区分“U01:問”和“U02:問”这类特征，虽然抽取的日文&#8221;字&#8221;特征是一样的，但是在CRF++中这是有区别的特征。</p>
+<p>最后我们再来看一下执行脚本：</p>
+[shell]
+#!/bin/sh
+../../crf_learn -f 3 -c 4.0 template train.data model
+../../crf_test -m model test.data<
+../../crf_learn -a MIRA -f 3 template train.data model
+../../crf_test -m model test.data
+rm -f model
+[/shell]
+<p>执行脚本告诉了我们如何训练一个CRF模型，以及如何利用这个模型来进行测试，执行这个脚本之后，对于输入的测试集，输出结果多了一列：</p>
+[shell]
+よ h I B
+っ h I I
+て h I B
+私 k B B
+た h B B
+ち h I I
+の h B B
+世 k B B
+代 k I I
+が h B B
+[/shell]
+<p>而这一列才是模型预测的改字的标记tag，也正是我们所需要的结果。</p>
+
+<h3>利用CRF++实现中文分词</h3>
+首先将 <a href="http://www.sighan.org/bakeoff2005/">backoff2005</a> 里的训练数据转化为CRF++所需的训练数据格式，以微软亚洲研究院提供的中文分词语料为例，依然采用4-tag(B(Begin，词首), E(End，词尾), M(Middle，词中), S(Single,单字词))标记集，只处理utf-8编码文本。原始训练集./icwb2-data/training/msr_training.utf8的形式是人工分好词的中文句子形式，如：
+<pre>
+“  人们  常  说  生活  是  一  部  教科书  ，  而  血  与  火  的  战争  更  是  不可多得  的  教科书  ，  她  确实  是  名副其实  的  ‘  我  的  大学  ’  。
+“  心  静  渐  知  春  似  海  ，  花  深  每  觉  影  生  香  。
+“  吃  屎  的  东西  ，  连  一  捆  麦  也  铡  不  动  呀  ？
+他  “  严格要求  自己  ，  从  一个  科举  出身  的  进士  成为  一个  伟大  的  民主主义  者  ，  进而  成为  一  位  杰出  的  党外  共产主义  战士  ，  献身  于  崇高  的  共产主义  事业  。
+“  征  而  未  用  的  耕地  和  有  收益  的  土地  ，  不准  荒芜  。
+“  这  首先  是  个  民族  问题  ，  民族  的  感情  问题  。
+’  我  扔  了  两颗  手榴弹  ，  他  一下子  出  溜  下去  。
+“  废除  先前  存在  的  所有制  关系  ，  并不是  共产主义  所  独具  的  特征  。
+“  这个  案子  从  始  至今  我们  都  没有  跟  法官  接触  过  ，  也  没有  跟  原告  、  被告  接触  过  。
+“  你  只有  把  事情  做好  ，  大伙  才  服  你  。
+</pre>
+<p>这里提供一个脚本 <a href="https://github.com/ictlyh/CRFSegment/blob/master/make_crf_train_data.py">make_crf_train_data.py</a>，将这个训练语料转换为CRF++训练用的语料格式(2列，4-tag)：</p>
+[python]
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#make_crf_train_data.py
+#得到CRF++要求的格式的训练文件
+#用法：命令行--python dataprocess.py input_file output_file
+
+
+import sys
+import codecs
+
+#4 tags for character tagging: B(Begin), E(End), M(Middle), S(Single)
+def character_4tagging(input_file, output_file):
+	input_data = codecs.open(input_file, 'r', 'utf-8')
+	output_data = codecs.open(output_file, 'w', 'utf-8')
+	for line in input_data.readlines():
+		word_list = line.strip().split()
+		for word in word_list:
+			if len(word) == 1:
+				output_data.write(word + "\tS\n")
+			else:
+				output_data.write(word[0] + "\tB\n")
+				for w in word[1:len(word)-1]:
+					output_data.write(w + "\tM\n")
+				output_data.write(word[len(word)-1] + "\tE\n")
+		output_data.write("\n")
+	input_data.close()
+	output_data.close()
+
+#6 tags for character tagging: B(Begin), E(End), M(Middle), S(Single), M1, M2
+def character_6tagging(input_file, output_file):
+	input_data = codecs.open(input_file, 'r', 'utf-8')
+	output_data = codecs.open(output_file, 'w', 'utf-8')
+	for line in input_data.readlines():
+		word_list = line.strip().split()
+		for word in word_list:
+			if len(word) == 1:
+				output_data.write(word + "\tS\n")
+			elif len(word) == 2:
+				output_data.write(word[0] + "\tB\n")
+				output_data.write(word[1] + "\tE\n")
+			elif len(word) == 3:
+				output_data.write(word[0] + "\tB\n")
+				output_data.write(word[1] + "\tM\n")
+				output_data.write(word[2] + "\tE\n")
+			elif len(word) == 4:
+				output_data.write(word[0] + "\tB\n")
+				output_data.write(word[1] + "\tM1\n")
+				output_data.write(word[2] + "\tM\n")
+				output_data.write(word[3] + "\tE\n")
+			elif len(word) == 5:
+				output_data.write(word[0] + "\tB\n")
+				output_data.write(word[1] + "\tM1\n")
+				output_data.write(word[2] + "\tM2\n")
+				output_data.write(word[3] + "\tM\n")
+				output_data.write(word[4] + "\tE\n")
+			elif len(word) > 5:
+				output_data.write(word[0] + "\tB\n")
+				output_data.write(word[1] + "\tM1\n")
+				output_data.write(word[2] + "\tM2\n")
+				for w in word[3:len(word)-1]:
+					output_data.write(w + "\tM\n")
+				output_data.write(word[len(word)-1] + "\tE\n")
+		output_data.write("\n")
+	input_data.close()
+	output_data.close()
+
+if __name__ == '__main__':
+	if len(sys.argv) != 3:
+		print "Usage: python dataprocess.py inputfile outputfile"
+		sys.exit()
+	input_file = sys.argv[1]
+	output_file = sys.argv[2]
+	character_4tagging(input_file, output_file)
+[/python]
+只需要执行以下命令就可以得到CRF++要求的格式的训练文件 4tag_train_data.utf8:
+[shell]python make_crf_train_data.py ./icwb2-data/training/msr_training.utf8 4tag_train_data.utf8
+[/shell]
+4tag_train_data.utf8，样例如下：
+<pre>
+“	S
+人	B
+们	E
+常	S
+说	S
+生	B
+活	E
+是	S
+一	S
+部	S
+教	B
+科	M
+书	E
+，	S
+而	S
+血	S
+</pre>
+
+<p>有了这份训练语料，就可以利用crf的训练工具crf_learn来训练模型了，执行如下命令即可：</p>
+[shell]
+./CRF/crf_learn -f 3 -c 4.0 ./CRF/example/seg/template tmp.data model 
+[/shell]
+<p>这次训练的时间稍微有些长，在我的4G内存的Ubuntu 14.04 上跑了将近764轮，用了 11342.64 秒(大约3个小时)，最终训练的 model 约51M。有了模型，现在我们需要做得还是准备一份CRF++用的测试语料，然后利用CRF++的测试工具crf_test进行字标注。原始的测试语料是icwb2-data/testing/msr_test.utf8 ，样例如下：</p>
+<pre>
+扬帆远东做与中国合作的先行
+希腊的经济结构较特殊。
+海运业雄踞全球之首，按吨位计占世界总数的１７％。
+另外旅游、侨汇也是经济收入的重要组成部分，制造业规模相对较小。
+多年来，中希贸易始终处于较低的水平，希腊几乎没有在中国投资。
+十几年来，改革开放的中国经济高速发展，远东在崛起。
+瓦西里斯的船只中有４０％驶向远东，每个月几乎都有两三条船停靠中国港口。
+他感受到了中国经济发展的大潮。
+他要与中国人合作。
+他来到中国，成为第一个访华的大船主。
+</pre>
+<p>下面我们用一个python脚本对测试文件进行分词测试，测试脚本 <a href="https://github.com/ictlyh/CRFSegment/blob/master/crf_segmenter.py">crf_segment.py</a>如下：</p>
+<pre>
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#crf_segmenter.py
+#Usage:python crf_segmenter.py crf_model test_file result_file
+# 利用CRF自带的python工具包，对输入文本进行分词
+ 
+import codecs
+import sys
+ 
+import CRFPP
+ 
+def crf_segmenter(input_file, output_file, tagger):
+	input_data = codecs.open(input_file, 'r', 'utf-8')
+	output_data = codecs.open(output_file, 'w', 'utf-8')
+	for line in input_data.readlines():
+		tagger.clear()
+		for word in line.strip():
+			word = word.strip()
+			if word:
+				tagger.add((word + "\to\tB").encode('utf-8'))
+		tagger.parse()
+		size = tagger.size()
+		xsize = tagger.xsize()
+		for i in range(0, size):
+			for j in range(0, xsize):
+				char = tagger.x(i, j).decode('utf-8')
+				tag = tagger.y2(i)
+				if tag == 'B':
+					output_data.write(' ' + char)
+				elif tag == 'M':
+					output_data.write(char)
+				elif tag == 'E':
+					output_data.write(char + ' ')
+				else: #tag == 'S'
+					output_data.write(' ' + char + ' ')
+		output_data.write('\n')
+	input_data.close()
+	output_data.close()
+ 
+if __name__ == '__main__':
+	if len(sys.argv) != 4:
+		print "Usage: python crf_segmenter.py crf_model test_file result_file"
+		sys.exit()
+	crf_model = sys.argv[1]
+	input_file = sys.argv[2]
+	output_file = sys.argv[3]
+	tagger = CRFPP.Tagger("-m " + crf_model)
+	crf_segmenter(input_file, output_file, tagger)
+</pre>
+运行以下命令进行分词：
+[shell]
+python crf_segmenter.py model ./icwb2-data/testing/msr_test.utf8 crf_4tag_result.utf8
+[/shell]
+最终得到的分词结果事例如下：
+<pre>
+ 扬帆  远东  做  与  中国  合作  的  先行 
+ 希腊  的  经济  结构  较  特殊  。 
+ 海运  业  雄踞  全球  之  首  ，  按  吨  位  计  占  世界  总数  的  １７％  。 
+ 另外  旅游  、  侨汇  也是  经济  收入  的  重要  组成部分  ，  制造业  规模  相对  较小  。 
+ 多年来  ，  中  希  贸易  始终  处于  较低  的  水平  ，  希腊  几乎  没有  在  中国  投资  。 
+ 十几年  来  ，  改革开放  的  中国  经济  高速  发展  ，  远东  在  崛起  。 
+ 瓦西里斯  的  船只  中  有  ４０％  驶  向  远东  ，  每个  月  几乎  都  有  两三条  船  停靠  中国  港口  。 
+ 他  感受  到  了  中国  经济  发展  的  大潮  。 
+ 他  要  与  中国人  合作  。 
+ 他  来到  中国  ，  成为  第一个  访  华  的  大船  主  。
+</pre>
+
+用 backoff2005 自带的测试脚本来检查分词效果：
+[shell]
+perl ./icwb2-data/scripts/score ./icwb2-data/gold/msr_training_words.utf8 ./icwb2-data/gold/msr_test_gold.utf8 crf_4tag_result.utf8 > crf_4tag_score.txt
+[/shell]
+评分结果如下：
+<pre>
+=== SUMMARY:
+=== TOTAL INSERTIONS:	1421
+=== TOTAL DELETIONS:	1276
+=== TOTAL SUBSTITUTIONS:	2412
+=== TOTAL NCHANGE:	5109
+=== TOTAL TRUE WORD COUNT:	106873
+=== TOTAL TEST WORD COUNT:	107018
+=== TOTAL TRUE WORDS RECALL:	0.965
+=== TOTAL TEST WORDS PRECISION:	0.964
+=== F MEASURE:	0.965
+=== OOV Rate:	0.026
+=== OOV Recall Rate:	0.647
+=== IV Recall Rate:	0.974
+###	crf_4tag_result.utf8	1421	1276	2412	5109	106873	107018	0.965	0.964	0.965	0.026	0.647	0.974
+</pre>
+如此可见，和 HMM 相比，条件随机场能获得更好的分词效果，不过性能也比 HMM 低很多。
+<hr>
+Reference:
+<a href="http://taku910.github.io/crfpp/">CRF++: Yet Another CRF toolkit</a></br>
+<a href="http://www.52nlp.cn/%E4%B8%AD%E6%96%87%E5%88%86%E8%AF%8D%E5%85%A5%E9%97%A8%E4%B9%8B%E5%AD%97%E6%A0%87%E6%B3%A8%E6%B3%954">中文分词入门之字标注法4</a>
