@@ -1,0 +1,270 @@
+﻿<h3>马尔可夫模型</h3>
+如果系统中有N个状态S1,S2,…,Sn，随着时间的推移，该系统从某一状态转移到另一状态。如果用qt表示系统在时间t的状态，那么，t时刻的状态取值为Sj (i≤j≤N)的概率取决于前t-1个时刻的状态，该概率为：</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm1.jpg" /></br>
+<ul>
+<li>假设1：</li></br>
+    如果在特定情况下，系统在时间t的状态只与其在t-1时刻的状态有关，则该系统构成一个离散的一阶马尔科夫链：</br>
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm2.jpg" /></br>
+<li>假设2：</li></br>
+    如果只考虑上面公式独立于时间t的随机过程，即所谓的不动性假设，状态与时间无关，那么：</br>
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm3.jpg" /></br>
+</ul>
+该随机过程称为马尔可夫模型。</br>
+在马尔可夫模型中，状态转移概率a_ij必须满足下列条件：</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm4.jpg" /></br>
+状态序列S1,S2,…,ST的概率:</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm5.jpg" /></br>
+其中πi=p(q1=Si)，为初始状态的概率。
+
+<h3>隐马尔科夫模型</h3>
+隐马尔科夫模型是一个双重随机过程，我们不知道具体的状态序列，只知道状态转移概率，即模型的状态转换过程是不可观察的，而可观察事件的随机过程是隐蔽状态转换过程的随机函数。</br>
+HMM的组成：</br>
+	<ol>
+	    <li>模型中的状态数为N</li>
+	    <li>从每一个状态可能输出不同的符号数M</li>
+	    <li>状态转移概率矩阵A=a_ij(a_ij为从状态S_i转向另一状态S_j的概率)，其中</li>
+	        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm6.jpg" /></br>
+	    <li>从状态S_j观察到某一特定符号v_k的概率分布矩阵为：B=bj(k)</li>
+	        其中，b_j (k)为状态j观察到符号k的概率。那么</br>
+	        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm7.jpg" /></br>
+	    <li>初始状态概率分布为：π=π_i,其中，</li>
+	        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm8.jpg" /></br>
+	</ol>
+为了方便，一般将HMM记为：μ=(A,B,π)或者μ=(S,O,A,B,π)用以指出模型的参数集合。
+
+<h3>Viterbi 算法</h3>
+Viterbi算法实质是动态搜索最优状态序列。定义Viterbi变量δ_t (i)是在时间t时，模型通过某条路径到达S_i并输出观察序列O=O_1 O_2,…O_T的最大概率：</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm9.jpg" /></br>
+递归计算:<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm10.jpg" /></br>
+<strong>算法</strong>
+<ol>
+    <li>初始化：<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm11.jpg" /></li></br>
+        概率最大的路径变量：ψ1(i)=0
+    <li>递归计算</li>
+        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm12.jpg" />
+    <li>终结条件</li>
+        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm13.jpg" />
+    <li>通过回溯得到路径(状态序列)</li>
+        <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm14.jpg" />
+</ol>
+算法的时间复杂度为：O(N^2 T)。
+
+<h3>系统模块介绍</h3>
+如下图所示，是系统实现的项目包结构：</br>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/hmm15.jpg" /></br>
+HMM.java 是隐马尔科夫模型的实现类；MyUtil.java 是辅助工具类，例如将状态序列转换为分词结果；Segment.java 是分词函数的入口类；Demo.java 是测试样例类；下面会介绍它们的具体实现；lib文件夹里面是汉字字库文件以及训练测试文件。</br>
+<a href="https://github.com/ictlyh/cwsegment/blob/master/src/ac/ucas/cwsegment/HMM.java">HMM.java</a></br>
+成员变量：
+[java]
+private int N;				// 模型中状态的数目
+private int M;				// 每个状态可能输出的观察符号数目
+private double[][] A;		// 状态转移概率矩阵
+private double[][] B;		// 观察符号概率矩阵
+private double[] pi;		// 初始状态概率分布
+[/java]
+成员方法：
+[java]
+/* 从文件中读入HMM数据，即N，M，A，B，pi
+* HMM 文件格式:
+* ---------------------------------------------
+* N= <number of states>
+* M= <number of symbols>
+* A:
+* a11 a12 ... a1N
+* a21 a22 ... a2N
+* aN1 aN2 ... aNN
+* B:
+* b11 b12 ... b1M
+* b21 b22 ... b2M
+* .   .   .   .
+* bN1 bN2 ... bNM
+* Pi:
+* pi1 pi2 ... piN
+*
+* @param file: HMM数据文件
+* @param charSet: 文件编码格式
+*/
+public void readHMM(String file, String charSet) {}
+	
+/* 写HMM数据到文件
+* @param file: HMM输出文件
+* @param charSet: 编码格式
+*/
+public void printHMM(String file, String charSet) {}
+	
+/* 从训练文件构建状态转移矩阵A和初始概率分布pi
+* @param file: 训练文件
+* @param charSet: 编码格式
+*/
+public void buildPiAndMatrixA(String file, String charSet) {}
+	
+/* 从训练文件构建观察符号矩阵B
+* @param file: 训练文件
+* @param charSet: 训练文件编码格式
+* @param charMapFile: 汉字字库文件
+* @param charMapCharset: 汉字字库文件编码格式
+*/
+public void buildMatrixB(String file, String charSet, String charMapFile, String charMapCharset) {}
+	
+/* 前向算法求解观察序列的概率
+* @param T: 时间
+* @param O：观察序列
+* @return pprob：观察序列概率
+*/
+public void forward(int T, int[] O, double pprob) {}
+	
+/* 后向算法求解观察序列的概率
+* @param T: 时间
+* @param O：观察序列
+* @return pprob：观察序列概率
+*/
+public void backward(int T, int[] O, double pprob) {}
+	
+/* Viterbi算法求解最优状态序列
+* @param T: 时间
+* @param O：观察序列
+* @return q： 状态序列
+* @return pprob：观察序列概率
+*/
+public void viterbi(int T, int[] O, int[] q, double pprob) {}
+[/java]
+
+<a href="https://github.com/ictlyh/cwsegment/blob/master/src/ac/ucas/cwsegment/MyUtil.java">MyUtil.java</a></br>
+成员方法：
+[java]
+/* 根据测试语句得到观察序列
+* @param sentence：测试语句，不包括空格
+* @param dict：汉字字典(包括标点符号)
+* @return O：观察序列
+*/
+public static void genSequence(String sentence, HashMap<Character, Integer> dict, int[] O) {}
+   
+/* 删除测试语句中的空格
+* @param sentence： 测试语句
+* @return ：删除空格后的语句
+*/
+public static String delSpace(String sentence) {}
+	
+/* 根据状态序列切分测试语句
+* @param sentence： 测试语句，不包括空格
+* @param q：状态序列
+* @param dict: 汉字哈希表
+* @return line: 分词结果
+*/
+public static String printSegment(String sentence, int[] q, HashMap<Character, Integer> dict) {}
+   
+/* 从文件中读入汉字构建汉字哈希表
+* @param file: 汉字字典，包括标点符号
+* @param charSet: 文件编码
+* @return dict：汉字哈希表
+*/
+public static void readDict(String file, String charSet, HashMap<Character, Integer> dict) {}
+[/java]
+
+<a href="https://github.com/ictlyh/cwsegment/blob/master/src/ac/ucas/cwsegment/Segment.java">Segment.java</a>
+成员变量：
+[java]
+private String trainFile;		// 训练文件
+private String trainCharset;	// 训练文件编码格式
+private String cwLib;			// 汉字字库文件
+private String cwLibCharset;	// 汉字字库文件编码格式
+[/java]
+成员方法：
+[java]
+/* HMM对一个句子做切分
+* @param sentence: 待切分句子
+* @return : 切分结果
+*/
+public String hMMSegment(String sentence) {}
+
+/* HMM对测试文件进行分词
+* @param testFile: 测试文件路径
+* @param testCharset: 测试文件编码格式
+* @param resultFile: 分词结果保存路径
+*/
+public void hMMSegment(String testFile, String testCharset, String resultFile) {public String hMMSegment(String sentence) {}
+
+/* 反向最大匹配分词
+* @param testFile: 测试文件
+* @param testCharset: 测试文件编码格式
+* @param resultFile: 分词结果保存路径
+*/
+public void backwardMaximumMatchSegment(String testFile, String testCharset, String resultFile) {}
+
+/* 正向最大匹配分词
+* @param testFile: 测试文件
+* @param testCharset: 测试文件编码格式
+* @param resultFile: 分词结果保存路径
+*/
+public void forwardMaximumMatchSegment(String testFile, String testCharset, String resultFile) {}	
+[/java]
+
+<a href="https://github.com/ictlyh/cwsegment/blob/master/src/Demo.java">Demo.java</a></br>
+[java]
+public class Demo {
+	public static void main(String[] args) {
+		// HMM语句测试
+		/*String test = "这是  一个训练文本，训练分词的效果";
+		Segment seg = new Segment();
+		System.out.println(seg.hMMSegment(test));*/
+		
+		// HMM文件测试
+		Segment seg = new Segment("lib/pku_training.utf8", "UTF-8");
+		seg.hMMSegment("lib/pku_test.utf8", "UTF-8", "hmm_4state_result.txt");
+		
+		// 反向最大匹配文件测试
+		/*Segment seg = new Segment("lib/pku_training_words.utf8", "UTF-8");
+		seg.backwardMaximumMatchSegment("lib/pku_test.utf8", "UTF-8", "bw_result.txt");
+		System.out.println("Finished");*/
+		
+		// 正向最大匹配文件测试
+		/*Segment seg = new Segment("lib/pku_training_words.utf8", "UTF-8");
+		seg.forwardMaximumMatchSegment("lib/pku_test.utf8", "UTF-8", "fw_result.txt");
+		System.out.println("Finished");*/
+	}
+}
+[/java]
+
+<h3>实验结果</h3>
+由于没有下载到北大人民日报的词性标注语料库，这里使用 <a href="http://www.sighan.org/bakeoff2005/">backoff2005</a> 中的语料进行训练，但是由于没有词性标注，这里采用了基于字的切分方式，即把B(Begin), M(Middle), E(End), S(Single) 作为状态，而每个汉字(包括标点符号)作为观察符号。</br>
+下面是使用HMM模型，正向最大匹配，反向最大匹配在 <a href="http://www.sighan.org/bakeoff2005/">backoff2005</a> 中as、 cityu、 msr 和 pku 数据集上的测试结果：其中，每个单元格内的三个数字分别表示召回率、准确率和 F值。</br>
+<table>
+    <tr>
+        <td></td>
+        <td>正向最大匹配</td>
+        <td>反向最大匹配</td>
+        <td>隐马尔科夫</td>
+    </tr>
+    <tr>
+        <td>as</td>
+        <td>0.284</br>0.269</br>0.276</td>
+        <td>0.285</br>0.270</br>0.277</td>
+        <td>0.064</br>0.071</br>0.067</td>
+    </tr>
+    <tr>
+        <td>ciytu</td>
+        <td>0.908</br>0.838</br>0.872</td>
+        <td>0.910</br>0.840</br>0.874</td>
+        <td>0.554</br>0.406</br>0.467</td>
+    </tr>
+    <tr>
+        <td>msr</td>
+        <td>0.957</br>0.917</br>0.937</td>
+        <td>0.955</br>0.915</br>0.935</td>
+        <td>0.775</br>0.740</br>0.757</td>
+    </tr>
+        <td>pku</td>
+        <td>0.907</br>0.843</br>0.874</td>
+        <td>0.909</br>0.845</br>0.876</td>
+        <td>0.591</br>0.731</br>0.654</td>
+    <tr>
+    </tr>
+</table>
+从上表中可以看出，正向最大匹配和反向最大匹配对于词典有很严重的依赖，词典的好坏直接决定了分词的效果；用隐马尔科夫模型在 as 数据集上测试时，由于汉字字库文件中不包含繁体字，即存在很多的未登录词，所以分词结果效果很差。由于正向最大匹配和反向最大匹配使用的词典都是 <a href="http://www.sighan.org/bakeoff2005/">backoff2005</a> 各个数据集对应的训练文件，故分词效果比HMM高出许多。而由于采用了基于字的方法，而不是基于词性，将词性作为状态，词作为观察符号，HMM模型并没有达到通常的分词效果。</br>
+另外，在性能上，数据集比较小时正向和反向最大匹配比HMM稍快，但数据集大时HMM开始超过正向和反向最大匹配，这些测试中最长用时为3.5秒。</br>
+由于HMM分词效果较差，通过阅读文献了解到基于字的条件随机场(CRFs)模型分词效果比HMM要好，我还用开源工具 CRF++ 实现了基于条件随机场的分词模型，在backoff2005     msr数据集上的分词结果显示，召回率、准确率和F值分别为 0.965,0.964,0.965，显然高于HMM的分词效果，但是CRF模型的训练时间比HMM要多很多，在我的实验中训练msr数据集用了将近3个小时。关于CRF++实现中文分词的具体介绍可以查看我的博文：<a href="http://www.mutouxiaogui.cn/blog/?p=224">基于CRF++实现中文分词。</a></br>
+
+<p>隐马尔科夫模型实现分词就介绍到这里，详细代码可以访问我的Github项目：<a href="https://github.com/ictlyh/cwsegment">cwsegment</a></p>
+<hr>
+Reference:
+《统计自然语言处理》 宗成庆著，第二版
