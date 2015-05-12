@@ -1,0 +1,95 @@
+最近在学习 OpenCV 的过程中，遇到了许多问题，现在写下来以备不时之需，也希望能给需要的人一些帮助。
+<h3>cvLoadImage()返回空</h3>
+cvLoadImage()函数基本上是使用 OpenCV 必须要使用的一个函数(这里不考虑 OpenCV2 的 imread())，这个只有两个参数，const char* filename, int flags，第一个是要读取的图像路径(包括文件后缀)，第二个参数指定读入图像的颜色和深度，指定的颜色可以将输入的图片转为3通道(CV_LOAD_IMAGE_COLOR), 单通道 (CV_LOAD_IMAGE_GRAYSCALE), 或者保持不变(CV_LOAD_IMAGE_ANYCOLOR)。深度指定输入的图像是否转为每个颜色通道每象素8位，（OpenCV的早期版本采用8位），或者同输入的图像一样保持不变。选中CV_LOAD_IMAGE_ANYDEPTH，则输入图像格式和原图像相通，可能为8位无符号，16位无符号，32位有符号或者32位浮点型。如果输入有冲突的标志，将采用较小的数字值。比如CV_LOAD_IMAGE_COLOR | CV_LOAD_IMAGE_ANYCOLOR 将载入3通道图。CV_LOAD_IMAGE_ANYCOLOR和CV_LOAD_IMAGE_UNCHANGED是等值的。但是，CV_LOAD_IMAGE_ANYCOLOR有着可以和CV_LOAD_IMAGE_ANYDEPTH同时使用的优点，所以CV_LOAD_IMAGE_UNCHANGED不再使用了。如果想要载入最真实的图像，选择 CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_ANYCOLOR。
+<strong>但此时后面使用时要注意判断它的通道和深度。</strong>
+下面是官方指南关于这个函数的介绍：
+<pre>
+IplImage* cvLoadImage(const char* filename, int iscolor=CV_LOAD_IMAGE_COLOR )
+Parameters:	
+filename – Name of file to be loaded.
+flags – Flags specifying the color type of a loaded image:
+
+CV_LOAD_IMAGE_ANYDEPTH - If set, return 16-bit/32-bit image when the input has the corresponding depth, otherwise convert it to 8-bit.
+CV_LOAD_IMAGE_COLOR - If set, always convert image to the color one
+CV_LOAD_IMAGE_GRAYSCALE - If set, always convert image to the grayscale one
+>0 Return a 3-channel color image.
+=0 Return a grayscale image.
+<0 Return the loaded image as is (with alpha channel).
+</pre>
+这个函数看起来很简单，但是也会出现问题。最常见的就是返回空指针，可能的原因如下(包括但不仅限于)：
+<ol>
+    <li>路径错误</li>
+        要注意绝对路径和相对路径的问题，尤其是相对路径；还要注意不同平台路径的分隔符不同，例如 Linux 下是"/home/user/Desktop/image.jpg"，而 Windows 下是 "C:\\Users\\Administrator\\Desktop\\image.jpg"，要注意转义字符的问题。另外要注意Windows下是否显示了文件后缀。
+    <li>文件后缀错误</li>
+        有时候图像的实际格式可能和后缀不同，而cvLoadImage()会根据文件后缀调用相应的库读取图像，这也可能导致失败，解决这种问题可以修改后缀为正确的格式，或者跳过处理。
+    <li>缺少相应的库</li>
+        如果是自己编译安装 OpenCV，cmake 需要配置，确保选中了需要的库，例如：
+        <pre>
+            Image I/O:
+                --     JPEG:                      TRUE
+                --     PNG:                       TRUE
+                --     TIFF:                      TRUE
+                --     JASPER:                    TRUE
+               或者使用配置:
+             Image I/O ---------------------
+             Use ImageIO / Mac OS X:   no
+             Use libjpeg:              yes
+             Use zlib:                 yes
+             Use libpng:               yes
+             Use libtiff:              yes
+             Use libjasper:            yes
+        </pre>
+    <li>路径中含有中文</li>
+    这只是个可能的选项，OpenCV 目前只支持 ASCII 路径名，如果包含有 i18n(internationalization) 字符，应该注意这个问题。
+</ol>
+下面是官方指南中关于cvLoadImage()支持的格式以及返回空可能原因的介绍：
+<pre>
+If the image cannot be read (because of missing file, improper permissions, unsupported or invalid format), the function returns an empty matrix ( Mat::data==NULL ). Currently, the following file formats are supported:
+
+Windows bitmaps - *.bmp, *.dib (always supported)
+JPEG files - *.jpeg, *.jpg, *.jpe (see the Notes section)
+JPEG 2000 files - *.jp2 (see the Notes section)
+Portable Network Graphics - *.png (see the Notes section)
+Portable image format - *.pbm, *.pgm, *.ppm (always supported)
+Sun rasters - *.sr, *.ras (always supported)
+TIFF files - *.tiff, *.tif (see the Notes section)
+</pre>
+
+<h3>cvCvtColor()出错</h3>
+cvCvtColor(...),是Opencv里的颜色空间转换函数，可以实现RGB颜色向HSV,HSI等颜色空间的转换，也可以转换为灰度图像。
+void cvCvtColor( const CvArr* src, CvArr* dst, int code );
+src - 输入的 8-bit,16-bit或 32-bit单倍精度浮点数影像。
+dst - 输出的8-bit, 16-bit或 32-bit单倍精度浮点数影像。
+code - 色彩空间转换的模式，该code来实现不同类型的颜色空间转换。比如CV_BGR2GRAY表示转换为灰度图，CV_BGR2HSV将图片从RGB空间转换为HSV空间。其中当code选用CV_BGR2GRAY时，dst需要是单通道图片，当code选用CV_BGR2HSV时，dst需要是3通道的图片。src也要满足相应的要求，例如code选用CV_BGR2HSV，如果src是单通道的，就可能导致出错。
+事例程序
+[cpp]
+bool rgb2hsv(char* path)
+{
+	// 载入图像
+	IplImage * src = cvLoadImage(path, CV_LOAD_IMAGE_ANYCOLOR | CV_LOAD_IMAGE_ANYDEPTH);
+	if(!src)
+	{
+		fprintf(stderr, "Error:load image failed in Image::calcColorFeature.\n Image path:%s\n", path);
+		return false;
+	}
+	
+	// 输入图像转换到HSV颜色空间
+	IplImage * hsv = cvCreateImage( cvGetSize(src), 8, 3 );
+	cvCvtColor( src, hsv, CV_BGR2HSV );
+
+	cvReleaseImage(&src);
+	cvReleaseImage(&hsv);
+	return true;
+}
+[/cpp]
+上面的代码编译肯定能通过，但运行时可能出现问题，例如如果path指定的图像是单通道的，cvLoadImage()返回和原图像通道和深度相同的src，而在下面的cvCvtColor()中要求src是3通道的，这是就会出错。因此要特别注意cvLoadImage()读取图像的通道和深度。<strong>尤其要注意的是，理论上HSV空间中HSV的取值范围分别是[0,360],[0,1],[0,1]，但OpenCV为了使用U8存储，BGR2HSV转换后HSV的取值范围分别是[0,180],[0,255],[0,255]</strong></br>
+更多关系cvCvtColor()函数的内容可以查看官方指南：<a href="http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html?highlight=cvcvtcolor#void cvCvtColor(const CvArr* src, CvArr* dst, int code)">void cvCvtColor(const CvArr* src, CvArr* dst, int code)</a>
+
+<h3>在 VS 中配置 OpenCV</h3>
+关于在VS中配置 OpenCV 的方法，网上有很多类似教程，推荐几个如下：
+<ul>
+    <li><a href="http://jingyan.baidu.com/article/15622f247be61bfdfcbea5c2.html">在VS2012中配置openCV</a></li>
+    <li><a href="http://blog.csdn.net/poem_qianmo/article/details/19809337"> 安装OpenCV：OpenCV 3.0、OpenCV 2.4.8、OpenCV 2.4.9 +VS 开发环境配置</a></li>
+    <li><a href="http://johnhany.net/2013/11/environment-for-opencv-with-vs2010/">Windows7+VS2010下OpenCV环境配置</a></li></br>
+</ul>
+<strong>要特别注意的是32位和64位系统的区别。</strong>
