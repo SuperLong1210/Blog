@@ -1,0 +1,107 @@
+本文介绍一下 Windows 环境下 Qt5.2，VS2012 和 OpenCV 的环境搭建。
+网上有很多关于用 cmake 自己编译 OpenCV的博客，例如<a href="http://blog.csdn.net/qiurisuixiang/article/details/8665278">win7下配置OpenCV的Qt开发环境</a>，
+这里为了最简化环境搭建，用直接用预编译的 OpenCV。
+<h3>安装 Visual Studio</h3>
+在<a href="http://msdn.itellyou.cn/">http://msdn.itellyou.cn/</a> 开发人员工具中选择适合自己系统版本的 VS 下载安装。
+这里我用的是 VS2012 旗舰版，另外要注意的是，OpenCV 还不支持 VS2013 的 Express 版本。安装路径没有特殊要求，安装完成后
+最好新建一个简单的项目测试一下是否安装成功。
+
+<h3>安装 OpenCV</h3>
+<p>
+<ul>
+    <li>下载</li>
+    在官网<a href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/">http://sourceforge.net/projects/opencvlibrary/files/opencv-win/</a>
+    下载合适的版本，建议下载稳定版，版本新一点(不过太新也有问题，你懂的)，我这里选择的是 2.4.9。下载到的直接是一个 exe 可执行安装包。
+    <li>安装</li>
+    双击打开安装程序，傻瓜式安装，但尤其要注意的一点是路径中不能有空格，否则后面 Qt 工程配置引用库时会出问题。我的安装目录是
+    D:\OpenCV，安装其实就是自解压，如果不满意当前路径后面可以直接剪切到别的地方。</br>
+    安装完后可以看看里面的文件，其实只需要build 和 sources 两个文件夹，其它文件夹都可以删除。其中build里面的是预编译的文件，sources 是整个OpenCV的源文件。
+    可以下载cmake根据需要自己编译 OpenCV，具体可以查看<a href="http://blog.csdn.net/qiurisuixiang/article/details/8665278">win7下配置OpenCV的Qt开发环境</a>。</br>
+    但这里和 VS，Qt 集成我们可以直接用预编译好的build，因此不打算自己编译 OpenCV 的也可以删除 sources 文件夹(可以为 SSD 省下约 200M 空间)。</br>
+    在 build 文件夹中，有 x86 和 x64 两个子文件夹，分别对应64 位和 32 位系统，如果是 64 位系统，可以删掉 x86 那个文件夹(可以省下500多M的SSD，想想就有点小激动)，32位系统可以删掉 x64文件夹(可以省700多M的SSD)。</br>
+    我的系统是 Windows8.1 64位，所以保留了 x64 文件夹。进入x64 文件夹，又有vc10，vc11，vc12 三个子文件夹，分别对应 VS2010，VS2012，VS2013，同样，可以只保留对应的那个，删除其余两个(能节省1个多G的 SSD，这才是放大招啊)。
+    <li>配置</li>
+    打开环境变量设置，不知道怎么打开的请自行百度 Windows 设置环境变量。在系统变量中新建一个环境变量，名称为OPENCV_DIR，值为
+    D:\OpenCV\build\x64\vc11，注意这里使用你自己的路径。然后找到 Path 环境变量，点击 编辑，在后面添加 %OPENCV_DIR%\bin; 如下图
+    <img src="https://www.librehat.com/wp-content/uploads/2013/11/system_variable.jpg"/>。然后点击保存，退出环境变量设置。
+</ul>
+</p>
+到此就可以使用Visual studio 调用 opencv 开发图像处理的程序了，关于VS 新建项目时 OpenCV的配置，可以参考博客：
+<a href="http://blog.csdn.net/liukun321/article/details/38373277">学习Opencv 2.4.9 （一）---Opencv + vs2012环境配置</a>，这里不再进行介绍。
+<h3>安装 Qt</h3>
+<ul>
+    <li>下载</li>
+    从官网<a href="http://download.qt.io/official_releases/qt/">http://download.qt.io/official_releases/qt/</a>下载需要的版本，这里我的是
+    <a href="http://download.qt.io/official_releases/qt/5.2/5.2.0/qt-windows-opensource-5.2.0-msvc2012-x86_64-offline.exe">qt-windows-opensource-5.2.0-msvc2012-x86_64-offline.exe</a>，
+    注意要选择适合自己 VS 和 操作系统的版本。
+    <li>安装</li>
+    双击刚才下载的安装文件进行安装，也是傻瓜式安装，这里不再介绍，需要注意的一点是路径中不能包含空格。我的安装路径是D:\Qt5.2。</br>
+    如果要用 VS 开发 Qt 项目，还需要安装<a href="http://download.qt.io/official_releases/vsaddin/qt-vs-addin-1.2.4-opensource.exe.mirrorlist">Visual Studio Add-in 1.2.4 for Qt5</a>
+    由于我直接使用 Qt Creator 开发 Qt 项目，而不使用 VS，这里就没有安装。使用Qt Creator这个IDE而不是VS的好处在于Qt Creator能够非常方便地调用所有Qt的组件，而且更加轻量级、启动也很快速，
+    开发跨平台应用时也更加方便（主流平台下都有Qt Creator，而只有Windows才有Visual Studio）。
+    <li>配置</li>
+    安装完Qt之后打开 Qt Creator，选择 工具->选项，再选择 “构建和运行”，依次查看 概要，构建套件，Qt Versions，编译器，
+    Debuggers，应该都有自动检测到，例如我的截图如下：
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt1.jpg" />
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt2.jpg" />
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt3.jpg" />
+    <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt4.jpg" />
+    <li>新建项目</li>
+    选择 文件->新建文件或项目->应用程序->Qt Widgets Application，点击 选择，输入项目的名称和保存路径，
+    选择 下一步，选择开发套件 kits，默认已经选择好，点击 下一步，选择主类名称，使用默认的MainWindow即可。
+    <li>配置项目</li>
+    双击 testQt.pro 打开项目配置文件，添加如下代码
+[cpp]
+INCLUDEPATH += D:/OpenCV/build/include
+
+win32:CONFIG(debug, debug|release): {
+LIBS += -LD:/OpenCV/build/x64/vc11/lib \
+-lopencv_core249d \
+-lopencv_imgproc249d \
+-lopencv_highgui249d \
+-lopencv_ml249d \
+-lopencv_video249d \
+-lopencv_features2d249d \
+-lopencv_calib3d249d \
+-lopencv_objdetect249d \
+-lopencv_contrib249d \
+-lopencv_legacy249d \
+-lopencv_flann249d
+}else:win32:CONFIG(release, debug|release): {
+LIBS += -LD:/OpenCV/build/x64/vc11/lib \
+-lopencv_core249 \
+-lopencv_imgproc249 \
+-lopencv_highgui249 \
+-lopencv_ml249 \
+-lopencv_video249 \
+-lopencv_features2d249 \
+-lopencv_calib3d249 \
+-lopencv_objdetect249 \
+-lopencv_contrib249 \
+-lopencv_legacy249 \
+-lopencv_flann249
+}
+[/cpp]
+其中 INCLUDEPATH 是添加OpenCV头文件目录，LIBS 是OpenCV库，LIBS 中 -L后面直接添加OpenCV库路径，</br>
+-l后面直接添加库文件名，不需要后缀。这里注意使用你自己的配置。另外要注意的一点是不管是x86还是</br>
+x64都是用 win32，表示如果是windows系统则配置这些东西。最终pro文件截图如下：
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt5.jpg" />
+<li>编辑界面</li>
+在 界面文件 中双击 mainwindow.ui 打开界面文件进行编辑，拖动一个Lable到窗口并设置位置和大小，如下图
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt6.jpg" />
+<li>添加显示图片代码</li>
+在 mainwindow.cpp 中的 MainWindow函数中添加以下代码
+[cpp]
+QImage *img = new QImage();
+img->load(QString::fromLocal8Bit("E:\\images\\Query_image\\airplane.jpg"));
+*img = img->scaled(ui->label->size(), Qt::KeepAspectRatio);
+ui->label->setPixmap(QPixmap::fromImage(*img));
+[/cpp]
+注意使用你自己的图片路径，注意不能包括中文和空格，结果如下：
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt7.jpg" />
+<li>编译运行</li>
+编译运行，截图如下：
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qt8.jpg" />
+</ul>
+
+至此在 Windows 中搭建 Qt，VS 和 OpenCV 的过程就介绍完成了，如果有任何问题都欢迎在下面的评论框中留言探讨。多谢。
