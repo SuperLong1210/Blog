@@ -67,4 +67,4 @@
 这时候连接联通WIFI，发现又能连上了。
 <img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/04/connect.jpg" alt="成功连接联通WIFI"/ >
 成功连接联通WIFI</br>
-<strong>What a pity，重启手机后如果发现 MAC 地址又变为原来的了，只需好再把电脑上更改的 WIFI 文件复制到 data/nvram/APCFG/APRDEB，有人反映会出现这个问题，不过我重启后发现不会，而且还是能轻松脸上联通WIFI，看来解释只能是 RP 了。</strong>
+<strong>重启手机后如果发现 MAC 地址又变为原来的了，可能原因是没有修改 WIFI 文件的属性为只读，这样手机可能会重写 WIFI 文件。因此如果出现这种情况请先检查是否没有设置属性为只读。</strong>
