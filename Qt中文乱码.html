@@ -1,0 +1,124 @@
+使用 Qt 经常可能遇到中文乱码的问题，这里介绍一下 Qt 中文窗口和路径乱码的解决方法。我的环境是 Qt5.2 VS2012 Windows8.1 64bit。
+
+<h5> Qt 中文乱码原因 </h5>
+关于 Qt 中文乱码的原因以及在 Qt4 中解决中文乱码问题，推荐参考博文：<a href="http://blog.csdn.net/brave_heart_lxl/article/details/7186631">qt中文乱码问题</a>
+
+Qt4 中 QTextCodec 的很多函数在 Qt5 中都没有了，因此适用与 Qt4 的解决方法对 Qt5 无效。具体可以查看 Qt 的官方文档：
+<a href="http://doc.qt.io/qt-4.8/qtextcodec.html">Qt4</a>
+<a href="http://doc.qt.io/qt-5/qtextcodec.html">Qt5</a>
+
+
+<h5> Qt5 中文乱码解决 </h5>
+
+下面分别介绍无 BOM UTF-8、有 BOM UTF-8 和 GBK 编码下 Qt 窗口、路径以及 cout 输出中文路径乱码的解决方法。
+<ol>
+<li>无 BOM UTF-8 </li> 
+由于 Qt5 内部使用 Unicode 编码，对于无BOM UTF-8 编码的源文件，可以直接使用字符串而不需特殊转换。
+测试程序如下：
+[cpp]
+#include "mainwindow.h"
+#include <QApplication>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+  QApplication a(argc, argv);
+  MainWindow w;
+  w.setWindowTitle("无BOM UTF8 中文标题");
+  w.show();
+  QString dir = QFileDialog::getExistingDirectory(&w);
+  cout << dir.toLocal8Bit().data() << endl;
+  QMessageBox::information(0, "MessageBox 文件路径", dir);
+
+  return a.exec();
+}
+[/cpp]
+程序运行结果如下图：  
+<img alt="无BOM UTF-8" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/utf8.jpg" />
+
+<li>有 BOM UTF-8</li>
+对于带 BOM 的 UTF-8 文件，可以使用 QString::fromLocal8Bit 的方法解决乱码问题，测试程序如下：
+[cpp]
+#include "mainwindow.h"
+#include <QApplication>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+  QApplication a(argc, argv);
+  MainWindow w;
+  w.setWindowTitle(QString::fromLocal8Bit("有BOM UTF8 中文标题"));
+  w.show();
+  QString dir = QFileDialog::getExistingDirectory(&w);
+  cout << dir.toLocal8Bit().data() << endl;
+  QMessageBox::information(0, QString::fromLocal8Bit("MessageBox 文件路径"), dir);
+
+  return a.exec();
+}
+[/cpp]
+程序运行结果如下图：  
+<img alt="有BOM UTF-8" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/utf8bom.jpg" />
+
+<li>GBK</li>
+对于 GBK 编码的文件，同样可以使用 QString::fromLocal8Bit 的方法解决，测试程序如下：
+[cpp]
+#include "mainwindow.h"
+#include <QApplication>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+  QApplication a(argc, argv);
+  MainWindow w;
+  w.setWindowTitle(QString::fromLocal8Bit("GBK 中文标题"));
+  w.show();
+  QString dir = QFileDialog::getExistingDirectory(&w);
+  cout << dir.toLocal8Bit().data() << endl;
+  QMessageBox::information(0, QString::fromLocal8Bit("MessageBox 文件路径"), dir);
+
+  return a.exec();
+}
+[/cpp]
+程序运行结果如下图：  
+<img alt="GBK" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/gbk.jpg" />
+<ol>
+
+
+对于 Qt5 中的 QTextCodec 貌似并不能解决乱码问题，测试程序如下：
+[cpp]
+#include "mainwindow.h"
+#include <QApplication>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <iostream>
+#include <QTextCodec>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+  QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
+  QApplication a(argc, argv);
+  MainWindow w;
+  w.setWindowTitle("GBK 中文标题");
+  w.show();
+  QString dir = QFileDialog::getExistingDirectory(&w);
+  cout << dir.toLocal8Bit().data() << endl;
+  QMessageBox::information(0, QString::fromLocal8Bit("MessageBox 文件路径"), dir);
+
+  return a.exec();
+}
+[/cpp]
+程序运行结果如下图：  
+<img alt="QTextCodec 设置编码" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/05/qtext.jpg" />
+
+<hr/>
+关于 Qt 中文乱码的问题就简单介绍到这里，有任何问题或建议欢迎在下面的评论框中留言共同探讨。thx
