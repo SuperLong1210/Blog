@@ -1,0 +1,1304 @@
+<h2>序言</h2>
+
+<p>由于它的困惑性，大部分 C++ 程序员都不喜欢使用 C++ 模板。他们反对模板的原因包括：</p>
+
+<ul>
+<li>很难学习和适应。</li>
+
+<li>编译错误很模糊，而且很长。</li>
+
+<li>不值得花费大量精力去学习。</li>
+</ul>
+
+<p>我承认模板难以学习、理解和适应。但是，使用模板带来的好处远远超过它的弊端。有很多通用函数或者类可以使用模板包装。</p>
+
+<p>技术上 C++ 模板和 STL（Standard Template Library，标准模板库）是一样的。在这篇文章中，我只会简单介绍模板。</p>
+<p>模板是<a href="https://en.wikipedia.org/wiki/Generic_programming">泛型编程</a>的基础，表示以和特定类型无关的方式编写代码。</p>
+<p>模板是创建通用类或函数的蓝图或公式。泛型编程中类似迭代器和算法等的库容器就是使用模板概念开发的。</p>
+
+<p><strong>文章目录</strong></p>
+
+<ul>
+<li><a href="#Syntax">语法</a> </li>
+
+<li><a href="#FuncTempl">函数模板</a></li>
+<ul>
+<li><a href="#PtrWithTempl">模板中的指针、引用和数组</a> </li>
+
+<li><a href="#MultiTypeTempl">多类型的函数模板</a> </li>
+
+<li><a href="#FTTF">函数模板 - 模板函数</a> </li>
+
+<li><a href="#ExplicitSpec">显式指定模板参数</a> </li>
+
+<li><a href="#DefArgFunTempl">带默认形参的函数模板</a> </li>
+</ul>
+
+
+<li><a href="#ClassTempl">类模板</a></li>
+<ul>
+<li><a href="#MultiTypeClassTempl">多类型的类模板</a> </li>
+
+<li><a href="#NonTypeTemplArg">非类型模板形参</a> </li>
+
+<li><a href="#ClassAsTemplArg">模板类作为类模板形参</a> </li>
+
+<li><a href="#DefArgClassTempl">带默认模板参数的类模板</a> </li>
+
+<li><a href="#MethodTemplates">类方法是一个函数模板</a> </li>
+</ul>
+<li><a href="#AtTheEnd">结束语</a></li>
+</ul>
+<h2><a name="Syntax">语法</a></h2>
+
+<p>正如你所知道的，模板大量使用尖括号（<>）操作符。在模板中它们以以下形式使用：</p>
+[cpp]< Content >[/cpp]
+
+<p>其中 Content 可以是：</p>
+
+<ol>
+<li>class T 或 typename T </li>
+
+<li>映射到 T 的数据类型</li>
+
+<li>指定整型</li>
+
+<li>整型常量/指针/映射到上面所说类型的引用</li>
+</ol>
+
+<p>对于前面两种情况，符号 T 表示一种数据类型，它可以是任何数据类型，包括基本类型（int,float,double 等）和用户自定义类型。</p>
+
+<p>让我们来看看例子。假设你需要写一个输出一个整数两倍的函数：</p>
+[cpp]
+void PrintTwice(int data)
+{
+    cout << "Twice is: " << data * 2 << endl;         
+}
+[/cpp]
+
+<p>通过传递一个整型参数调用：</p>
+[cpp]
+PrintTwice(120); // 240
+[/cpp]
+
+<p>现在，如果你想输出一个 double 的两倍，你可以重载函数：</p>
+[cpp]
+void PrintTwice(double data)
+{
+    cout << "Twice is: " << data * 2 << endl;         
+}
+[/cpp]
+
+<p>有趣的是，类型 ostream（cout 对象的类型）有多种（所有的基本类型） &lt;&lt; 操作符的重载函数。因此，输出 int 和 double 的代码相似甚至相同。不需要修改我们的
+    PrintTwice 重载函数。如果使用 printf 函数，重载函数看起来类似：</p>
+[cpp]
+void PrintTwice(int data)
+{
+    printf("Twice is: %d", data * 2 );
+}
+
+void PrintTwice(double data)
+{
+    printf("Twice is: %lf", data * 2 );
+}
+[/cpp]
+
+<p>重点不是用 cout 还是 printf 在控制台显示输出，而是代码 - 它们完全相同。这是我们可以利用 C++ 语言提供的绝妙功能 - 模板的情形之一。</p>
+
+<p>有两种类型的模板：</p>
+
+<ul>
+<li><strong>函数模板</strong> </li>
+
+<li><strong>类模板</strong> </li>
+</ul>
+
+<p>C++ 模板是一种允许插入任何数据类型到代码中的一种编程模型。没有模板，你需要一次又一次地为所有数据类型重复编写相同的代码。显然，正如之前所述，它需要代码维护。</p>
+
+<p>这是使用模板简化的 PrintTwice 函数：</p>
+[cpp]
+void PrintTwice(TYPE data)
+{
+    cout<<"Twice: " << data * 2 << endl;
+}
+[/cpp]
+
+<p>这里，TYPE 的实际类型会由编译器根据传递给函数的参数推导（决定）出来。如果 PrintTwice 通过 PrintTwice(144) 调用，TYPE 为 int；如果传递 3.14 给函数，TYPE 会被推导为 double。</p>
+
+<p>你也许会对 TYPE 的类型感到困惑，编译器如何决定这是一个函数模板。是否在某些地方用 typedef 定义了 TYPE 的类型？</p>
+
+<p>不，在这里我们使用关键字 <strong>template</strong> 告诉编译器我们在定义一个函数模板。</p>
+
+<h2><a name="FuncTempl">函数模板</a></h2>
+
+<p>这是模板函数 PrintTwice：</p>
+[cpp]
+template<class TYPE>
+void PrintTwice(TYPE data)
+{
+    cout<<"Twice: " << data * 2 << endl;
+}
+[/cpp]
+
+<p>代码的第一行：</p>
+
+[cpp]template<class TYPE>[/cpp]
+
+<p>告诉编译器这是一个函数模板，TYPE 的实际意义由编译器根据传递给函数的参数推导出来。这里，TYPE 被称为<strong>模板类型参数</strong></p>
+
+<p>例如，如果我们按照如下方式调用函数：</p>
+[cpp]
+PrintTwice(124); 
+[/cpp]
+<p>编译器会用 int 替换 TYPE，编译器会实例化模板函数为：</p>
+[cpp]
+void PrintTwice(int data)
+{
+    cout<<"Twice: " << data * 2 << endl;
+}
+[/cpp]
+
+<p>如果我们按照如下方式调用：</p>
+[cpp]
+PrintTwice(4.5547); 
+[/cpp]
+<p>它会实例化另一个函数为：</p>
+[cpp]
+void PrintTwice(double data)
+{
+    cout<<"Twice: " << data * 2 << endl;
+}
+[/cpp]
+
+<p>这意味着，在你的程序中如果你用 int 和 double 类型的参数调用 PrintTwice 函数，编译器会生成两个实例化函数：</p>
+[cpp]
+void PrintTwice(int data) { ... }
+void PrintTwice(double data) { ... }
+[/cpp]
+
+<p>是的，代码重复了。但是这两个重载函数是由编译器实例化而成的，而不是程序员。真正的好处是你不需要复制粘贴同样的代码，或者手动为不同数据类型维护代码，或者之后为一个新的数据类型写一个新的重载函数。你只需要提供一个函数模板，然后编译器会完成其余一切。</p>
+
+<p>当然代码量会增加，因为这里现在有两个函数定义。二进制/汇编代码的代码量几乎一样。对于 N 种数据类型，会创建 N 种实例化函数（重载函数）。如果实例化的函数相同或者函数体部分相同，有高级的编译器/链接器等级的优化可以缩小代码量。</p>
+
+<p>但是，如果你手动定义 N 个不同的重载函数（假设 N = 10），这 N 个不同的重载函数都会被编译、链接并打包为可执行程序。然而，使用模板，只有需要的实例化函数会被打包到最后的可执行程序。使用模板，函数的重载复制可能小于 N，也可能大于 N，但正是所需要的复制份数，不会多也不会少。</p>
+
+<p>另外，对于非模板实现，编译器需要编译所有的 N 个重载函数 - 因为它们在你的源代码中。当你对通用函数使用模板时，编译器只会为需要的数据类型编译函数。这意味着如果不同的数据类型数目小于 N，编译会更快。</p>
+
+<p>这里也有一个很有力的争论：编译器/链接器会进行所有可能的优化来从最后的镜像中移除未使用的非模板函数实现。但要注意，编译器确实会编译所有的重载函数（为了进行语法检查等等）。使用模板，编译器只会为需要的数据类型进行编译，你也可以称之为“按需编译”。</p>
+
+<p>现在，让我们再写一个能返回给定数字两倍大小的函数模板：</p>
+[cpp]
+template<typename TYPE>
+TYPE Twice(TYPE data)
+{
+   return data * 2;
+}
+[/cpp]
+<p>你也许注意到了这里我使用了 <strong>typename</strong> 而不是 <strong>class</strong>。如果函数有返回值，这里并不一定要求使用 typename。对于模板编程，这两个关键字几乎相同。之前使用的是 class，后来为了和定义类时的 class 区分开，防止混淆，又引入了关键字 typename。</p>
+
+<p>但是，这里也有你只能使用 <strong>typename</strong> 关键字的情况。（一个特定类型在另一个类型中定义，并且取决于模板参数）</p>
+
+<p>当我们通过以下形式调用函数的时候：</p>
+[cpp]
+cout << Twice(10);
+cout << Twice(3.14);
+cout << Twice( Twice(55) );
+[/cpp]
+
+<p>会生成下面的函数：</p>
+[cpp]
+int     Twice(int data) {..}
+double  Twice(double data) {..}
+[/cpp]
+
+<p>这里要注意两件事：</p>
+
+<ul>
+<li>上面的第三行代码中，调用了两次 Twice 函数，第一次调用返回的值/类型会作为第二次调用的参数/类型。因此，两次调用都是 int 类型（因为参数类型 TYPE 和返回类型相同）。</li>
+
+<li>如果为某个数据类型实例化模板函数，编译器会重用相同的函数实例 - 如果用相同的数据类型再次调用函数。这意味着，不管在你代码的什么地方（在相同的函数、不同的函数、或者相同项目其它源文件中的任何地方）你用相同的数据类型会调用相同的函数。</li>
+</ul>
+
+<p>现在来写一个能返回两个数之和的函数模板：</p>
+[cpp]
+template<class T>
+T Add(T n1, T n2)
+{
+    return n1 + n2;
+}
+[/cpp]
+<p>首先，我用符号 <strong>T</strong> 替换了模板类型参数名称 <strong>TYPE</strong>。在模板编程中，你通常使用 T，但这只是个人喜好。你最好使用能反映类型参数意义的名称，这会提高代码可读性。这个符号可以是任何符合 C++ 变量命名规范的名称。</p>
+<p>其次，我为两个参数（n1 和 n2）重用了模板参数 T。</p>
+<p>让我们稍微修改一下 Add 函数，把和保存在局部变量中然后返回计算的值。</p>
+[cpp]
+template<class T>
+T Add(T n1, T n2)
+{
+    T result;
+    result = n1 + n2;
+    
+    return result;
+}
+[/cpp]
+<p>很显然，我在函数内部使用了类型参数 T。你也许会问（你应该问）：“编译器试着编译/解析 Add 函数的时候怎么会知道 result 的类型呢”</p>
+
+<p>事实上，检查函数模板（Add） 函数体的时候，编译器不知道 T（模板类型参数）是否正确。它只会检查简单的语法（例如分号、关键字使用、括号匹配等）。</p>
+
+<p>我再次说明，编译器不会检查（当前只是对于函数 Add）：</p>
+
+<ul>
+<li>T 是否有缺省构造函数（T result 有效）</li>
+
+<li>T 是否支持 + 操作符（n1 +  n2 有效）</li>
+
+<li>T 是否有复制/移动构造函数（return 语句有效）</li>
+</ul>
+
+<p>实际上，编译器会分两步编译模板代码：一次进行基本语法检查；另一次是函数模板的每一次实例化 - 这里会针对模板数据类型进行实际的代码编译。</p>
+
+<h3><a name="PtrWithTempl">模板中的指针、引用和数组</a></h3>
+
+<p>首先来看一个实例代码：</p>
+[cpp]
+template<class T>
+double GetAverage(T tArray[], int nElements)
+{
+    T tSum = T(); // tSum = 0
+
+    for (int nIndex = 0; nIndex < nElements; ++nIndex)
+    {
+        tSum += tArray[nIndex];
+    }
+
+    // Whatever type of T is, convert to double
+    return double(tSum) / nElements;
+}
+
+int main()
+{
+    int  IntArray[5] = {100, 200, 400, 500, 1000};
+    float FloatArray[3] = { 1.55f, 5.44f, 12.36f};
+
+    cout << GetAverage(IntArray, 5);
+    cout << GetAverage(FloatArray, 3);
+}
+[/cpp]
+
+<p>第一次传递 <strong>IntArray</strong> 调用 <strong>GetAverage</strong> 时，编译器会实例化函数为：</p>
+[cpp]
+double GetAverage(int tArray[], int nElements);
+[/cpp]
+<p>对于 float 也类似。返回类型保持为 double，因为 double 数据类型能很好地适应数字的平均值。注意这只是一个例子 - T 中的实际数据类型可以是一个不能转换为 double 的类。</p>
+
+<p>你应该注意到了一个函数模板可能会有模板类型参数以及非模板类型参数。并不要求函数模板的所有参数都来自于模板类型。<strong>intElements</strong> 就是这样一个函数参数。</p>
+
+<p>请注意模板类型参数只是 <strong>T</strong>，而不是 <strong>T*</strong> 或 <strong>T[]</strong> - 编译器能从 int[]（或 int*）中推断出类型 int。在上面的例子中，我用 <strong>T tArray[]</strong> 作为函数模板的参数。</p>
+
+<p>很多情况下，你也可能会遇到或要求使用类似下面的初始化：</p>
+[cpp]
+T tSum = T();
+[/cpp]
+
+<p>首先，这并非模板特定代码 - 这来自于 C++ 语言本身。它实际意思是：为该数据类型调用默认构造函数。对于 int，是：</p>
+[cpp]
+int tSum = int();
+[/cpp]
+
+<p>这会初始化值为 0。对于 float，会初始化为 0.0f。如果 T 是用户定义的类型，就会调用该类的默认构造函数（如果可以，否则会引发相关错误）。T 可以使任何数据类型，我们不能简单地初始化 tSum 为整数 0。在实际情况中，这可能是一个初始化为空字符串（“”）的 string 类。</p>
+
+<p>由于模板类型 T 可能是任意类型，它也必须支持 += 操作符。我们知道基本数据类型（int、float、char）支持该操作符。如果 T 的实际类型不支持该操作符，编译器会抛出实际类型不支持该操作符的错误。</p>
+
+<p>类似地，类型 T 还必须能转换为 double（情况 return 语句）。为了更好地理解，我列出了类型 T 需要的支持（现在只是对于 GetAverage 函数模板）：</p>
+
+<ul>
+<li>必须有一个可访问的默认构造函数</li>
+
+<li>必须支持 += 操作符</li>
+
+<li>必须能转换为 double（或本身就是 double） </li>
+</ul>
+
+<p>对于 GetAverage 函数模板原型，你可以用 T* 代替 T[]，是一样的：</p>
+[cpp]
+template<class T>
+GetAverage(T* tArray, int nElements){}
+[/cpp]
+
+<p>调用函数会传递一个数组（分配在栈会堆中），或者 T 类型变量的地址。但你要注意，这是 C++ 中的规则，而不是模板编程中的规则。</p>
+
+<p>下面来看一下模板编程中的引用。你只需要用 T& 作为函数模板参数：</p>
+[cpp]
+template<class T>
+void TwiceIt(T& tData)
+{
+    tData *= 2;    
+    // tData = tData + tData;
+}
+[/cpp]
+
+<p>它会计算参数的两倍并把值放到同一个参数中，你可以通过下面方式调用：</p>
+[cpp]
+int x = 40;
+TwiceIt(x); // Result comes as 80
+[/cpp]
+<p>注意我使用了 *= 操作符，你也可以使用 + 操作符获取相同的效果。对于基本数据类型，都支持两个操作符。对于类类型，并非都支持这两个操作符，你需要为类实现所需的操作符。</p>
+
+<p>到了这里，你可能清楚地意识到模板参数类型 T 可以从 T&、T* 或 T[] 中推断出来。因此，在参数中添加 const 属性很合理，这意味着函数模板不会更改这个参数的值。</p>
+[cpp]
+template<class TYPE>
+void PrintTwice(const TYPE& data)
+{
+    cout<<"Twice: " << data * 2 << endl;
+}
+[/cpp]
+<p>注意我把模板参数 TYPE 更改为 TYPE&，并添加了 const。这些更改的重要性有：</p>
+<ul>
+<li>TYPE 类型可能很大，需要很多的栈（调用栈）空间。它实际上意味着会创建指定类型新的对象，调用复制构造函数，放到调用栈中，并在函数退出时销毁。添加引用（&）能避免所有这些问题 - 传递的是相同对象的引用。</li>
+
+<li>函数不会更改传入的参数，因此添加了 const。它保证被调用函数不会更改参数的值。它也保证了如果函数试图更改常数参数的值会引发编译错误。</li>
+</ul>
+
+<p>注意：在 32 位平台上，函数参数最小需要 4 个字节，或者 4 字节的倍数。这意味着 char 或 short 在调用栈中会需要 4 个字节。一个 11 字节的对象会占用 12 字节。类似地，在 64 位系统中，最小需要 8 个字节，或者 8 个字节的倍数。一个 11 字节的对象需要 16 个字节，double 类型的参数需要 8 个字节。在 32/64 位系统中，所有指针/引用占用 4/8 个字节，因此对于 64 位系统传递 double 和 double& 占用一样的调用栈。</p>
+
+<p>相似地，我会更改其它函数模板为：</p>
+[cpp]
+template<class TYPE>
+TYPE Twice(const TYPE& data) // No change for return type
+{
+   return data * 2;
+}
+
+template<class T>
+T Add(const T& n1, const T& n2) // No return type change
+{
+    return n1 + n2;
+}
+
+template<class T>
+GetAverage(const T tArray[], int nElements)
+// GetAverage(const T* tArray, int nElements)
+{}
+[/cpp]
+<p>注意，不可能返回引用或者向返回类型添加 const，除非我们返回传递给函数模板的参数的引用。下面的例子说明该问题：</p>
+[cpp]
+template<class T>
+T& GetMax(T& t1, T& t2)
+{
+    if (t1 > t2)
+    {
+        return t2;
+    }
+    // else 
+    return t2;
+}
+[/cpp]
+
+<p>我们这样使用返回引用：</p>
+[cpp]
+int x = 50;
+int y = 64;
+
+// Set the max value to zero (0)
+GetMax(x,y) = 0;
+[/cpp]
+
+<p>注意这只是为了说明，实际情况中很少看到或使用这种代码。</p>
+
+<h3><a name="MultiTypeTempl">多类型的函数模板</a></h3>
+<p>到现在为止我只介绍了只有一个类型的模板参数类型。对于模板，你可能有多个模板参数类型，类似：</p>
+[cpp]
+template<class T1, class T2, ... >
+[/cpp]
+
+<p>让我们看一个有两个模板参数的简单例子：</p>
+[cpp]
+template<class T1, class T2>
+void PrintNumbers(const T1& t1Data, const T2& t2Data)
+{
+     cout << "First value:" << t1Data;
+     cout << "Second value:" << t2Data;
+}
+[/cpp]
+
+<p>可以通过以下方式调用：</p>
+[cpp]
+PrintNumbers(10, 100);    // int, int
+PrintNumbers(14, 14.5);   // int, double
+PrintNumbers(59.66, 150); // double, int
+[/cpp]
+<p>其中每次调用根据传递的参数需要实例化不同的模板，编译器会生成下面的三个函数模板实例：</p>
+[cpp]
+// const and reference removed for simplicity
+void PrintNumbers(int t1Data, int t2Data);
+void PrintNumbers(int t1Data, double t2Data);
+void PrintNumbers(double t1Data, int t2Data);
+[/cpp]
+
+<p>注意，第二个和第三个实例化是不同的，T1 和 T2 指示不同的数据类型（int，double 和 double，int）。另外，编译器不会像普通函数调用那样进行任何自动转换。一个普通函数需要一个 int，但是传递了一个 short（或者相反）。但在模板中，如果你传递 short，那么就是 short，不会升级为 int。因此，如果你传递了（short，int），（short，short），（long，int）- 这会为 PrintNumbers 生成三个不同的实例。</p>
+<p>如果你通过 PrintNumbers(10,100) 调用，但是想实例化为 void PrintNumbers(double,double)，你可以这样调用：PrintNumbers<double,double>(10,100);</p>
+
+<h3><a name="FTTF">函数模板 - 模板函数</a></h3>
+
+<p>重要：函数模板 和 模板函数 是有区别的。</p>
+<p>函数模板是用 template 关键字括起来的函数体，这并不是一个真正的函数，编译器并不会完全编译，也不能被链接器计数。至少一次调用，对于特定的数据类型，会实例化该函数模板，然后被编译器编译和链接器计数。因此，函数模板实例 Show 实例化为 Show(int) 或 Show(double)。</p>
+
+<p>模板函数，就是函数模板的一个实例，在指定数据类型调用函数模板时生成。函数模板的一个实例实际上是一个有效函数。</p>
+<p>函数模板的一个实例（模板函数）在编译器和链接器的名称描述系统下并不是一个普通的函数。这意味着，函数模板的一个实例：
+[cpp]
+template<class T> 
+void Show(T data) 
+{ }
+[/cpp]
+
+<p>对于模板参数 double，并不是：</p>
+[cpp]
+void Show(double data){}
+[/cpp]
+
+<p>实际上是：</p>
+[cpp]
+void Show<double>(double x){}
+[/cpp]
+
+<h3><a name="ExplicitSpec">显式指定模板参数</a></h3>
+
+<p>返回到多个模板参数的讨论。</p>
+
+<p>我们有下面的函数模板：</p>
+[cpp]
+template<class T1, class T2>
+void PrintNumbers(const T1& t1Data, const T2& t2Data)
+{}
+[/cpp]
+
+<p>以及下面导致三个不同函数模板实例的调用：</p>
+[cpp]
+PrintNumbers(10, 100);    // int, int
+PrintNumbers(14, 14.5);   // int, double
+PrintNumbers(59.66, 150); // double, int
+[/cpp]
+<p>但假如你只需要一个实例 - 两个参数都是 double？是的，你可能会传递两个 int 并转换为 double。你可以通过以下方式调用函数模板：</p>
+[cpp]
+PrintNumbers<double, double>(10, 100);    // int, int
+PrintNumbers<double, double>(14, 14.5);   // int, double
+PrintNumbers<double, double>(59.66, 150); // double, int
+[/cpp]
+<p>这会只生成一个模板函数：</p>
+[cpp]
+void PrintNumbers<double, double>(const double& t1Data, const T2& t2Data)
+{}
+[/cpp]
+
+<p>以这种方式传递模板类型参数就成为<strong>显式指定模板参数</strong></p>
+
+<p>为什么需要显式指定类型呢？有很多原因，例如：</p>
+
+<ul class="method">
+<li>你想传递特定类型，而不是让编译器根据实际参数推断出一个或多个模板参数类型。</li>
+</ul>
+
+<p>例如，这里有一个函数模板，max，需要两个参数（只有一个模板类型参数）：</p>
+[cpp]
+template<class T>
+T max(T t1, T t2)
+{
+   if (t1 > t2)
+      return t1;
+   return t2;
+}
+[/cpp]
+
+<p>你想通过以下方式调用：</p>
+[cpp]
+max(120, 14.55);
+[/cpp]
+<p>这会导致编译错误，提示这里模板类型 T 有歧义。你想让编译器从两种类型规约为一种类型。一种解决方法是更改模板 max 为两个模板参数类型 - 但如果你不是这个函数模板的作者呢？</p>
+
+<p>这里你就可以显式指定参数类型：</p>
+[cpp]
+max<double>(120, 14.55); // Instantiates max<double>(double,double);
+[/cpp]
+<p>注意这里我只指定了第一个模板参数的类型，第二个参数类型从函数调用的第二个参数中推断出来。</p>
+
+
+<ul class="method">
+<li>函数模板需要使用模板类型，但并不是从函数参数中获得。</li>
+</ul>
+
+<p>一个简单的例子：</p>
+[cpp]
+template<class T>
+void PrintSize()
+{
+   cout << "Size of this type:" << sizeof(T);
+}
+[/cpp]
+
+<p>你不能通过以下方式调用：</p>
+[cpp]PrintSize();
+[/cpp]
+
+<p>因为函数模板需要指定模板类型参数，但编译器不能自动推导。正确的方式应该是：</p>
+[cpp]
+PrintSize<float>(); 
+[/cpp]
+
+<ul class="method">
+<li>函数模板有一个返回类型，但不能从参数中推导，或者函数模板没有任何参数。</li>
+</ul>
+
+<p>例子：</p>
+[cpp]
+template<class T>
+T SumOfNumbers(int a, int b)
+{
+   T t = T(); // 调用 T 的默认构造函数
+   t = T(a)+b;
+    
+   return t;
+}
+[/cpp]
+
+<p>它有两个整型参数，并对它们进行求和。当然可以对两个 int 型数字相加，但这个函数模板也可以对调用者要求的任何类型进行相加。例如，要获取 double 类型的返回值，可以这样调用：</p>
+[cpp]
+double nSum;
+nSum = SumOfNumbers<double>(120,200);
+[/cpp]
+
+<h3><a name="DefArgFunTempl">带默认形参的函数模板</a></h3>
+
+<p>正如你知道的，C++ 函数可以拥有默认形参。默认形参列只能从右到左，这意味着如果第 n 个参数是默认的，那么第 n+1 个参数也必须是默认的。</p>
+
+<p>下面用一个简单的例子说明：</p>
+[cpp]
+template<class T>
+void PrintNumbers(T array[], int array_size, T filter = T())
+{
+   for(int nIndex = 0; nIndex < array_size; ++nIndex)
+   {
+       if ( array[nIndex] != filter) // Print if not filtered
+           cout << array[nIndex];
+   }
+}
+[/cpp]
+
+<p>这个函数模板会打印除第三个参数指定的数字。最后一个可选函数参数，默认是类型 T 的默认值，对于基本数据类型就是0。因此，如果你按照下面方式调用：</p>
+[cpp]
+int Array[10] = {1,2,0,3,4,2,5,6,0,7};
+PrintNumbers(Array, 10);
+[/cpp]
+<p>会实例化为：</p>
+[cpp]
+void PrintNumbers(int array[], int array_size, int filter = int())
+{}
+[/cpp]
+
+<p>参数 filter 变为 int filter = 0</p>
+
+<p>同样，如果按照以下方式调用：</p>
+[cpp]
+PrintNumbers(Array, 10, 2);
+[/cpp]
+<p>设置第三个参数的值为 2，而不是默认的 0</p>
+
+<p>应该注意：</p>
+
+<ul>
+<li>类型 T 必须有可用的默认构造函数以及函数体所需要的类型 T 的所有操作符</li>
+
+<li>默认形参必须从模板中的非默认类型推断出来。对于例子 PrintNumbers，array 的类型能推出 filter 的类型。如果不能，你必须用显式模板参数指定默认形参的类型。</li>
+</ul>
+
+<p>当然，默认形参并不一定是类型 T 的默认值。这意味着默认形参并不总是取决于类型 T 的默认构造函数：</p>
+[cpp]
+template<class T>
+void PrintNumbers(T array[], int array_size, T filter = T(60))
+[/cpp]
+<p>这里，默认函数参数没有使用类型 T 的默认值，而是用 60。当然，这要求类型 T 有一个能接受 int 型的复制构造函数。</p>
+
+<h2><a name="ClassTempl">类模板</a></h2>
+
+<p>相比函数模板，更多情况下，你需要设计和使用类模板。一般来说，你使用类模板定义一个抽象类型，它的行为是通用的、可重用和可适应的。</p>
+<p>让我们来看一个简单的类，它设置、获取或输出保存的值：</p>
+[cpp]
+class Item
+{
+    int Data;
+public:
+    Item() : Data(0)
+    {}
+
+    void SetData(int nValue)
+    { 
+        Data = nValue;
+    }
+
+    int GetData() const
+    {
+        return Data;
+    }
+
+    void PrintData()
+    {
+        cout << Data;
+    }
+};
+[/cpp]
+
+<p>有一个初始化 Data 为 0 的构造函数，设置或获取方法、和一个输出当前值的方法。使用方法也非常简单：</p>
+[cpp]
+Item item1;
+item1.SetData(120);
+item1.PrintData(); // Shows 120
+[/cpp]
+
+<p>这对你来说没有任何新的东西。但当你需要给其它数据类型类似抽象时，你需要复制整个类（或至少需要的方法）的代码。这导致代码维护问题、在源代码和可执行代码层面增加代码量。</p>
+
+<p>相同类以类模板的形式表示如下：</p>
+[cpp]
+template<class T>
+class Item
+{
+    T Data;
+public:
+    Item() : Data( T() )
+    {}
+
+    void SetData(T nValue)
+    {
+        Data = nValue;
+    }
+
+    T GetData() const
+    {
+        return Data;
+    }
+
+    void PrintData()
+    {
+        cout << Data;
+    }
+};
+[/cpp]
+
+<p>类模板声明的语法和函数模板相同：</p>
+[cpp]
+template<class T>
+class Item
+[/cpp]
+
+<p>注意关键字 <strong>class</strong> 使用了两次 - 第一次指定模板类型（T），第二次指示这是一个 C++ 类声明。</p>
+
+<p>要完全地将 <strong>Item</strong> 转换为类模板，我用 T 替换了 所有 int。在构造函数初始化过程中，我也用 T() 语法调用 T 的默认构造函数，而不是直接使用 0。</p>
+
+<p>用法也非常简单：</p>
+[cpp]
+Item<int> item1;
+item1.SetData(120);
+item1.PrintData();
+[/cpp]
+
+<p>不像函数模板实例化中函数的参数帮助编译器决定模板类型参数，类模板中你必须显式传递模板类型（在尖括号中）。</p>
+
+<p>上面的代码会实例化类模板 <strong>Item</strong> 为 <strong>Item&lt;int&gt;</strong>。当你用下面的语句用不同的类型创建 <strong>Item</strong> 类模板对象时：</p>
+[cpp]
+Item<float> item2;
+float n = item2.GetData();
+[/cpp]
+<p>它会实例化 <strong>Item&lt;float&gt;</strong>。要注意这两个类模板的实例化（<strong>Item&lt;int&gt;</strong> 和 <strong>Item&lt;float&gt;</strong>）之间绝对没有联系。对于编译器和链接器来说，这是两个不同的实体 - 或者说不同的类。</p>
+
+<p>第一个用 int 实例化生成如下方法：</p>
+
+<ul>
+<li>Item&lt;int&gt;Item() 构造函数</li>
+
+<li>int 型的 SetData 和 PrintData</li>
+</ul>
+
+<p>类似地，第二个用 float实例化生成以下方法：</p>
+
+<ul>
+<li>Item&lt;float&gt;::Item() 构造函数</li>
+
+<li>float 型的 GetData</li>
+</ul>
+
+<p>正如你知道的，Item&lt;int&gt; 和 Item&lt;float&gt; 是不同的类/类型；因此，下面的代码不能正常运行：</p>
+[cpp]
+item1 = item2; // ERROR : Item<float> to Item<int>
+[/cpp]
+<p>由于这两个类型是不同的，编译器不会调用可能的默认赋值操作符。如果 item1 和 item2 的类型相同（比如都是 Item&lt;int&gt;），编译器能调用赋值操作符。尽管编译器能完成 int 和 float 类型转换，但是不能完成不同的用户定义类型转换，即使底层的数据成员相同 - 这是简单的 C++ 规则。</p>
+
+<p>到了这里，你就能明白下面的方法能够实例化：</p>
+
+<ul>
+<li>Item&lt;<strong>int</strong>&gt;::Item() - 构造函数 </li>
+
+<li>void Item&lt;int&gt;::SetData(int) 方法</li>
+
+<li>void Item&lt;int&gt;::PrintData() const 方法</li>
+
+<li>Item&lt;<strong>float</strong>&gt;::Item() - 构造函数 </li>
+
+<li>float Item&lt;float&gt;::GetData() const 方法</li>
+</ul>
+
+<p>但第二阶段编译不会实例化下面的方法：</p>
+
+<ul>
+<li>int Item&lt;int&gt;::GetData() const</li>
+
+<li>void Item&lt;float&gt;::SetData(float)</li>
+
+<li>void Item&lt;float&gt;::PrintData() const</li>
+</ul>
+
+<p>那么什么是二次编译呢？正如我之前所述，模板代码首先会进行基本语法检查，不管它是否被调用/实例化，这就是第一阶段编译。</p>
+
+<p>当你真正调用或者调用触发器时，特定类型的函数/方法才会进行第二阶段的编译。只有通过第二阶段编译代码才真正完全编译。</p>
+
+<p>来看看下面的代码：</p>
+[cpp]
+T GetData() const
+ { 
+  for())
+
+  return Data;
+ }
+[/cpp]
+
+<p>for 循环后面多出了一个括号 - 这当然不对。当你编译的时候，你会看到编译错误，不管你是否调用这个函数。这就是第一阶段编译。</p>
+
+<p>稍微做些改变：</p>
+[cpp]
+T GetData() const
+{ 
+  T temp = Data[0]; // Index access ?
+  return Data;
+}
+[/cpp]
+
+<p>现在没有调用 GetData 函数，编译它 - 编译器不会提示任何错误。这意味着，在这里函数并没有进行第二阶段的编译。</p>
+
+<p>但一当你调用：</p>
+[cpp]
+Item<double> item3;
+item2.GetData();
+[/cpp]
+
+<p>编译器会报错 Data 不是一个数组或指针，也就没有 [] 操作符。这证明只有选中的函数才会进行第二阶段编译。而且第二阶段编译对所有不同的类型独立实例化类/函数模板。</p>
+
+<p>另外一件有趣的事情：</p>
+[cpp]
+T GetData() const
+{ 
+  return Data % 10;
+}
+[/cpp]
+
+<p>对于 Item&lt;int&gt;能编译成功，但对于 Item&lt;float&gt; 则编译失败：</p>
+[cpp]
+item1.GetData(); // item1 is Item<int>
+
+// ERROR
+item2.GetData(); // item2 is Item<float>
+[/cpp]
+
+<p>因为操作窗 % 对 float 类型不可用。</p>
+
+<h3><a name="MultiTypeClassTempl">多类型的类模板</a></h3>
+
+<p>我们的第一个类模板 Item 只有一个模板类型。现在让我们来创建一个有两个模板类型参数的类。</p>
+
+<p>有时候，你需要一些原生的结构体来保存一些数据成员。制作一个唯一的结构体看起来并不需要。你很快会缺少用于保存一些成员的结构体名称。同时，它还会增加代码长度。不管你的观点怎样，我用它作为一个例子，引出有两个成员的类模板。</p>
+
+<p>STL 程序员会发现这和 std::pair 类模板相同。</p>
+
+<p>假设你有一个结构体 Point</p>
+[cpp]
+struct Point
+{
+    int x;
+    int y;
+};
+[/cpp]
+
+<p>它有两个数据成员。另外你还有一个结构体 Money：</p>
+[cpp]
+struct Money
+{
+    int Dollars;
+    int Cents;
+};
+[/cpp]
+
+<p>这两者有几乎相同的数据成员。用一个结构体而不是重写两个不同的结构体不是更好吗？需要实现：</p>
+
+<ul>
+<li>有一个或两个指定类型的构造函数以及一个复制构造函数。</li>
+
+<li>比较两个相同类型对象的方法。</li>
+
+<li>在两种类型之间交换</li>
+
+<li>其它</li>
+</ul>
+
+<p>这里我们定义一个有两个类型的类模板，它有需要的所有方法。</p>
+[cpp]
+template<class Type1, class Type2>
+struct Pair
+{
+    // In public area, since we want the client to use them directly.
+    Type1 first;
+    Type2 second;
+};
+[/cpp]
+
+<p>现在，我们可以使用 Pair 类模板来导出含有两个成员的任意类型。例如：</p>
+[cpp]
+// Assume as Point struct
+Pair<int,int> point1;
+
+// Logically same as X and Y members
+point1.first = 10;
+point1.second = 20;
+[/cpp]
+<p>注意现在 first 和 second 的类型是 int。因为我们用 int 类型实例化 Pair。</p>
+<p>如果我们实例化为：</p>
+[cpp]
+Pair<int, double> SqRoot;
+
+SqRoot.first = 90;
+SqRoot.second = 9.4868329;
+[/cpp]
+<p>first 是一个 int 型，而 second 是 double 类型。请注意 first 和 second 是成员变量，而不是成员方法，因此没有函数调用时的运行时消耗。</p>
+
+<p><strong>注意</strong>：在该部分，所有的定义都是在类声明函数体内部，在下面的部分，我会解析如何在独立的文件实现方法以及相关的问题。因此，这里所有的方法定义都假设是在 class ClassName{...} 内部。</p>
+
+<p>下面的例子用默认构造函数初始化两个成员为默认的值，每个数据类型分别是 Type1 和 Type2。</p>
+[cpp]
+Pair() : first(Type1()), second(Type2())
+{}
+[/cpp]
+
+<p>下面是一个参数化构造函数，用 Type1 和 Type2 初始化 first 和 second：</p>
+[cpp]
+Pair(const Type1& t1, const Type2& t2) : 
+  first(t1), second(t2)
+  {}
+[/cpp]
+
+<p>下面是一个复制构造函数，从一个完全相同类型的 Pair 对象复制一个 Pair 对象：</p>
+[cpp]
+Pair(const Pair<Type1, Type2>& OtherPair) : 
+  first(OtherPair.first),
+  second(OtherPair.second)
+ {}
+[/cpp]
+
+<p>请注意这里一定要为复制构造函数指定 Pair&lt;&gt; 的模板类型参数。下面的语句没有意义，以为 Pair 不是一个非模板类型：</p>
+[cpp]
+Pair(const Pair& OtherPair) // ERROR: Pair requires template-types
+[/cpp]
+<p>下面是使用参数化构造函数和复制构造函数的例子：</p>
+[cpp]
+Pair<int,int> point1(12,40);
+Pair<int,int> point2(point1);
+[/cpp]
+
+<p>同样，你可以实现比较操作符来比较相同 Pair 类型的两个对象。下面是等于操作符的一种实现：</p>
+[cpp]
+bool operator == (const Pair<Type1, Type2>& Other) const
+{
+  return first == Other.first && 
+         second == Other.second;
+}
+[/cpp]
+
+<h3><a name="NonTypeTemplArg">非类型模板参数</a></h3>
+
+<p>类模板也和函数模板类型，可以有多个类型参数。但类模板还允许有非类型模板参数。在这部分，我只会介绍一种非类型 - integer</p>
+
+<p>类模板可以将一个 integer 作为模板参数。例子：</p>
+[cpp]
+template<class T, int SIZE>
+class Array{};
+[/cpp]
+
+<p>在这个类模板声明中，int SIZE 是一个 integer，非类型参数。</p>
+
+<ul>
+<li>只有整数的数据类型可以作为非类型整型参数，包括<strong>int, char, long, long long, unsigned, enum</strong>。类似 float 和 double 的类型则不可以。</li>
+
+<li>实例化的时候，只能传递编译时常量整数。这意味着允许 100,100+99,1&lt;&lt;3，因为在编译时它们是常数表达式。参数，包括函数调用，则不允许，例如 abs(-120)。作为一个模板参数，float 和 double 等如果可以被转换为 integer 则也可以。</li>
+</ul>
+
+<p>我们可以实例化类模板 Array 为：</p>
+[cpp]
+Array<int, 10> my_array;
+[/cpp]
+
+<p>这里 SIZE 参数的目的是什么呢？</p>
+
+<p>在类模板中，你可以在任何可以使用一个整型的地方使用这个非类型整型参数。包括：</p>
+
+<ul>
+<li>为类静态常量数据成员赋值。</li>
+</ul>
+[cpp]
+template<class T, int SIZE>
+class Array
+{
+ static const int Elements_2x = SIZE * 2; 
+};
+[/cpp]
+
+<p><em>[不再写出类声明的前两行，假定都是在类函数体中。]</em></p>
+
+<p>由于它允许在类声明内部初始化一个静态整型常量，我们可以使用非类型整型参数。</p>
+
+<ul>
+<li>为方法指定默认值 <br />(C++ 也允许任何非常量作为函数的缺省参数。) </li>
+</ul>
+[cpp]
+void DoSomething(int arg = SIZE); 
+// Non-const can also appear as default-argument...
+[/cpp]
+<ul>
+    
+<li>定义数组的大小</li>
+</ul>
+
+<p>这很重要，非类型整型参数通常用于此。下面用 SIZE 参数实现类模板 Array。</p>
+[cpp]
+private:
+   T TheArray[SIZE];
+[/cpp]
+
+<p>T 是数组的类型，SIZE 是一个大小（整数）。由于 TheArray 在类中是私有的，我们需要定义一些方法/操作符。</p>
+[cpp]
+// Initialize with default (i.e. 0 for int)
+void Initialize()
+{ 
+    for(int nIndex = 0; nIndex < SIZE; ++nIndex)
+        TheArray[nIndex] = T();
+}
+[/cpp]
+
+<p>当然，类型 T 必须有一个默认构造函数和支持赋值操作符。</p>
+
+<p>我们也需要实现访问数组元素的操作符。其中一个重写数组索引操作符 []，另一个获取类型 T 的值。</p>
+[cpp]
+T operator[](int nIndex) const
+{
+  if (nIndex>0 && nIndex<SIZE)
+  {
+    return TheArray[nIndex];
+  }
+  return T();
+}
+
+T& operator[](int nIndex)
+{
+   return TheArray[nIndex];
+}
+[/cpp]
+
+<p>注意第一个重载函数（声明为 const）是 get/read 方法，会检查索引是否有效，否则返回类型 T 的默认值。</p>
+
+<p>第二个重载函数返回元素的引用，调用函数可以更改。这里没有有效索引检查，因为它返回的是引用，因此不能返回局部对象（T()）。你也可以检查索引参数，返回默认的值或者使用 assertion 和/或 抛出异常。</p>
+
+<p>下面定义另一个方法，对 Array 的元素求和：</p>
+[cpp]
+T Accumulate() const
+{
+  T sum = T();
+  for(int nIndex = 0; nIndex < SIZE; ++nIndex)
+  {
+     sum += TheArray[nIndex];
+  }
+  return sum;
+}
+[/cpp]
+
+<p>它要求目标类型 T 支持 += 操作符。同时它返回自身类型 T。如果用 string 类实例化 Array，它会每次迭代时调用 += 并返回字符串的连接。如果目标类型不支持 += 操作符，你调用该方法时就会出错。这种情况下，你或者不能调用该方法，或者在目标类中重载实现所需的操作符。</p>
+
+<h3><a name="ClassAsTemplArg">模板类作为类模板形参</a></h3>
+
+<p>模板类是类模板的一个实例。对于下面的类模板：</p>
+[cpp]
+template<class T1, class T2>
+class Pair{};
+[/cpp]
+
+<p>该目标的实例化是一个模板类：</p>
+[cpp]
+Pair<int,int> IntPair;
+[/cpp]
+<p>注意 IntPair 不是一个模板类，它不是类模板的一个实例。而是特定实例/类模板的一个对象。模板类/实例 是 <strong>Pair&lt;int,int&gt;</strong>，编译时会生成一种类类型。实际上这是编译器会生成的模板类：</p>
+[cpp]
+class Pair<int,int>{};
+[/cpp]
+
+<p>现在让我们回到关键问题：如果你传递一个模板类到类模板中，会怎么样呢？也就是说下面的语句意味着什么？</p>
+[cpp]
+Pair<int, Pair<int,int> > PairOfPair;
+[/cpp]
+<p>这是否有效？如果是的话意味着什么？</p>
+<p>首先，这确实有效，并且意味着实例化了两个模板类</p>
+
+<ul>
+<li><strong>Pair&lt;int,int&gt;</strong></strong> - <strong>A</strong> </li>
+
+<li><strong><strong>Pair&lt;int, </strong>Pair&lt;int,int&gt;<strong> &gt;</strong></strong> -- <strong>B</strong> </li>
+</ul>
+
+<p>编译器会实例化类型 A 和 B，如果由于这两个模板类有任何错误，编译器会报告。你可以用下面语句简化复杂的实例化：</p>
+[cpp]
+typedef Pair<int,int> IntIntPair;
+Pair<int, IntIntPair> PairOfPair;
+[/cpp]
+
+<p>你可以为 PairOfPair 对象的第一个和第二个成员这样赋值：</p>
+[cpp]
+PairOfPair.first = 10;
+PairOfPair.second.first = 10;
+PairOfPair.second.second= 30;
+[/cpp]
+
+<p>一个有趣的实例化是带 Pair 的 Array。Pair 需要两个模板类型参数，Array 需要一个类型参数和一个 size（整型）参数。</p>
+[cpp]
+Array< Pair<int, double>, 40> ArrayOfPair;
+[/cpp]
+
+<p>这里 int 和 double 是 Pair 的类型参数。因此，Array 的第一个模板类型是 Pair&lt;int,double&gt;。第二个参数是常数 40。你能回答这些问题吗：会不会调用 Pair&lt;int,double&gt; 的构造函数？什么时候会调用？回答这些问题之前，把两者互换一下：</p>
+[cpp]
+Pair<int, Array<double, 50>> PairOfArray;
+[/cpp]
+<p>这意味着 PairOfArray 是 Pair 的一个实例化，第一个参数类型是 int，第二个类型是 Array。其中 Array 有 50 个 double 类型元组。</p>
+
+<p>注意，上面的并不是右移操作符，而是 Array 类型定义结尾后面跟着 Pair 类型定义的结尾。一些旧的编译器要求在两者之间有一个空格，避免出现错误和混淆。</p>
+
+<p>最后来看一下两个对象的使用例子。首先是构造函数。</p>
+[cpp]
+Array< Pair<int, double>, 40> ArrayOfPair;
+[/cpp]
+<p>这会调用 Pair 的构造函数 40 次。</p>
+
+<p>对于下面对象的构造：</p>
+[cpp]
+Pair<int, Array<double, 50>> PairOfArray;
+[/cpp]
+<p>Pair 的构造函数会初始化第一个参数为 0（使用int()），并调用 Array 的构造函数 Array()。如下所示：</p>
+[cpp]
+Pair() : first(int()), second(Array())
+{}
+[/cpp]
+
+<h3><a name="DefArgClassTempl">类模板的默认模板参数</a></h3>
+
+<p>首先需要说明一下 ‘默认形参’ 的二义性。函数模板部分也使用了同样的表述。在那个部分中，默认形参表示函数参数本身，而不是函数模板的类型参数。函数模板的模板参数不支持默认形参。另外请注意类模板的方法可以有默认形参，就像任何普通的函数/方法。</p>
+
+<p>类模板确实对模板参数中的类型/非类型参数支持默认形参。例子如下：</p>
+[cpp]
+template<class T, int SIZE=100>
+class Array
+{
+private:
+   T TheArray[SIZE];
+   ...
+};
+[/cpp]
+
+<p>我只修改了类模板 Array 第一行中的 SIZE。第二个模板参数，一个整型常量，现在设置为 100。这意味着，你可以使用下面的语句：</p>
+[cpp]
+Array<int> IntArray;
+[/cpp]
+
+<p>实际上是：</p>
+[cpp]
+Array<int, 100> IntArray;
+[/cpp]
+
+<p>编译器实例化的时候会自动替换。当然，你也可以通过传递第二个模板参数自定义数组大小：</p>
+[cpp]
+Array<int, 200> IntArray;
+[/cpp]
+
+<p>注意如果你显式传递的值和类模板声明中的值相同，只会实例化一次。也就是说，下面创建的两个对象实际上只会实例化一个类：Array&lt;int,100&gt;。</p>
+[cpp]
+Array<int> Array1;
+Array<int,100> Array2;
+[/cpp]
+
+<p>你通常并不会对非类型参数使用默认值。更经常的是对类模板的数据类型使用默认参数。例如：</p>
+[cpp]
+template<class T = int>
+class Array100
+{
+    T TheArray[100];
+};
+[/cpp]
+
+<p>这里定义了一个有 100 个元组的 T 类型数组。其中类型参数默认为 int。也就是说，如果实例化的时候你不指定类型，会被映射为 int。下面是使用方法：</p>
+[cpp]
+Array100<float> FloatArray;
+Array100<> IntArray;
+[/cpp]
+
+<p>如果你使用如下方式实例化类模板：</p>
+[cpp]Array100 IntArray;[/cpp]
+
+<p>会导致编译错误，说 Array100 需要模板参数。因此，你必须使用空尖括号实例化类模板。</p>
+
+<p>要注意的是，不能同时有相同的模板类和非模板类，也就是说，如果你按照上面方式定义了 Array100 类模板，再定义一个非模板类，就会导致编译错误：</p>
+[cpp]
+class Array100{}; // Array100 demands template arguments!
+[/cpp]
+
+<p>现在，把类型和非类型参数在 Array 类中结合起来：</p>
+[cpp]
+template<class T = int, int SIZE=100>
+class Array
+{
+    T TheArray[SIZE];
+    ...
+};
+[/cpp]
+
+<p>可以按照如下方式实例化：</p>
+[cpp]
+Array<>            IntArray1;
+Array<int>         IntArray2;
+Array<float, 40>   FlaotArray3;
+[/cpp]
+
+<p>就像 <a href="#ExplicitSpec">显式指定模板参数</a>, 不允许只指定后面的模板参数。下面的用法会导致编译错误：</p>
+[cpp]
+Array<, 400> IntArrayOf500; // ERROR
+[/cpp]
+<p>最后要注意的是下面的三个对象创建只会实例化一个类模板，因为本质上他们都是相同的：</p>
+[cpp]
+Array<>          IntArray1;
+Array<int>       IntArray2
+Array<int, 100>  IntArray3;
+[/cpp]
+
+<h4>一个模板类型默认值是另一个类型</h4>
+
+<p>也可以将一个类型/非类型参数默认为之前已经有的模板参数。例如：</p>
+[cpp]
+template<class Type1, class Type2 = Type1>
+class Pair
+{
+    Type1 first;
+    Type2 second;
+};
+[/cpp]
+
+<p>当然，也可以设置非类型参数的默认值为另一个非类型参数，例如：</p>
+[cpp]
+template<class T, int ROWS = 8, int COLUMNS = ROWS>
+class Matrix
+{
+    T TheMatrix[ROWS][COLUMNS];
+};
+[/cpp]
+
+<p>但依赖模板参数必须在被依赖模板参数的右边。下面的情况会导致错误：</p>
+[cpp]
+template<class Type1=Type2, class Type2 = int>
+class Pair{};
+
+template<class T, int ROWS = COLUMNS, int COLUMNS = 8>
+class Matrix{}；
+[/cpp]
+
+<h3><a name="MethodTemplates">类方法是一个函数模板</a></h3>
+
+<p>例子：</p>
+[cpp]
+class IntArray
+{
+    int TheArray[10];
+public:
+    template<typename T>
+    void Copy(T target_array[10])
+    {
+       for(int nIndex = 0; nIndex<10; ++nIndex)
+       {
+          target_array[nIndex] = TheArray[nIndex];
+          // Better approach: 
+          //target_array[nIndex] = static_cast<T>(TheArray[nIndex]);
+       }
+    }
+};
+[/cpp]
+
+<p>类 IntArray 是一个有 10 个整型元素的简单类，并非模板类。但它的 Copy 方法是一个函数模板（或者称为方法模板？）。它需要一个模板类型参数，由编译器自动推断。下面是使用方法：</p>
+[cpp]
+IntArray int_array;
+float float_array[10];
+int_array.Copy(float_array);
+[/cpp]
+
+<p>还可以修改为：</p>
+[cpp]
+template<int ARRAY_SIZE>
+class IntArray
+{
+    int TheArray[ARRAY_SIZE];
+public:
+    template<typename T>
+    void Copy(T target_array[ARRAY_SIZE])
+    {
+       for(int nIndex = 0; nIndex<ARRAY_SIZE; ++nIndex)
+       {
+            target_array[nIndex] = static_cast<T>(TheArray[nIndex]);
+       }
+    }
+};
+[/cpp]
+
+<p>当然，也可以在方法模板中显式指定模板参数。请看另一个例子：</p>
+[cpp]
+template<class T>
+class Convert
+{   
+   T data;
+public: 
+   Convert(const T& tData = T()) : data(tData)
+   { }
+
+   template<class C>   
+   bool IsEqualTo( const C& other ) const      
+   {        
+       return data == other;   
+   }
+};
+[/cpp]
+
+<p>可以这样使用：</p>
+[cpp]
+Convert<int> Data;
+float Data2 = 1 ;
+
+bool b = Data.IsEqualTo(Data2);
+[/cpp]
+
+<p>它用 float 参数实例化 Convert::IsEqualTo，还可以按照下面方式显式指定：</p>
+[cpp]
+bool b = Data.IsEqualTo<double>(Data2);
+[/cpp]
+
+<h2><a name="AtTheEnd">结束语</a></h2>
+<p>你已经看到了模板的强大和灵活。下面是这篇文章的总结：</p>
+<ul>
+<li>为了避免不必要的代码重复和维护问题，尤其是代码几乎相同，可以使用模板。</li>
+<li>模板不仅仅类型安全，还能降低不会使用（或编译器不会生成）的不必要代码。</li>
+<li>函数模板用于非类的一部分，但是对不同数据类型完全/几乎相同的代码。大多数情况下编译器会自动推断类型，但有些情况下，你必须显式指定。你也可以自己显式指定类型。</li>
+<li>类模板使得针对特定实现不同数据类型进行封装成为可能。它可以是数组、字符串、队列、链表、线程安全原子操作等。类模板确实实现了指定默认模板类型，而函数模板不支持。</li>
+</ul>
+<hr />
+Reference:<a href="http://www.codeproject.com/Articles/257589/An-Idiots-Guide-to-Cplusplus-Templates-Part#ExplicitSpec">An Idiot's Guide to C++ Templates - Part 1</a>
