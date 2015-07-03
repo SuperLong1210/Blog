@@ -1,0 +1,101 @@
+<p>使用 Linux 必然离不开 Terminal(终端)，这里介绍两个终端使用相关的问题。一是终端显示路径过长，二是终端分屏(多窗口)。</p>
+
+<h3>终端路径显示过长</h3>
+<p>Linux 系统下终端默认的路径提示是完整的路径，如果有时候路径过长，可能会占全部的宽度（甚至需要多行），这样可能会造成不便，下面就来介绍一下解决方法。</p>
+<img alt="Linux 终端路径显示过长" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/1.jpg" />
+Linux 终端路径显示过长
+
+<p>有两种（甚至更多）方法可以解决这个问题，分别是使用软链接（符号链接）和更改终端配置文件，下面分别进行介绍。</p>
+<h4>使用软链接</h4>
+你可以创建一个软链接，然后 cd 到软链接，这时终端显示软链接的名称，而不是软链接所指向的完整路径。创建软链接的命令格式如下：
+[shell]
+ln -s TargetDirectoryPath Name
+[/shell]
+例如我在桌面创建一个到刚才目录的软链接：
+[shell]
+cd ~/Desktop
+ln -s /media/yhluo/PersonalFile/StudyFiles/Others/C++/ slcpp
+cd slcpp
+[/shell]
+<p>截图如下：</p>
+<img alt="通过软链接显示不完整路径" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/2.jpg" />
+通过软链接显示不完整路径
+
+<p>如图可见，使用软链接确实可以解决终端路径显示过长的问题。但这个方法也有不足。例如，对于多个长路径目录，你需要创建不同的符号链接；对于同一个目标目录，你在和软链接所在位置不同时又需要记住软链接所在的路径和名称，这也带来很大的不便。下面介绍一个更好的方法，那就是更改终端的配置文件。</p>
+
+<h4>更改终端配置文件</h4>
+<p>Linux 中一切皆文件，而各个应用也可以通过配置文件自定义各种想要的功能。例如通过 .vimrc 配置 vim，通过 .bashrc 配置终端以及环境变了等。</p>
+<p>Linux 中终端的配置文件是 .bashrc，一般两个位置中会有 .bashrc 文件，一个是 /root/ 目录下面，这里配置的作用范围是整个系统（包括其它用户）以及 root 用户；另一个就是用户的 HOME 目录下，例如我的是 /home/yhluo/，在 HOME 目录下的配置文件只对该用户有效，而不会影响其它用户，如果 /root/ 目录下的配置和 HOME 目录下的配置不同，则按照 HOME 目录下的配置（非 root  用户登陆时）。<strong>这里只介绍针对非 root 用户的配置，root 用户配置类似。</strong></p>
+<p>.bashrc 中配置终端路径提示的部分如下图所示：</p>
+<img alt="终端提示配置部分" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/3.png" />
+
+<p>Linux 不同的发行版（Ubuntu，Debian，CentOS 等）配置部分可能不同，其中 Ubuntu 系统(我的系统是 Ubuntu 14.04)的是在 else 语句部分。截图是我采用的一些不同配置方法，其中 Default 部分是系统的默认配置，格式是：user@hostname：/Full/Path/To/CurrrentDirectory$ ;第二部分第一个 PS1= 语句的显示格式是：user@hostname:，和默认相比没有路径提示，第二个 PS1= 语句中是一个连接操作，首先显示 user@hostname:，然后显示当前路径的第一个目录名称和最后一个目录名称，效果是：user@hostname:/FirstDirectory/../CurrentDirectory$ ；第三部分和系统默认配置很相似，只是把其中的 "/w" 由小写改为大写，结果是只显示当天目录，而不是完整路径，即：user@hostname:CurrentDirectory$ 。三种不同配置的具体代码如下：</p>
+[shell]
+# Default
+PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+
+# Format:user@host:
+#PS1='${debian_chroot:+($debian_chroot)}\u@\h:'
+# Only show the first and last directory
+#PS1=$PS1'$(pwd | sed -E -e "s|^$HOME|~|" -e '\''s|^([^/]*/[^/]*/).*(/[^/]*)|\1..\2|'\'')\$ '
+	
+# Only show current directory
+#PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
+[/shell]
+<p>采用三种不同配置的效果如下图所示：</p>
+<img alt="系统默认配置" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/1.jpg" />
+系统默认配置</br>
+
+<img alt="显示第一个和当前目录目录名称" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/4.png" />
+显示第一个和当前目录目录名称
+
+<img alt="只显示当前目录名称" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/5.png" />
+只显示当前目录名称
+
+<p>下面简单解释一下各个配置命令中的含义。对于系统默认配置，\u 表示用户，\h 表示hostname，\w 表示工作目录（working direcotry，即当前目录）的完整路径。</p>
+<p>第三部分和第一部分的系统默认配置几乎相同，只是大写的 \W 只显示当前目录，而不是完整路径。主要解释第二部分第二个赋值语句的含义。</p>
+[shell]
+#PS1=$PS1'$(pwd | sed -E -e "s|^$HOME|~|" -e '\''s|^([^/]*/[^/]*/).*(/[^/]*)|\1..\2|'\'')\$ '
+[/shell]
+其中 $PS1 表示上一个语句的赋值结果，即：
+[shell]
+PS1='${debian_chroot:+($debian_chroot)}\u@\h:'
+[/shell]
+然后是一个字符串连接操作，和后面命令的结果字符串相连并赋值给最后的 PS1。
+[shell]
+$(pwd | sed -E -e "s|^$HOME|~|" -e '\''s|^([^/]*/[^/]*/).*(/[^/]*)|\1..\2|'\'')\$ 
+[/shell]
+该正则表达式主要包括三个部分。pwd 是系统命令，输出当前目录的完整路径。然后通过管道将输出结果传递给 sed 命令进行操作。
+[shell]
+"s|^$HOME|~|"
+[/shell]
+如果路径是以 $HOME 路径开头，则替换为 ~。由于 $HOME  是一个 shell 变量，因此这里使用双括号使其替换为实际值。</br>
+[shell]
+'s|^([^/]*/[^/]*/).*(/[^/]*)|\1..\2|'
+[/shell]
+该正则表示包括三部分：
+[shell]
+^([^/]*/[^/]*/)
+[/shell]
+匹配前两个目录并保存到 \1。
+[shell]
+.*
+[/shell]
+匹配前两个目录之后直到当前目录(不包括)的部分。
+[shell]
+(/[^/]*)
+[/shell]
+匹配当前目录并保存到 \2。
+</br>
+如果目录足够长，最后就会被替换为 \1..\2。</br>
+<strong>其实实质就是利用 sed 根据正则表达式进行字符串操作。某些 Linux 发行版可能没有安装 sed，也可以使用 awk 进行更复杂的操作。</strong>
+
+<h3>终端分屏</h3>
+<p>对于经常使用终端的人来说，针对不同任务可能需要打开多个终端窗口，例如一个用于编辑代码，一个用户编译代码并运行。这时就需要对终端进行分屏，也就是把一个终端窗口分成多个部分。现在有很多的终端分屏工具，主流是 tmux  和 terminator。具体可以参考以下博客：</br>
+<a href="http://blog.chinaunix.net/uid-26495963-id-3140087.html">tmux 安装、使用、配置 </a>
+<a href="http://blog.csdn.net/robertbaker/article/details/42172203">tmux的使用方法和个性化配置</a>
+<a href="http://flytreeleft.iteye.com/blog/1689407">使用Terminator和Tmux打造完美终端</a>
+</p>
+<p>我使用的是 Terminator，配置效果如下：</p>
+<img alt="Terminator 效果图" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/07/6.png" />
+<p>关于终端显示和分屏的问题就介绍到这里，有任何疑问或建议请在下面的评论框中反馈给我，欢迎共同探讨。</p> 
