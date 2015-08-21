@@ -1,0 +1,315 @@
+<h4>YAML 简介</h4>
+<p>YAML（Yet Another Markup Language），一种直观的能够被电脑识别的数据序列化格式，是一个可读性高并且容易被人类阅读，容易和脚本语言交互，用来表达资料序列的编程语言。它参考了其它多种语言，包括：XML、C语言、Python、Perl以及电子邮件格式RFC2822，是类似于标准通用标记语言的子集XML的数据描述语言，语法比XML简单很多。</p>
+<p>由于YAML使用空白字符和分行来分隔资料，使得它特别适合用 grep、Python、Perl、Ruby 操作。</p>
+
+<h4>适用场景</h4>
+<ol>
+    <li>脚本语言</li>
+        <p>由于实现简单，解析成本很低，YAML 特别适合在脚本语言中使用。列一下现有的语言实现：Ruby，Java，Perl，Python，PHP，OCaml，JavaScript，除了Java，其他都是脚本语言。</p>
+    <li>序列化</li>
+        <p>YAML 比较适合做序列化。因为它是宿主语言数据类型直转的。</p>
+    <li>配置文件</li>
+        <p>YAML 做配置文件也不错。写 YAML 要比写 XML 快得多(无需关注标签或引号)，并且比 INI 文档功能更强。</p>
+        <p>由于兼容性问题，不同语言间的数据流转建议不要用 YAML。</p>
+</ol>
+
+<h4>语言比较</h4>
+<ol>
+    <li>XML</li>
+        <p>和 XML 相比，YAML 具有以下的优势</p>
+        <ul>
+            <li>可读性好</li>
+            <li>和脚本语言的交互性好</li>
+            <li>使用实现语言的数据类型</li>
+            <li>可以基于流来处理</li>
+            <li>表达能力强，扩展性好</li>
+            <li> XML 解析效率比较低，不过支持自定义的数据类型 </li>
+        </ul>
+    	<p>YAML类似于XML的数据描述语言，语法比XML简单很多，YAML试图用一种比XML更敏捷的方式，来完成XML所完成的任务。</p>
+	<li>JSON</li>
+        <p>JSON 的语法其实是 YAML 的子集，大部分的 JSON 文件都可以被 YAML 的剖析器剖析。虽然大部分的数据分层形式也可以使用类似 JSON 的格式，不过 YAML 并不建议这样使用，除非这样编写能让文件可读性增加，更重要的是，YAML 的许多扩展在 JSON 是找不到的，如：进阶资料形态、关系锚点、字串不需要引号、映射资料形态会储存键值的顺序等。</p>
+     
+     <li>INI</li>
+        <p>INI文件由节、键、值组成。比较简单，原生的 SHELL 难以解析。</p>
+</ol>
+
+<h4>YAML 语法</h4>
+<p>YAML 使用可打印的 Unicode 字符，可使用 UTF-8 和 UTF-16 编码。</p>
+<ul>
+    <li>使用空格 Space 缩进表示分层，不同层次之间的缩进可以使用不同的空格数目，但是同层元素一定左对齐，即前面空格数目相同（不能使用 Tab，各个系统 Tab对应的 Space 数目可能不同，导致层次混乱）</li>
+    <li>‘#’表示注释，只能单行注释，从#开始处到行尾</li>
+    <li>破折号后面跟一个空格（a dash and space）表示列表</li>
+    <li>用冒号和空格表示键值对 key: value</li>
+    <li>简单数据（scalars，标量数据）可以不使用引号括起来，包括字符串数据。用单引号或者双引号括起来的被当作字符串数据，在单引号或双引号中使用C风格的转义字符</li>
+</ul>
+<ol>
+<li>集合</li>
+<p>简单数据列表 Sequence of Scalars</p>
+[shell]
+- Mark McGwire
+- Sammy Sosa 
+- Ken Griffey
+[/shell]
+
+<p>简单数据键值对以及注释 Mapping Scalars to Scalars</p>
+[shell]
+hr:  65    # Home runs
+avg: 0.278 # Batting average
+rbi: 147   # Runs Batted In
+[/shell]
+
+<p>简单数据到列表键值对 Mapping Scalars to Sequences</p>
+[shell]
+american:
+  - Boston Red Sox   
+  - Detroit Tigers   
+  - New York Yankees 
+national:   
+  - New York Mets   
+  - Chicago Cubs   
+  - Atlanta Braves
+[/shell]
+
+<p>键值对列表 Sequence of Mappings</p>
+[shell]
+-
+  name: Mark McGwire   
+  hr:   65   
+  avg:  0.278 
+-   
+  name: Sammy Sosa   
+  hr:   63   
+  avg:  0.288
+[/shell]
+
+<p>YAML 还支持流类型，用明确的指示符而不是缩进来表示范围。用中括号括起来表示列表，用逗号分隔元素；用大括号括起来表示键值对，用逗号分隔元素。</p>
+
+<p>列表的列表 Sequence of Sequences</p>
+[shell]
+- [name        , hr, avg  ]
+- [Mark McGwire, 65, 0.278] 
+- [Sammy Sosa  , 63, 0.288]
+[/shell]
+
+<p>键值对的键值对 Mapping of Mappings</p>
+[shell]
+Mark McGwire: {hr: 65, avg: 0.278}
+Sammy Sosa: {     
+    hr: 63,     
+    avg: 0.288   }
+[/shell]
+
+<li>结构体</li>
+<p>YAML 用三个破折号（three dashes）分隔指令和文档内容，如果没有指令，则表示文档的开始；用三个点表示文档结束</p>
+
+<p>流中的两个文档，每个文档有一行注释开头</p>
+[shell]
+# Ranking of 1998 home runs
+--- 
+- Mark McGwire 
+- Sammy Sosa 
+- Ken Griffey  
+
+# Team ranking 
+--- 
+- Chicago Cubs 
+- St Louis Cardinals
+[/shell]
+
+<p>游戏的每一帧  Play by Play Feed from a Game</p>
+[shell]
+---
+time: 20:03:20 
+player: Sammy Sosa 
+action: strike (miss) 
+... 
+--- 
+time: 20:03:47 
+player: Sammy Sosa 
+action: grand slam 
+...
+[/shell]
+
+<p>有两个注释的一个文档</p>
+[shell]
+---
+hr: # 1998 hr ranking 
+  - Mark McGwire 
+  - Sammy Sosa 
+rbi:   
+  # 1998 rbi ranking   
+  - Sammy Sosa   
+  - Ken Griffey
+[/shell]
+
+<p>重复节点首先用锚(&alias)标记，然后用星号（*）引用</p>
+[shell]
+---
+hr:   
+  - Mark McGwire   
+  # Following node labeled SS   
+  - &SS Sammy Sosa 
+rbi:   
+  - *SS # Subsequent occurrence   
+  - Ken Griffey
+[/shell]
+
+<p>问号加空格表示复杂键值对的键，键值对的值可以在破折号、冒号或者问号后面开始 Mapping between Sequences</p>
+[shell]
+? - Detroit Tigers
+  - Chicago cubs 
+:   
+  - 2001-07-23  
+  
+? [ New York Yankees,     
+   Atlanta Braves ] 
+: [ 2001-07-02, 2001-08-12,
+   2001-08-14 ]
+[/shell]
+
+<p>复杂嵌套键值对</p>
+[shell]
+---
+# Products purchased 
+- item    : Super Hoop   
+  quantity: 1 
+- item    : Basketball   
+  quantity: 4 
+- item    : Big Shoes   
+  quantity: 1
+[/shell]
+
+<p>简单内容可以用块标记符，用竖线（|）所有的换行符会被保留，而用尖括号（>），换行符会被替换为空格，直到出现空行或者缩进不同的行表示结束。</p>
+[shell]
+>
+ Sammy Sosa completed another  
+ fine season with great stats.
+    
+   63 Home Runs    
+   0.288 Batting Average   
+ 
+ What a year!
+[/shell]
+
+[shell]
+name: Mark McGwire
+accomplishment: >
+  Mark set a major league   
+  home run record in 1998. 
+stats: |
+   65 Home Runs
+   0.278 Batting Average
+[/shell]
+
+<p>YAML 简单数据流有文本和双引号模式，双引号模式提供转义序列，单引号在不需要转义时非常有用。</p>
+[shell]
+unicode: "Sosa did fine.\u263A" #使用 unicode
+control: "\b1998\t1999\t2000\n" # 使用控制字符 
+hex esc: "\x0d\x0a is \r\n"	  # 十六进制  
+
+single: '"Howdy!" he cried.' 
+quoted: ' # Not a ''comment''.' 
+tie-fighter: '|\-*-/|'
+[/shell]
+
+<p>简单数据流可以跨越多行，如下</p>
+[shell]
+plain:
+  This unquoted scalar
+  spans many lines.
+  
+quoted: "So does this
+   quoted scalar.\n"
+[/shell]
+
+<p>两个完整例子：</p>
+<ul>
+<li>一张发票</li>
+[shell]
+--- !<tag:clarkevans.com,2002:invoice>
+invoice: 34843 
+date   : 2001-01-23 
+bill-to: &id001     
+  given  : Chris     
+  family : Dumars     
+  address:         
+    lines: |
+      458 Walkman Dr.             
+      Suite #292         
+    city    : Royal Oak         
+    state   : MI         
+    postal  : 48046 
+ship-to: *id001 
+product:     
+  - sku         : BL394D       
+    quantity    : 4       
+    description : Basketball       
+    price       : 450.00     
+  - sku         : BL4438H       
+    quantity    : 1       
+    description : Super Hoop       
+    price       : 2392.00 
+tax  : 251.42 
+total: 4443.52 
+comments:     
+   Late afternoon is best.     
+   Backup contact is Nancy     
+   Billsmer @ 338-4338.
+[/shell]
+
+<li>日志</li>
+[shell]
+---
+Time: 2001-11-23 15:01:42 -5 
+User: ed 
+Warning:
+   This is an error message   
+   for the log file 
+--- Time: 2001-11-23 15:02:31 -5 
+User: ed 
+Warning:
+   A slightly different error   
+   message. 
+--- Date: 2001-11-23 15:03:17 -5 
+User: ed 
+Fatal:
+   Unknown variable "bar" 
+Stack:
+   - file: TopClass.py     
+     line: 23     
+     code: |
+       x = MoreObject("345\n")   
+   - file: MoreClass.py     
+     line: 58     
+     code: |-
+       foo = bar
+[/shell]
+</ul>
+</ol>
+
+<p>关于更多详细语法介绍，可以查看官方文档：<a href="http://www.yaml.org/spec/1.2/spec.html#Preview" target="_blank">http://www.yaml.org/spec/1.2/spec.html#Preview</a></p>
+
+<h4>函式库</h4>
+<p>关于 Yaml 的 project 可以查看：<a href="http://yaml.org/" target="_blank">http://yaml.org/</a></p>
+<p>这里只介绍 python 中 PyYaml 的安装以及使用</p>
+
+<ol>
+    <li>下载</li>
+        <p>PyYaml：<a href="http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz" target="_blank">http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz</a></p>
+    <li>安装</li>
+[shell]
+tar -xf PyYAML-3.11.tar.gz
+cd PyYAML-3.11
+python setup.py install
+[/shell]
+    <li>使用事例</li>
+<p>假设使用以下配置文件 dsql-config.yml</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/08/config-yml.jpg" alt="配置文件 dsql-config.yml" title="配置文件 dsql-config.yml" />
+<p>在python 中提取配置文件变量值：</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/08/pyyaml.jpg" alt="在python 中提取配置文件变量值" title="在python 中提取配置文件变量值" />
+</ol>
+
+<hr />
+Reference:
+<a href="http://www.yaml.org/spec/1.2/spec.html" target="_blank">YAML Specification</a>
+<a href="http://pyyaml.org/" target="_blank">PyYAML</a>
