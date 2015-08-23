@@ -2,9 +2,9 @@
 
 <h4>Shell 脚本参数传递与解析</h4>
 <p>如下面的一个命令行</p>
-<pre>
+[shell]
 sh test.sh --host=localhost -P 5432 -h
-</pre>
+[/shell]
 <p>我们称 -P 为选项，它需要一个参数，即 5432，-h 也是一个选项，但是不需要参数。--host 称之为长选项，因为选项本身是多字节，它需要一个参数，用等号连接。</p>
 <p>在 Bash 中，有三种方式来处理命令行参数，下面分别进行简要介绍：</p>
 <ol>
@@ -18,7 +18,7 @@ sh test.sh --host=localhost -P 5432 -h
 			<li>$#	: 参数的个数，但不包括命令本身，本例中 $#为 4</li>
 			<li>$@	: 参数本身的列表，不包括命令本身，本例中为 --host=localhost -P 5432 -h</li>
 			<li>$*	: 和 $@ 相同，但 "$*" 和 "$@"（两个都加引号）不同，第一个将所有的参数组成一个字符串，而第二个是一个参数数组，如下列所示：</li>
-<pre>
+[shell]
 echo \$@...
 for arg in $@
 do
@@ -42,9 +42,9 @@ for arg in "$*"
 do
         echo $arg
 done
-</pre>
+[/shell]
 				<p>运行 sh test.sh --host=localhost -P 5432 -h</p>
-<pre>
+[shell]
 $@...
 --host=localhost
 -P
@@ -62,7 +62,7 @@ $*...
 -h
 "$*"...
 --host=localhost -P 5432 -h
-</pre>
+[/shell]
 				<p>因此，手工处理的方式即对这些参数逐个进行处理，它高度依赖于参数的顺序，一般只用于处理参数数目很少的情况。</p>
 		</ul>
 	<li>getopts</li>
@@ -75,7 +75,7 @@ $*...
 			<li>sh test.sh --along=avalue --blong=bvalue</li><p>长选项。</p>
 		</ul>
 		<p>getopts 不支持长选项，例如对于 sh test.sh -a avalue -b -c 命令，可以编写如下处理参数的脚本：</p>
-<pre>
+[shell]
 #!/bin/bash
 
 while getopts "a:bc" arg # 选项后面的冒号表示需要参数
@@ -103,9 +103,9 @@ or arg in $@
 do
         echo "Processing $arg..."
 done
-</pre>
+[/shell]
 		<p>例如运行 sh test.sh -a avalue -b -c -h haha -g --hehe，上面的脚步输出如下：</p>
-<pre>
+[shell]
 a = avalue
 b
 c
@@ -116,7 +116,7 @@ Unknow argument：?
 Processing haha...
 Processing -g...
 Processing --hehe...
-</pre>
+[/shell]
 	<li>getopt</li>
 		<p>如果需要使用长选项，那就要用 getopt，getopt 是独立的可执行文件。</p>
 		<p>getopts 和 getopt 更多的区别如下：</p>
@@ -131,7 +131,7 @@ Processing --hehe...
 				<li>getopts 出现的目的是为了代替 getopt 较快捷的执行参数分析工作</li>
 			</ul>
 		<p>getopt 命令与 getopts 命令不同，它实际上是通过将参数规范化来帮助我们处理的。具体的用法，如下面的脚本：</p>
-<pre>
+[shell]
 #!/bin/bash
 
 #echo $@
@@ -188,9 +188,9 @@ for arg in $@
 do
     echo "processing $arg"
 done
-</pre>
+[/shell]
 <p>需要注意的是，像上面的-c选项，后面是可接可不接参数的，如果需要传递参数给-c选项，则必须使用如下的方式：</p>
-<pre>
+[shell]
 #./getopt.sh -b 123 -a -c456 file1 file2 
 Option b, argument 123
 Option a
@@ -204,7 +204,7 @@ Option a
 Option c, argument 456
 processing file1
 processing file2
-</pre>
+[/shell]
 </ol>
 
 <h4>Python 脚本参数传递与解析</h4>
@@ -214,7 +214,7 @@ processing file2
 <p>下面是几个例子：</p>
 <ol>
 	<li>只使用 Unix 类型选项：</li>
-<pre>
+[shell]
 >>> import getopt
 >>> args = '-a -b -cfoo -d bar a1 a2'.split()
 >>> args
@@ -224,9 +224,9 @@ processing file2
 [('-a', ''), ('-b', ''), ('-c', 'foo'), ('-d', 'bar')]
 >>> args
 ['a1', 'a2']
-</pre>
+[/shell]
 	<li>使用长选项：</li>
-<pre>
+[shell]
 >>> s = '--condition=foo --testing --output-file abc.def -x a1 a2'
 >>> args = s.split()
 >>> args
@@ -237,9 +237,9 @@ processing file2
 [('--condition', 'foo'), ('--testing', ''), ('--output-file', 'abc.def'), ('-x', '')]
 >>> args
 ['a1', 'a2']
-</pre>
+[/shell]
 	<li>一个脚本实例：</li>
-<pre>
+[shell]
 import getopt, sys
 
 def main():
@@ -273,16 +273,16 @@ def main():
 
 if __name__ == "__main__":
     main()
-</pre>
+[/shell]
 <p>运行 python tesh.py -o 'short out' -v --output='long out' start stop -t，输出如下：</p>
-<pre>
+[shell]
 output to short out
 verbose = True
 output to long out
 Processing arg  start
 Processing arg  stop
 Unknow arg  -t
-</pre>
+[/shell]
 </ol>
 
 <hr />
