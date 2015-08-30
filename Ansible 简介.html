@@ -1,0 +1,1352 @@
+<p>目录</p>
+<a href="#Intro">简介</a>
+<a href="#WorkWay">工作方式</a>
+<a href="#Install">安装</a>
+<a href="#Inventory">Inventory</a>
+<a href="#HostVariable">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主机变量</a>
+<a href="#GroupVariable">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;组变量</a>
+<a href="#Groupofgroup">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;组的组以及组变量</a>
+<a href="#SeperateVariable">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;分离主机和组变量</a>
+<a href="#Pattern">模式</a><br/>
+<a href="#Adhoc">Ad-hoc 命令</a><br/>
+<a href="#Shell">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Shell</a><br/>
+<a href="#FileTrans">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文件传输</a><br/>
+<a href="#Package">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;管理软件包</a><br/>
+<a href="#Userandgroup">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用户和组</a><br/>
+<a href="#Sourcecode">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;从源码部署</a><br/>
+<a href="#Service">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;管理服务</a><br/>
+<a href="#Background">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;限时后台操作</a>
+<a href="#Getfacts">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;获取 Facts</a>
+<a href="#Playbooks">Playbooks</a>
+<a href="#Hostanduser">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主机和用户</a>
+<a href="#Tasklit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;任务列表</a>
+<a href="#Handler">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Handler 更改后执行命令</a>
+<a href="#Runplaybook">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;执行一个 Playbook</a>
+<a href="#Roles">Role</a>
+<a href="#Includeintask">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在 task 中 include</a>
+<a href="#Includeinhandler">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在 handler 中 include</a>
+<a href="#Includeplaybook">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Include 其它 Playbook</a>
+<a href="#Paralizerole">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;参数化 role</a>
+<a href="#Settags">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为 role 指定 tags</a>
+<a href="#Defaultvariable">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role 的默认变量</a>
+<a href="#Dependency">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role 依赖</a>
+<a href="#Variable">变量</a>
+<a href="#Avariablevariable">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;可用的变量名称</a>
+<a href="#Variableinplaybook">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Playbook 中定义的变量</a>
+<a href="#Jinjia2var">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;变量使用 Jinja2</a>
+<a href="#Factsfromsys">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;从系统中获取信息：facts</a>
+<a href="#Registervar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注册变量</a>
+<a href="#Accessvar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;访问复杂变量</a>
+<a href="#Fileseperate">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;变量文件隔离</a>
+<a href="#Varincommand">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在命令行中传递变量</a>
+<a href="#Varpriority">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;变量优先级</a>
+<a href="#Jinja2filter">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jinja2 过滤器</a>
+<a href="#Condition">条件</a>
+<a href="#Loop">循环</a>
+<a href="#Standard">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;标准循环</a>
+<a href="#Nested">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;循环嵌套</a>
+<a href="#Keyvalue">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;键值循环</a>
+<a href="#Parallel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;平行数据集循环</a>
+<a href="#Integer">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;整数值序列循环</a>
+<a href="#Random">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;随机选择</a>
+<a href="#Dountil">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DoUntil 循环</a>
+<a href="#Indexed">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;带索引的list循环</a>
+<a href="#Inifile">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INI文件使用循环</a>
+<a href="#Tags">Tags</a>
+<a href="#Module">模块</a>
+<a href="#Reference">参考资料</a>
+
+<a id="Intro"></a><h4>简介</h4>
+<p>Ansible 是一个 IT 自动化工具。它能配置系统、部署软件、编排更复杂的 IT 任务，如连续部署或零停机时间滚动更新。</p>
+<p>Ansible 用 python 编写，尽管市面上已经有很多可供选择的配置管理解决方案（例如 Salt，Puppet，Chef等），但它们各有优劣，而Ansible的特点在于它的简洁。让 Ansible 在主流的配置管理系统中与众不同的一点便是，它并不需要你在想要配置的每个节点上安装自己的组件。同时提供的一个优点在于，如果需要的话，你可以在不止一个地方控制你的整个基础架构。</p>
+<h4>工作方式</h4><a id="Workway"></a>
+<p>Ansible 工具并不使用守护进程，它也不需要任何额外的自定义安全架构，因此它的部署可以说是十分容易。你需要的全部东西便是 SSH 客户端和服务器了。默认情况下，Ansible 1.3 及之后版本会使用原生 OpenSSH 连接远程主机。但对于Enterprise Linux 6 操作系统以及衍生版本（eg. CentOS），OpenSSH 版本可能太旧而无法支持 ControlPersist，Ansible 会使用OpenSSH 一个高质量的python实现‘paramiko’。在版本1.2之前，默认都是使用‘paramiko’，要使用ssh的话要在配置文件中显式选择 -c ssh 选项。</p>
+<p>当说到远程主机，Ansible 默认假设你使用 ssh 密钥进行验证，如果你想通过输入密码进行验证，可以用选项 --ask-pass。要用 sudo 功能，需要密码时可以用 --ask-sudo-pass选项。</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/08/ansible.jpg" alt="工作方式" title="工作方式" />
+<p>其中：</p>
+<ol>
+	<li>192.168.1.100 - 在你本地的工作站或服务器上安装 Ansible。</li>
+	<li>文件服务器1到代理服务器3 - 使用 192.168.1.100 和 Ansible 来自动管理所有的服务器。</li>
+	<li>SSH - 在 192.168.1.100 和本地/远程的服务器之间设置 SSH 密钥。</li>
+</ol>
+
+<a id="Install"></a><h4>安装</h4>
+<p>准备：</p>
+<ol>
+	<li>发行版：RHEL/CentOS/Debian/Ubuntu Linux（从版本1.7开始支持windows）</li>
+	<li>Jinja2：Python 的一个对设计师友好的现代模板语言</li>
+	<li>PyYAML：Python 的一个 YAML 编码/反编码函数库</li>
+	<li>paramiko：纯 Python 编写的 SSHv2 协议函数库</li>
+	<li>httplib2：一个功能全面的 HTTP 客户端函数库</li>
+	<li>本文中列出的绝大部分操作已经假设你将在 bash 或者其他任何现代的 shell 中以 root 用户执行。</li>
+</ol>
+<p>上面的这些工具都可以通过 pip 安装：</p>
+[shell]
+$ pip install paramiko PyYAML Jinja2 httplib2 six
+[/shell]
+<ul>
+	<li>在基于 RHEL/CentOS Linux 的系统中安装 ansible</li>
+[shell]
+$ yum install ansible
+[/shell]
+	<li>在基于 Debian/Ubuntu Linux 的系统中安装 ansible</li>
+[shell]
+$ apt-get install software-properties-common
+$ apt-add-repository ppa:ansible/ansible
+$ apt-get update
+$ apt-get install ansible
+[/shell]
+	<li>使用 pip 安装 ansible</li>
+[shell]
+$ pip install ansible
+[/shell]
+	<li>从源代码安装最新版本的 ansible</li>
+[shell]
+$ git clone git://github.com/ansible/ansible.git
+$ cd ./ansible
+$ source ./hacking/env-setup
+[/shell]
+<p>这样安装的ansible每次启动时都要设置环境，可以把这个设置过程加入bashrc文件中</p>
+[shell]
+$ echo "source <ansible-home>/hacking/env-setup" >> ~/.bashrc
+[/shell]
+<p>注意用你的实际路径替换 ansible-home</p>
+</ul>
+<p>要了解更多的安装方式可以查看：<a href="http://docs.ansible.com/ansible/intro_installation.html" target="_blank">Installation Introduction</a></p>
+<p>安装好了 Ansible 之后就可以开始一些简单的任务了。首先编辑 /etc/ansible/hosts 文件，写入一些远程主机的地址。注意，你的 SSH 公钥要添加到这些主机的 authorized_keys 文件中。方法如下：</p>
+[shell]
+scp ~/.ssh/id_rsa.pub user@remote-sever:/tmp/id_rsa.pub
+[/shell]
+<p>Ssh 登录到 remote-server，将公钥插入 authorized_keys 文件</p>
+[shell]
+cat /tmp/id_rsa.pub >> ~/.ssh/authorized_keys
+[/shell]
+<p>Ansible 默认从/etc/ansible/hosts Inventory 文件中读取远程主机信息，也可以用选项 -i 指定。假设 /etc/ansible/hosts 文件内容如下：</p>
+[shell]
+[nobida147]
+10.60.1.147 
+[nobida140]
+10.60.1.140
+[/shell]
+<p>然后执行 ansible all -m ping 命令 ping hosts 中的所有节点。Ansible 会尝试用当前用户连接到远程主机，也可以用 -u 选项指定用户名称。也可以用sudo模式。几个简单例子如下：</p>
+[shell]
+# as bruce
+$ ansible all -m ping -u bruce
+# as bruce, sudoing to root
+$ ansible all -m ping -u bruce --sudo
+# as bruce, sudoing to batman
+$ ansible all -m ping -u bruce --sudo --sudo-user batman
+[/shell]
+<p>下面是样例输出:</p>
+[shell]
+[root@nobida147 ~]# ansible all -m ping
+10.60.1.147 | success >> {
+    "changed": false, 
+    "ping": "pong"
+}
+10.60.1.140 | success >> {
+    "changed": false, 
+    "ping": "pong"
+}
+[/shell]
+
+<a id="Inventory"></a><h4>Inventory</h4>
+<p>Inventory 文件是 INI 格式的文件，它指定了ansible 作用的主机列表，ansible 默认读取 /etc/ansible/hosts 文件。下面是 Inventory 文件的一个例子：</p>
+[shell]
+mail.example.com
+[webservers]
+foo.example.com
+bar.example.com
+[dbservers]
+one.example.com
+two.example.com
+Three.example.com
+[/shell]
+<p>中括号内的是组名称，一台主机可以属于多个组。一台属于多个组的主机会读取多个组的变量文件，这样可能就会有冲突，优先级会在后面介绍。</p>
+<p>如果SSH不是使用默认端口，可以在主机后面指定ssh端口，例如：</p>
+[shell]
+badwolf.example.com:5309
+[/shell]
+<p>如果使用静态 IP，希望在hosts文件中使用别名或者通过通道连接，可以用类型如下方式：</p>
+[shell]
+jumper ansible_ssh_port=5555 ansible_ssh_host=192.168.1.50
+[/shell]
+<p>如果有很多主机名称类似，你可以不用一一列出，例如：</p>
+[shell]
+[webservers]
+www[01:50].example.com
+db-[a:f].example.com
+[/shell]
+<p>其中数字开头的0可以省略。中括号是闭合的。</p>
+<p>你可以指定每个主机的连接类型和用户名：</p>
+[shell]
+[targets]
+localhost              ansible_connection=local
+other1.example.com     ansible_connection=ssh        ansible_ssh_user=mpdehaan
+other2.example.com     ansible_connection=ssh        ansible_ssh_user=mdehaan
+[/shell]
+<p>上面这些直接在 Inventory 文件中添加参数并不是一个好的选择，后面会介绍更好的方法，就是在单独的host_vars 目录中定义参数。</p>
+
+<a id="HostVariable"></a><h5>1.主机变量</h5>
+[shell]
+[atlanta]
+host1 http_port=80 maxRequestsPerChild=808
+host2 http_port=303 maxRequestsPerChild=909
+[/shell]
+<a id="GroupVariable"></a><h5>2.组变量</h5>
+[shell]
+[atlanta]
+host1
+host2
+
+[atlanta:vars]
+ntp_server=ntp.atlanta.example.com
+proxy=proxy.atlanta.example.com
+[/shell]
+<a id="Groupofgroup"></a><h5>3.组的组以及组变量</h5>
+[shell]
+[atlanta]
+host1
+host2
+
+[raleigh]
+host2
+host3
+
+[southeast:children]
+atlanta
+raleigh
+
+[southeast:vars]
+some_server=foo.southeast.example.com
+halon_system_timeout=30
+self_destruct_countdown=60
+escape_pods=2
+
+[usa:children]
+southeast
+northeast
+southwest
+Northwest
+[/shell]
+<a id="SeperateVariable"></a><h5>4.分离主机和组变量</h5>
+<p>在ansible中更好的实践并不是把变量保存到Inventory 文件，而是使用 YAML 格式保存到和Inventory 文件单独的文件中。由于后面ansible的重点playbook也是使用 YAML 格式编写，可以先了解一下 <a href="https://docs.ansible.com/ansible/YAMLSyntax.html" target="_blank">YAML语法</a></p>
+<p>假设Inventory文件路径为 /etc/ansible/hosts，其中有个主机名为‘foosball’，属于‘raleigh’和‘webservers’两个组，那么以下位置的YAML文件会对foosball主机有效：</p>
+[shell]
+/etc/ansible/group_vars/raleigh
+/etc/ansible/group_vars/webservers
+/etc/ansible/host_vars/foosball
+[/shell]
+<p>例如，raleigh文件可能看起来类似下面这样：</p>
+[shell]
+---
+ntp_server: acme.example.org
+database_server: storage.example.org
+[/shell]
+<p>更高级的，你可以创建和组名相同的目录，ansible会读取该目录中所有的YAML文件。例如‘raleigh’组：</p>
+[shell]
+/etc/ansible/group_vars/raleigh/db_settings
+/etc/ansible/group_vars/raleigh/cluster_settings
+[/shell]
+<p>这些文件中定义的变量对所有属于 ‘raleigh’组的主机有效。</p>
+<p>Ansible 1.2及之后版本中，group_vars和host_vars目录可以在playbook目录下或者Inventory目录下，如果两者都有，playbook目录下的会覆盖Inventory目录下的。</p>
+<p>一些Inventory参数：</p>
+<ul>
+	<li>主机连接</li>
+[shell]
+ansible_connection
+  Connection type to the host. Candidates are local, smart, ssh or paramiko.  The default is smart.
+[/shell]
+	<li>ssh 连接</li>
+[shell]
+ansible_ssh_host
+  The name of the host to connect to, if different from the alias you wish to give to it.
+ansible_ssh_port
+  The ssh port number, if not 22
+ansible_ssh_user
+  The default ssh user name to use.
+ansible_ssh_pass
+  The ssh password to use (this is insecure, we strongly recommend using --ask-pass or SSH keys)
+ansible_ssh_private_key_file
+  Private key file used by ssh.  Useful if using multiple keys and you don't want to use SSH agent.
+[/shell]
+	<li>特权升级</li>
+[shell]
+ansible_become
+  Equivalent to ansible_sudo or ansible_su, allows to force privilege escalation
+ansible_become_method
+  Allows to set privilege escalation method
+ansible_become_user
+  Equivalent to ansible_sudo_user or ansible_su_user, allows to set the user you become through privilege escalation
+ansible_become_pass
+  Equivalent to ansible_sudo_pass or ansible_su_pass, allows you to set the privilege escalation password
+[/shell]
+	<li>远程主机环境变量</li>
+[shell]
+nsible_shell_type
+  The shell type of the target system. Commands are formatted using 'sh'-style syntax by default. Setting this to 'csh' or 'fish' will cause commands executed on target systems to follow those shell's syntax instead.
+ansible_python_interpreter
+  The target host python path. This is useful for systems with more
+  than one Python or not located at "/usr/bin/python" such as \*BSD, or where /usr/bin/python
+  is not a 2.X series Python.  We do not use the "/usr/bin/env" mechanism as that requires the remote user's
+  path to be set right and also assumes the "python" executable is named python, where the executable might
+  be named something like "python26".
+ansible\_\*\_interpreter
+  Works for anything such as ruby or perl and works just like ansible_python_interpreter.
+  This replaces shebang of modules which will run on that host.
+[/shell]
+</ul>
+
+<a id="Pattern"></a><h4>模式</h4>
+<p>Ansible 中的模式定义了需要管理的主机。Playbook 中有更详细的主机管理定义。模式主要用在Ad-hoc 命令中，基本格式如下：</p>
+[shell]
+ansible <pattern_goes_here> -m <module_name> -a <arguments>
+[/shell]
+<p>例如：ansible webservers -m service -a "name=httpd state=restarted"</p>
+<p>模式一般指一些组（组是一些hosts的集合）。all 和 * 都指Inventory文件中的所有主机。模式中也可以通过名称指定一个主机或一些主机：</p>
+[shell]
+one.example.com
+one.example.com:two.example.com
+192.168.1.50
+192.168.1.*
+[/shell]
+<p>模式中还可以使用简单的布尔运算。例如：</p>
+[shell]
+webservers:dbservers	webservers或dbservers中的主机
+webservers:!phoenix	属于webservers 但不属于Phoenix组的主机
+webservers:&staging	同时在两个组中的主机
+[/shell]
+<p>在模式中同时使用通配符和组：</p>
+[shell]
+one*.com:dbservers
+[/shell]
+<p>只选择组中的某些主机：</p>
+[shell]
+webservers[0]
+webservers[0-25]
+[/shell]
+<p>在模式中用正则表达式：以~开头</p>
+[shell]
+~(web|db).*\.example\.com
+[/shell]
+
+<a id="Adhoc"></a><h4>Ad-hoc 命令</h4>
+<p>Ad-hoc 命令是指快速运行，不需要保存下来的ansible命令。例如重启Atlanta的所有web 服务器，一次重启10台：</p>
+[shell]
+$ ansible atlanta -a "/sbin/reboot" -f 10
+[/shell]
+<ol>
+	<li>Shell</li><a id="Shell"></a>
+[shell]
+$ ansible raleigh -m shell -a 'echo $TERM'
+[/shell]
+<p>在ansible CLI（和playbook相对）运行命令的是，尤其要注意 shell 的引号规则，如果上面例子中用双引号，那么在马上就会转换 TERM 变量的值，而不是 echo 各个远程主机的 TERM 变量。</p>
+	<a id="FileTrans"></a><li>文件传输</li>
+[shell]
+$ ansible atlanta -m copy -a "src=/etc/hosts dest=/tmp/hosts"
+[/shell]
+<p>File 模块允许你更高用户和组等属性，例如：</p>
+[shell]
+$ ansible webservers -m file -a "dest=/srv/foo/b.txt mode=600 owner=mdehaan group=mdehaan"
+[/shell]
+<p>还能用来在远程主机创建或者删除目录：</p>
+[shell]
+$ ansible webservers -m file -a "dest=/path/to/c mode=755 owner=mdehaan group=mdehaan state=directory"
+$ ansible webservers -m file -a "dest=/path/to/c state=absent"
+[/shell]
+	<a id="Package"></a><li>管理软件包</li>
+	<p>确认一个软件包已安装但不更新：</p>[shell]$ ansible webservers -m yum -a "name=acme state=present"[/shell]
+	<p>确认软件包安装的是指定版本：</p>[shell]$ ansible webservers -m yum -a "name=acme-1.5 state=present"[/shell]
+	<p>确认软件包没有安装：</p>[shell]$ ansible webservers -m yum -a "name=acme state=absent"[/shell]
+	<p>上面命令使用的模块可能因系统不同而不同，例如对于 Ubuntu 就应该是 apt。</p>
+	<a id="Userandgrouop"></a><li>用户和组</li>
+	<p>User 模块允许创建或管理现有账户</p>
+	<p>添加用户：</p>[shell]$ ansible all -m user -a "name=foo password=<crypted password here>"[/shell]
+	<p>删除用户：</p>[shell]$ ansible all -m user -a "name=foo state=absent"[/shell]
+	<a id="Sourcecode"></a><li>从源码部署</li>
+	[shell]$ ansible webservers -m git -a "repo=git://foo.example.org/repo.git dest=/srv/myapp version=HEAD"[/shell]
+	<a id="Service"></a><li>管理服务</li>
+	<p>确保所有主机都启动httpd服务：</p>[shell]$ ansible webservers -m service -a "name=httpd state=started"[/shell]
+	<p>重启某个服务：</p>[shell]$ ansible webservers -m service -a "name=httpd state=restarted"[/shell]
+	<p>确认服务已经停止：</p>[shell]$ ansible webservers -m service -a "name=httpd state=stopped"[/shell]
+	<a id="Background"></a><li>限时后台操作</li>
+	<p>可以把耗时很长的操作放到后台，以后再检查他们的状态。如果不想使用轮询的话，可以如下：</p>
+	[shell]$ ansible all -B 3600 -P 0 -a "/usr/bin/long_running_operation --do-stuff"[/shell]
+	<p>使用轮询：</p>[shell]$ ansible all -B 1800 -P 60 -a "/usr/bin/long_running_operation --do-stuff"[/shell]
+	<p>上面命令的意思是最多运行1800s，每60秒报告一次状态。</p>
+	<a id="Getfacts"></a><li>获取Facts</li>
+	<p>Facts是指从系统中获得的一些信息或者变量，会在后面的playbook中介绍。</p>
+</ol>
+
+<a id="Playbooks"></a><h4>Playbooks</h4>
+<p>Playbook 是ansible的配置、部署和编制语言。他描述了管理远程主机的策略和常见IT过程的步骤。Playbook 是和adhoc 任务完全不同的使用ansible的方式，它更加的强大。Playbook 用 YAML 格式表示，它看起来像是一种编程语言或者脚本，但更是配置或者过程的模型。</p>
+<p>每个Playbook 包含了一系列‘play’。Play 的目的是把一组主机对应到定义的roles，roles包含了一些ansible tasks。一个task其实就是一个ansible module 调用。</p>
+<p>下面是一个包含两个play的Playbook：</p>
+[shell]
+---
+- hosts: webservers
+  remote_user: root
+
+  tasks:
+  - name: ensure apache is at the latest version
+    yum: pkg=httpd state=latest
+  - name: write the apache config file
+    template: src=/srv/httpd.j2 dest=/etc/httpd.conf
+
+- hosts: databases
+  remote_user: root
+
+  tasks:
+  - name: ensure postgresql is at the latest version
+    yum: name=postgresql state=latest
+  - name: ensure that postgresql is started
+    service: name=postgresql state=running
+[/shell]
+<p>一个play一般由4部分组成：</p>
+<ul>
+<li>Target section： 定义将要执行 play 的远程主机组</li>
+<li>Variable section： 定义 play 运行时需要使用的变量</li>
+<li>Task section： 定义将要在远程主机上执行的任务列表</li>
+<li>Handler section： 定义 task 执行完成以后需要调用的任务</li>
+</ul>
+<p>例如下面的例子：</p>
+[shell]
+---
+- hosts: webservers																	-- Target section
+  vars:																							--
+    http_port: 80																			| Variable section
+    max_clients: 200																	|
+  remote_user: root																  --
+  tasks:																						--
+  - name: ensure apache is at the latest version			|
+    yum:																							|
+      pkg: httpd																			|
+      state: latest																		|
+  - name: write the apache config file								|
+    template:																					| 
+      src: /srv/httpd.j2                              | Task section
+      dest: /etc/httpd.conf                           | 
+    notify:                                           | 
+    - restart apache                                  | 
+  - name: ensure apache is running										| 
+    service:                                          | 
+      name: httpd                                     | 
+      state: started                                --
+  handlers:                                         --
+    - name: restart apache														| 
+      service:                                        | Handler section 
+        name: httpd                                   | 
+        state: restarted														-- 
+[/shell]
+<a id="Hostanduser"></a><h5>1.主机和用户</h5>
+<p>Remote_user 也可以在task中定义：</p>
+[shell]
+---
+- hosts: webservers
+  remote_user: root
+  tasks:
+    - name: test connection
+      ping:
+      remote_user: yourname
+[/shell]
+<p>以sudo运行一个task:</p>
+[shell]
+---
+- hosts: webservers
+  remote_user: yourname
+  tasks:
+    - service: name=nginx state=started
+      become: yes
+      become_method: sudo
+[/shell]
+<p>以另一个用户运行task:</p>
+[shell]
+---
+- hosts: webservers
+  remote_user: yourname
+  become: yes
+  become_user: postgres
+[/shell]
+<p>使用权限升级：</p>
+[shell]
+---
+- hosts: webservers
+  remote_user: yourname
+  become: yes
+  become_method: su
+[/shell]
+<a id="Tasklist"></a><h5>2.任务列表</h5>
+<p>每个play包含一些task。Task 按顺序执行，每次执行一个。运行Playbook的时候，从上到下运行，出现failed任务的hosts会在整个Playbook中移除（即failed的host不会执行余下的task，其余host会执行余下的task）。每个任务的目的是用给定的参数执行一个module。</p>
+<p>Module 是增量的，也就是说如果你重新运行，它只会进行把系统带到需要状态的操作，而不是重新执行整个module（例如用Synchronize复制一个目录到其它hosts，如果同步过程中断网了，重新连接后再次执行Synchronize，此时不是重新复制目录下的所有文件，而只是那些还没有复制的文件）。</p>
+<p>每个任务应该有个名称，会在运行Playbook的时候输出（没有也可以，运行的时候直接输出模块命令作为task名称）。任务可以使用“action: module options” 格式定义，但推荐更方便的格式：“module: options”。</p>
+<p>下面是一个简单的任务例子，和大部分module相同，Service module使用key=value参数：</p>
+[shell]
+tasks:
+  - name: make sure apache is running
+service: name=httpd state=running
+[/shell]
+<p>Command 和 shell module 是仅有的不使用key=value的modules，和正常使用shell命令一样就可以：</p>
+[shell]
+tasks:
+  - name: disable selinux
+command: /sbin/setenforce 0
+[/shell]
+<p>Command 和 shell module 会考虑返回码，如果你的command成功的返回码不是0，可以这样做：</p>
+[shell]
+tasks:
+  - name: run this command and ignore the result
+shell: /usr/bin/somecommand || /bin/true
+[/shell]
+<p>或者：</p>
+[shell]
+tasks:
+  - name: run this command and ignore the result
+    shell: /usr/bin/somecommand
+ignore_errors: True
+[/shell]
+<p>可以在action中使用变量，例如：</p>
+[shell]
+tasks:
+  - name: create a virtual host file for {{ vhost }}
+template: src=somefile.j2 dest=/etc/httpd/conf.d/{{ vhost }}
+[/shell]
+<a id="Handler"></a><h5>3.Handler 更改后运行命令</h5>
+<p>正如之前提到的，module 是增量的，在远程系统上发生改变后可以重现。Playbook 识别这些并有一个基本的事件系统用于响应更改。这些‘notify’操作在Playbook每个task的块最后触发，并且只会触发一次，就算多个不同task都‘notify’。</p>
+<p>例如，多个资源可能指示由于它们更改了配置文件而需要重启apache，但apache只会重启一次，以避免不必要的重启。下面是一个例子，文件内容发生改变的时候会重启两个服务，也仅在发生了改变后才会重启。</p>
+[shell]
+- name: template configuration file
+  template: src=template.j2 dest=/etc/foo.conf
+  notify:
+     - restart memcached
+     - restart apache
+[/shell]
+<p>在‘notify’部分列出的称为handler。Handler是一个任务列表，和普通task并没有什么不同。Handler 就是 ‘notify’通知的对象，如果没有‘notify’通知它，这个handler就不会执行。不管多少‘notify’通知了一个handler，它都只会在一个playbook的所有task运行完之后运行一次。下面是上面例子中的两个handler：</p>
+[shell]
+handlers:
+    - name: restart memcached
+      service: name=memcached state=restarted
+    - name: restart apache
+      service: name=apache state=restarted
+[/shell]
+<p>要注意的是，handler在‘pre_tasks’，‘roles’，‘tasks’和‘post_tasks’ 部分之间执行，如果要立即运行，可以用flush_handlers，如下所示：</p>
+[shell]
+tasks:
+   - shell: some tasks go here
+   - meta: flush_handlers
+   - shell: some other tasks
+[/shell]
+<p>在上面的例子中，到达meta语句的时候，所有队列中的handler都会立即执行。</p>
+<a id="Runplaybook"></a><h5>4.执行一个Playbook</h5>
+[shell]
+ansible-playbook playbook.yml -f 10
+[/shell]
+<p>要查看运行Playbook会影响的hosts，可以按照以下方法：</p>
+[shell]
+ansible-playbook playbook.yml --list-hosts
+[/shell]
+
+<a id="Roles"></a><h4>Roles</h4>
+<p>虽然可以写一个很大的Playbook包含所有的tasks，最终你可能会想重用文件并组织它们。Include task文件允许你将大的Playbook文件切分小。Task include 从其它文件冲包含task。由于handler也是task，你也可以在handler部分include handler文件。</p>
+<p>根据include file提出的roles组织文件形成干净可重用的抽象。它们使得你可以关注于大的点，只在需要的时候再深入到细节。</p>
+<a id="Includeintask"></a><h5>1.在task中include文件</h5>
+<p>Task include 的文件包括了扁平系列（没有嵌套）的tasks。例如：</p>
+[shell]
+---
+# possibly saved as tasks/foo.yml
+
+- name: placeholder foo
+  command: /bin/foo
+
+- name: placeholder bar
+  command: /bin/bar
+[/shell]
+<p>然后在Playbook的某个task中include这个文件：</p>
+[shell]
+tasks:
+  - include: tasks/foo.yml
+[/shell]
+<p>你还可以传递变量到include，称为参数化include。例如：</p>
+[shell]
+tasks:
+  - include: wordpress.yml wp_user=timmy
+  - include: wordpress.yml wp_user=alice
+  - include: wordpress.yml wp_user=bob
+[/shell]
+<p>从1.0开始，还可以传递结构化变量：</p>
+[shell]
+tasks:
+
+  - include: wordpress.yml
+    vars:
+        wp_user: timmy
+        ssh_keys:
+          - keys/one.txt
+          - keys/two.txt
+[/shell]
+<p>然后可以在include的文件中使用这些变量，例如 {{ wp_user }}.</p>
+<a id="Includeinhandler"></a><h5>2.在handler中include</h5>
+[shell]
+---
+# this might be in a file like handlers/handlers.yml
+- name: restart apache
+  service: name=apache state=restarted
+handlers:
+  - include: handlers/handlers.yml
+[/shell]
+<a id="Includeplaybook"></a><h5>3.Include 其它Playbook</h5>
+<p>Include还可以用于import一个Playbook文件到另一个Playbook。这使得你可以定义顶层Playbook，它包含了其它Playbooks。例如：</p>
+[shell]
+- name: this is a play at the top level of a file
+  hosts: all
+  remote_user: root
+
+  tasks:
+
+  - name: say hi
+    tags: foo
+    shell: echo "hi..."
+
+- include: load_balancers.yml
+- include: webservers.yml
+- include: dbservers.yml
+[/shell]
+<p>学习了task和handler后，组织Playbook最好的方法是什么呢？那就是role。Role是根据已知的文件结构自动加载var_files，tasks和handlers的一种方式。按照role的方式分组内容也使得易于和他人分享roles。Roles其实就是按照上面介绍的自动化include。下面是一个事例项目的结构：</p>                                                                                                                                                                       
+[shell]
+site.yml
+webservers.yml
+fooservers.yml
+roles/
+   common/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     defaults/
+     meta/
+   webservers/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     defaults/
+     meta/
+[/shell]
+<p>一个Playbook可能类似如下：</p>
+[shell]
+---
+- hosts: webservers
+  roles:
+     - common
+     - webservers
+[/shell]
+<p>对于每个role ‘x’：</p>
+如果roles/x/tasks/main.yml 文件存在，该文件中的tasks会自动添加到play中
+如果roles/x/handlers/main.yml 文件存在，该文件中的handlers会自动添加到play中
+如果 roles/x/vars/main.yml 文件存在，该文件中的变量会自动添加到play中
+如果roles/x/meta/main.yml 文件存在，该文件中的role依赖会自动添加到roles中
+每个copy task可以引用 roles/x/files/ 中的文件而不用显式指定路径
+每个 script task可以引用 roles/x/files/ 中的文件而不用显式指定路径
+每个 template task可以引用roles/x/templates/中的文件而不用显式指定路径
+每个include task可以引用roles/x/tasks/ 中的文件而不用显式指定路径
+<a id="Paralizerole"></a><h5>4.参数化role</h5>
+<p>如果想要通过添加变量参数化role，可以按照如下方式：</p>
+[shell]
+---
+
+- hosts: webservers
+  roles:
+    - common
+    - { role: foo_app_instance, dir: '/opt/a',  port: 5000 }
+- { role: foo_app_instance, dir: '/opt/b',  port: 5001 }
+[/shell]
+<p>还可以根据条件添加role：</p>
+[shell]
+---
+
+- hosts: webservers
+  roles:
+- { role: some_role, when: "ansible_os_family == 'RedHat'" }
+[/shell]
+<a id="Settags"></a><h5>5.为role指定tags</h5>
+[shell]
+---
+
+- hosts: webservers
+  roles:
+- { role: foo, tags: ["bar", "baz"] }
+[/shell]
+<p>如果play还有tasks部分，执行role之后会执行剩余的tasks。还可以在role前面或后面定义task：</p>
+[shell]
+---
+
+- hosts: webservers
+
+  pre_tasks:
+    - shell: echo 'hello'
+
+  roles:
+    - { role: some_role }
+
+  tasks:
+    - shell: echo 'still busy'
+
+  post_tasks:
+- shell: echo 'goodbye'
+[/shell]
+<a id="Defaultvariable"></a><h5>6.Role的默认变量</h5>
+<p>Role default 变量允许你为include或者依赖的role设置默认变量，你只需要在你的role目录添加一个defaults/main.yml 文件。该文件中定义的变量优先级最低，很容易被其它变量覆盖，包括Inventory变量。</p>
+<a id="Dependency"></a><h5>7.Role 依赖</h5>
+<p>Role 依赖允许你使用role的时候自动添加其它role。Role 依赖保存在meta/main.yml 文件中，该文件中包含所依赖roles的列表，例如roles/myapp/meta/main.yml:</p>
+[shell]
+---
+dependencies:
+  - { role: common, some_parameter: 3 }
+  - { role: apache, port: 80 }
+  - { role: postgres, dbname: blarg, other_parameter: 12 }
+[/shell]
+<p>Role依赖通常在include它们的role之前执行，允许递归。默认情况下，role依赖只会执行一次，如果其它role的依赖列表中也包含了它并不会再次执行。通过在meta/main.yml文件中添加allow_duplicates: yes可以改变这种设置。例如，一个role‘car’可以在它的依赖中添加四个role‘wheel’：</p>
+[shell]
+---
+dependencies:
+- { role: wheel, n: 1 }
+- { role: wheel, n: 2 }
+- { role: wheel, n: 3 }
+- { role: wheel, n: 4 }
+[/shell]
+<p>然后role wheel的meta/main.yml 文件如下：</p>
+[shell]
+---
+allow_duplicates: yes
+dependencies:
+- { role: tire }
+- { role: brake }
+[/shell]
+<p>这样，执行顺序就是：</p>
+[shell]
+tire(n=1)
+brake(n=1)
+wheel(n=1)
+tire(n=2)
+brake(n=2)
+wheel(n=2)
+...
+car
+[/shell]
+
+<a id="Variable"></a><h4>变量</h4>
+<a id="Avariablevariable"></a><h5>1.可用的变量名称</h5>
+<p>变量名称应该以字母开头，可以包含字母，数字和下划线。</p>
+<a id="Variableinplaybook"></a><h5>2.Playbook中定义的变量</h5>
+[shell]
+- hosts: webservers
+  vars:
+http_port: 80
+[/shell]
+<a id="Jinjia2Var"></a><h5>3.变量使用 Jinja2</h5>
+<p>最基础的变量替换：</p>[shell]My amp goes to {{ max_amp_value }}[/shell]
+<p>稍微复杂一点的：</p>[shell]template: src=foo.cfg.j2 dest={{ remote_install_path }}/foo.cfg[/shell]
+<a id="Factsfromsys"></a><h5>4.从系统中获取的信息：facts</h5>
+<p>Facts是从远程系统获取的信息，例如：ansible hostname -m setup 可能的输出如下：</p>
+[shell]
+"ansible_all_ipv4_addresses": [
+    "REDACTED IP ADDRESS"
+],
+"ansible_all_ipv6_addresses": [
+    "REDACTED IPV6 ADDRESS"
+],
+"ansible_architecture": "x86_64",
+"ansible_bios_date": "09/20/2012",
+"ansible_bios_version": "6.00",
+"ansible_cmdline": {
+    "BOOT_IMAGE": "/boot/vmlinuz-3.5.0-23-generic",
+    "quiet": true,
+    "ro": true,
+    "root": "UUID=4195bff4-e157-4e41-8701-e93f0aec9e22",
+    "splash": true
+},
+.
+.
+.
+[/shell]
+<p>这里只是部分，可以查看一个<a href="https://docs.ansible.com/ansible/playbooks_variables.html#information-discovered-from-systems-facts" target="_blank">完整事例</a></p>
+<p>可以按照以下方式使用：</p>
+[shell]
+{{ ansible_devices.sda.model }}
+{{ ansible_nodename }}
+{{ ansible_hostname }}
+[/shell]
+<p>如果不关心hosts的信息，可以关闭fact，这在大规模系统时非常有用，提高效率。</p>
+[shell]
+- hosts: whatever
+  gather_facts: no
+[/shell]
+<a id="Registervar"></a><h5>5.注册变量</h5>
+<p>另一个使用变量的例子是运行一个命令，把命令的结果保存到变量中。每个module的结果可能有所不同，运行Playbook的时候可以使用-v选项查看结果。下面是一个例子：</p>
+[shell]
+- hosts: web_servers
+
+  tasks:
+
+     - shell: /usr/bin/foo
+       register: foo_result
+       ignore_errors: True
+
+     - shell: /usr/bin/bar
+       when: foo_result.rc == 5
+[/shell]
+<p>注册变量只对Playbook中剩余task的主机有效，这和facts的生命周期相同。</p>
+<a id="Accessvar"></a><h5>6.访问复杂变量</h5>
+[shell]
+{{ ansible_eth0["ipv4"]["address"] }}	：访问结构体
+{{ ansible_eth0.ipv4.address }}		：或
+{{ foo[0] }}		：访问数组第一个元素
+[/shell]
+<a id="Fileseperate"></a><h5>7.变量文件隔离</h5>
+<p>为了安全和易于组织，可以将变量定义保存在一个文件中，而不是直接在Playbook中添加。</p>
+[shell]
+---
+
+- hosts: all
+  remote_user: root
+  vars:
+    favcolor: blue
+  vars_files:
+    - /vars/external_vars.yml
+
+  tasks:
+
+  - name: this is just a placeholder
+command: /bin/echo foo
+[/shell]
+<p>每个变量文件就是简单的 YAML 字典：</p>
+[shell]
+---
+# in the above example, this would be vars/external_vars.yml
+somevar: somevalue
+password: magic
+[/shell]
+<a id="Varincommand"></a><h5>8.在命令行中传递变量</h5>
+[shell]
+ansible-playbook release.yml --extra-vars "version=1.23.45 other_variable=foo"
+[/shell]
+<p>json格式:</p>[shell]--extra-vars '{"pacman":"mrs","ghosts":["inky","pinky","clyde","sue"]}' [/shell]
+<a id="Varpriority"></a><h5>9.变量优先级</h5>
+<p>如果一个变量在多个地方定义，那么它的优先级如下：</p>
+<p>
+* extra vars (-e in the command line) always win
+* then comes connection variables defined in inventory (ansible_ssh_user, etc)
+* then comes "most everything else" (command line switches, vars in play, included vars, role vars, etc)
+* then comes the rest of the variables defined in inventory
+* then comes facts discovered about a system
+* then "role defaults", which are the most "defaulty" and lose in priority to everything.
+</p>
+<a id="Jinja2filter"></a><h5>10.Jinja2 过滤器</h5>
+<ul>
+<li>格式化数据</li>
+<p>下面的过滤器会读取 template 中的数据结构并渲染为不同的格式，这在调试的时候非常有用：</p>
+[shell]
+{{ some_variable | to_json }}
+{{ some_variable | to_yaml }}
+[/shell]
+<p>为了便于阅读，可以使用：</p>
+[shell]
+{{ some_variable | to_nice_json }}
+{{ some_variable | to_nice_yaml }}
+[/shell]
+<p>从格式化数据读入：</p>
+[shell]
+{{ some_variable | from_json }}
+{{ some_variable | from_yaml }}
+[/shell]
+<p>例如：</p>
+[shell]
+tasks:
+  - shell: cat /some/path/to/file.json
+    register: result
+
+  - set_fact: myvar="{{ result.stdout | from_json }}"
+[/shell]
+<li>和条件一起使用</li>
+[shell]
+tasks:
+
+  - shell: /usr/bin/foo
+    register: result
+    ignore_errors: True
+
+  - debug: msg="it failed"
+    when: result|failed
+
+  # in most cases you'll want a handler, but if you want to do something right now, this is nice
+  - debug: msg="it changed"
+    when: result|changed
+
+  - debug: msg="it succeeded"
+    when: result|success
+
+  - debug: msg="it was skipped"
+when: result|skipped
+[/shell]
+<li>强制定义变量</li>
+<p>对于未定义变量，Ansible 默认行为是fail。但你可以关闭：</p>
+[shell]
+{{ variable | mandatory }}
+[/shell]
+<li>未定义变量默认值</li>
+<p>Jinja2 提供了一个有用的‘default’过滤器，这比未定义变量时直接fail是个更好的方法：</p>
+[shell]
+{{ some_variable | default(5) }}
+[/shell]
+<li>忽略未定义变量和参数</li>
+<p>Ansible 1.8之后，可以使用default过滤器忽略未定义的变量和模块参数：</p>
+[shell]
+- name: touch files with an optional mode
+  file: dest={{item.path}} state=touch mode={{item.mode|default(omit)}}
+  with_items:
+    - path: /tmp/foo
+    - path: /tmp/bar
+    - path: /tmp/baz
+      mode: "0444"
+[/shell]
+<li>List 过滤器</li>
+<p>这些过滤器作用在list的所有变量上</p>
+<p>获取数字list中的最小值：</p>
+[shell]
+{{ list1 | min }}
+[/shell]
+<p>获取数字list中的最大值：</p>
+[shell]
+{{ [3, 4, 2] | max }}
+[/shell]
+<li>集合过滤器</li>
+<p>所有这些函数从集合或列表中返回一个唯一集合</p>
+<p>从list中获取唯一集合：</p>
+[shell]
+{{ list1 | unique }}
+[/shell]
+<p>两个lists的并交差：</p>
+[shell]
+{{ list1 | union(list2) }}
+{{ list1 | intersect(list2) }}
+{{ list1 | difference(list2) }}
+[/shell]
+<li>随机数过滤器</li>
+<p>从list中随机获取一个值：</p>
+[shell]
+{{ ['a','b','c']|random }} => 'c'
+[/shell]
+<p>从0到59获取一个随机数：</p>
+[shell]
+{{ 59 |random}}
+[/shell]
+<p>从0到100步长10获取随机数：</p>
+[shell]
+{{ 100 |random(step=10) }}  => 70
+[/shell]
+<p>从1到100步长10获取随机数：</p>
+[shell]
+{{ 100 |random(1, 10) }}    => 31
+{{ 100 |random(start=1, step=10) }}    => 51
+[/shell]
+<li>Shuffle 过滤器</li>
+<p>该过滤器随机排序已有list：</p>
+[shell]
+{{ ['a','b','c']|shuffle }} => ['c','a','b']
+{{ ['a','b','c']|shuffle }} => ['b','c','a']
+[/shell]
+<li>数学</li>
+<p>判断是否为数字：</p>
+[shell]
+{{ myvar | isnan }}
+[/shell]
+<p>对数（默认基为e）：</p>
+[shell]
+{{ myvar | log }}
+[/shell]
+<p>10的对数：</p>
+[shell]
+{{ myvar | log(10) }}
+[/shell]
+<p>次幂：</p>
+[shell]
+{{ myvar | pow(2) }}
+{{ myvar | pow(5) }}
+[/shell]
+<p>开方：</p>
+[shell]
+{{ myvar | root }}
+{{ myvar | root(5) }}
+[/shell]
+<li>IP过滤器</li>
+<p>检查是否有效IP：</p>
+[shell]
+{{ myvar | ipaddr }}
+[/shell]
+<p>检查是否某版本有效IP：</p>
+[shell]
+{{ myvar | ipv4 }}
+{{ myvar | ipv6 }}
+[/shell]
+<p>从IP地址提取指定信息：</p>
+[shell]
+{{ '192.0.2.1/24' | ipaddr('address') }}
+[/shell]
+<li>哈希过滤器</li>
+[shell]
+{{ 'test1'|hash('sha1') }}
+{{ 'test1'|hash('md5') }}
+{{ 'test2'|checksum }}
+{{ 'passwordsaresecret'|password_hash('sha512') }}
+[/shell]
+<li>其他有用过滤器</li>
+<p>添加引号：</p>[shell]- shell: echo={{ string_value | quote }}[/shell]
+<p>一个为真另一个为假：</p>[shell]{{ (name == "John") | ternary('Mr','Ms') }}[/shell]
+<p>连接list为string：</p>[shell]{{ list | join(" ") }}[/shell]
+<p>获取路径的最后一个名称：</p>[shell]{{ path | basename }}[/shell]
+<p>从路径中获取目录名称：</p>[shell]{{ path | dirname }}[/shell]
+<p>扩展带~的路径：</p>[shell]{{ path | expanduser }}[/shell]
+<p>获取链接的实际路径：</p>[shell]{{ path | realpath }}[/shell]
+<p>强制转换为指定类型：</p>
+[shell]
+- debug: msg=test
+  when: some_string_value | bool
+[/shell]
+<p>使用‘match’或‘search’匹配正则表达式:</p>
+[shell]
+vars:
+  url: "http://example.com/users/foo/resources/bar"
+
+tasks:
+    - shell: "msg='matched pattern 1'"
+      when: url | match("http://example.com/users/.*/resources/.*")[完全匹配]
+
+    - debug: "msg='matched pattern 2'"
+      when: url | search("/users/.*/resources/.*")[部分匹配]
+[/shell]
+<p>使用‘regex_place’进行正则替换：</p>
+[shell]
+# convert "ansible" to "able"
+{{ 'ansible' | regex_replace('^a.*i(.*)$', 'a\\1') }}
+
+# convert "foobar" to "bar"
+{{ 'foobar' | regex_replace('^f.*o(.*)$', '\\1') }}
+[/shell]
+<p>在正则中使用‘regex_escape’转义特殊字符：</p>
+[shell]
+# convert '^f.*o(.*)$' to '\^f\.\*o\(\.\*\)\$'
+{{ '^f.*o(.*)$' | regex_escape() }}
+[/shell]
+</ul>
+
+<a id="Condition"></a><h4>条件</h4>
+<ul>
+<li>When 语句</li>
+<p>有时候你可能想要在某些host中跳过特定的步骤，例如：</p>
+[shell]
+tasks:
+  - name: "shutdown Debian flavored systems"
+    command: /sbin/shutdown -t now
+when: ansible_os_family == "Debian"
+
+tasks:
+  - name: "shutdown CentOS 6 and 7 systems"
+    command: /sbin/shutdown -t now
+    when: ansible_distribution == "CentOS" and
+          (ansible_distribution_major_version == "6" or ansible_distribution_major_version == "7")
+
+tasks:
+  - command: /bin/false
+    register: result
+    ignore_errors: True
+  - command: /bin/something
+    when: result|failed
+  - command: /bin/something_else
+    when: result|success
+  - command: /bin/still/something_else
+when: result|skipped
+[/shell]
+<p>也可以使用Playbook或者Inventory中定义的变量：</p>
+[shell]
+vars:
+  epic: true
+tasks:
+    - shell: echo "This certainly is epic!"
+      when: epic
+    - shell: echo "This certainly isn't epic!"
+      when: not epic
+[/shell]
+<p>使用Jinja2的‘defined’测试检查变量是否定义：</p>
+[shell]
+tasks:
+    - shell: echo "I've got '{{ foo }}' and am not afraid to use it!"
+      when: foo is defined
+
+    - fail: msg="Bailing out. this play requires 'bar'"
+      when: bar is undefined
+[/shell]
+<p>当when和循环一起使用时，对每个item起作用：</p>
+[shell]
+tasks:
+    - command: echo {{ item }}
+      with_items: [ 0, 2, 4, 6, 8, 10 ]
+      when: item > 5
+[/shell]
+<p>对role和include使用when</p>
+[shell]
+- include: tasks/sometasks.yml
+  when: "'reticulating splines' in output"
+- hosts: webservers
+  roles:
+     - { role: debian_stock_config, when: ansible_os_family == 'Debian' }	
+[/shell]
+<li>条件导入</li>
+[shell]
+---
+- hosts: all
+  remote_user: root
+  vars_files:
+    - "vars/common.yml"
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/os_defaults.yml" ]
+  tasks:
+  - name: make sure apache is running
+service: name={{ apache }} state=running
+[/shell]
+<li>注册变量</li>
+[shell]
+- name: test play
+  hosts: all
+  tasks:
+      - shell: cat /etc/motd
+        register: motd_contents
+      - shell: echo "motd contains the word hi"
+        when: motd_contents.stdout.find('hi') != -1
+
+- name: registered variable usage as a with_items list
+  hosts: all
+  tasks:
+      - name: retrieve the list of home directories
+        command: ls /home
+        register: home_dirs
+      - name: add home dirs to the backup spooler
+        file: path=/mnt/bkspool/{{ item }} src=/home/{{ item }} state=link
+        with_items: home_dirs.stdout_lines
+        # same as with_items: home_dirs.stdout.split()	
+[/shell]
+</ul>
+
+<a id="Loop"></a><h4>循环</h4>
+<a id="Standard"></a><h5>1.标准循环</h5>
+[shell]
+- name: add several users
+  user: name={{ item }} state=present groups=wheel
+  with_items:
+     - testuser1
+     - testuser2
+[/shell]
+<p>上面的结果和下面相同：</p>
+[shell]
+- name: add user testuser1
+  user: name=testuser1 state=present groups=wheel
+- name: add user testuser2
+  user: name=testuser2 state=present groups=wheel
+[/shell]
+<p>如果在变量文件或者vars部分定义了一个YAML list：</p>
+[shell]
+with_items: "{{somelist}}"
+[/shell]
+<p>With_items中的item不一定是简单变量：</p>
+[shell]
+- name: add several users
+  user: name={{ item.name }} state=present groups={{ item.groups }}
+  with_items:
+    - { name: 'testuser1', groups: 'wheel' }
+- { name: 'testuser2', groups: 'root' }
+[/shell]
+<a id="Nested"></a><h5>2.循环嵌套</h5>
+[shell]
+- name: give users access to multiple databases
+  mysql_user: name={{ item[0] }} priv={{ item[1] }}.*:ALL append_privs=yes password=foo
+  with_nested:
+    - [ 'alice', 'bob' ]
+- [ 'clientdb', 'employeedb', 'providerdb' ]
+[/shell]
+<a id="Keyvalue"></a><h5>3.键值循环</h5>
+<p>假设有下面的变量：</p>
+[shell]
+---
+users:
+  alice:
+    name: Alice Appleworth
+    telephone: 123-456-7890
+  bob:
+    name: Bob Bananarama
+telephone: 987-654-3210
+[/shell]
+<p>用with_dict输出键值：</p>
+[shell]
+tatasks:
+  - name: Print phone records
+    debug: msg="User {{ item.key }} is {{ item.value.name }} ({{ item.value.telephone }})"
+with_dict: "{{users}}"
+[/shell]
+<a id="Parallel"></a><h5>4.平行数据集循环</h5>
+<p>假设有如下变量：</p>
+[shell]
+---
+alpha: [ 'a', 'b', 'c', 'd' ]
+numbers:  [ 1, 2, 3, 4 ]
+
+tasks:
+    - debug: msg="{{ item.0 }} and {{ item.1 }}"
+      with_together:
+        - "{{alpha}}"
+        - "{{numbers}}"
+[/shell]
+<a id="Integer"></a><h5>5.整数值序列循环</h5>
+[shell]
+---
+- hosts: all
+
+  tasks:
+
+    # create groups
+    - group: name=evens state=present
+    - group: name=odds state=present
+
+    # create some test users
+    - user: name={{ item }} state=present groups=evens
+      with_sequence: start=0 end=32 format=testuser%02x
+
+    # create a series of directories with even numbers for some reason
+    - file: dest=/var/stuff/{{ item }} state=directory
+      with_sequence: start=4 end=16 stride=2
+
+    # a simpler way to use the sequence plugin
+    # create 4 groups
+    - group: name=group{{ item }} state=present
+      with_sequence: count=4
+[/shell]
+<a id="Random"></a><h5>6.随机选择</h5>
+[shell]
+- debug: msg={{ item }}
+  with_random_choice:
+     - "go through the door"
+     - "drink from the goblet"
+     - "press the red button"
+     - "do nothing"
+[/shell]
+<a id="Dountil"></a><h5>7.Do-until循环</h5>
+[shell]
+- action: shell /usr/bin/foo
+  register: result
+  until: result.stdout.find("all systems go") != -1
+  retries: 5
+  delay: 10
+[/shell]
+<a id="Indexed"></a><h5>8.带索引的list循环</h5>
+[shell]
+- name: indexed loop demo
+  debug: msg="at array position {{ item.0 }} there is a value {{ item.1 }}"
+  with_indexed_items: "{{some_list}}"
+[/shell]
+<a id="Inifile"></a><h5>9.INI文件使用循环</h5>
+<p>假设有INI文件：</p>
+[shell]
+[section1]
+value1=section1/value1
+value2=section1/value2
+
+[section2]
+value1=section2/value1
+value2=section2/value2
+[/shell]
+<p>使用with_ini:</p>
+[shell]
+使用with_ini:
+- debug: msg="{{item}}"
+  with_ini: value[1-2] section=section1 file=lookup.ini re=true
+[/shell]
+<p>结果输出：</p>
+[shell]
+{
+      "changed": false,
+      "msg": "All items completed",
+      "results": [
+          {
+              "invocation": {
+                  "module_args": "msg=\"section1/value1\"",
+                  "module_name": "debug"
+              },
+              "item": "section1/value1",
+              "msg": "section1/value1",
+              "verbose_always": true
+          },
+          {
+              "invocation": {
+                  "module_args": "msg=\"section1/value2\"",
+                  "module_name": "debug"
+              },
+              "item": "section1/value2",
+              "msg": "section1/value2",
+              "verbose_always": true
+          }
+      ]
+  }
+[/shell]
+
+<a id="Tags"></a><h4>Tags</h4>
+<p>如果你的Playbook很大，只运行部分task而不是整个Playbook就显得非常有用，因为这个原因，play和task都支持‘tags:’，例如：</p>
+[shell]
+tasks:
+
+    - yum: name={{ item }} state=installed
+      with_items:
+         - httpd
+         - memcached
+      tags:
+         - packages
+
+    - template: src=templates/src.j2 dest=/etc/foo.conf
+      tags:
+         - configuration
+[/shell]
+<ul>
+<li>如果只想运行‘configuration’和‘packages’的部分，可以：</li>
+[shell]ansible-playbook example.yml --tags "configuration,packages"[/shell]
+<li>不运行某些tags：</li>[shell]ansible-playbook example.yml --skip-tags "notification"[/shell]
+<li>对role使用tags：</li>
+[shell]
+roles:
+  - { role: webserver, port: 5000, tags: [ 'web', 'foo' ] }
+[/shell]
+<li>对include使用tags：</li>[shell]- include: foo.yml tags=web,foo[/shell]
+<li>特殊tags：</li>
+<p>always：总是运行，除非指定跳过（-skip-tags always）</p>
+[shell]
+tasks:
+
+    - debug: msg="Always runs"
+      tags:
+        - always
+
+    - debug: msg="runs when you use tag1"
+      tags:
+        - tag1
+[/shell]
+<p>
+tagged:	run only tagged
+untagged: run only untagged
+all: run all tasks
+默认ansible运行‘-tags all’
+</p>
+</ul>
+
+<a id="Module"></a><h4>模块索引</h4>
+<p>关于ansible的可用模块和使用方法，可以参考：<a href="http://docs.ansible.com/ansible/modules_by_category.html" target="_blank">http://docs.ansible.com/ansible/modules_by_category.html</a></p>
+
+<hr />
+<a id="Reference"></a>Reference:
+<a href="http://docs.ansible.com/ansible/index.html" target="">Ansible Documentation</a>
+<a href="https://linux.cn/article-4215-1.html" target="_blank">Ansible ：一个配置管理和IT自动化工具</a>
