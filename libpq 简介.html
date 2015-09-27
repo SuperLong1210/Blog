@@ -1,0 +1,308 @@
+<p>libpq 是 postgresql 数据库的 c 语言接口，在 c 程序中通过 libpq 库访问 postgresql 数据库并进行数据库操作</p>
+<h4>数据库连接控制函数</h4>
+<p>下面的函数处理到 PostgreSQL 后端服务器的连接。一个应用程序可以同时打开多个后端连接。（其中一个原因是访问多个数据库。）每个连接由一个 PGconn 对象表示，该对象可以通过 PQconnectdb, PQconnectdbParams, 或者 PQsetdbLogin 函数获得。注意这些函数总是返回一个非空对象指针，除非内存不足以分配 PGconn 对象。在通过该连接对象发送查询请求之前应该先调用 PQstatus 函数检查连接是否成功。</p>
+
+<ul>
+<li>PQconnectdbParams</li>
+<p>创建一个连接到数据库服务器。</p>
+<pre>
+PGconn *PQconnectdbParams(const char * const *keywords,
+                          const char * const *values,
+                          int expand_dbname);
+</pre>
+<p>该函数使用两个 NULL 结尾的数组作为参数打开一个新的数据库连接。第一个 <strong>keywords</strong> 是一个字符串数组，每个值是一个关键字。第二个 <strong>values</strong> 给定每个关键字的值。</p>
+<p>当前识别的关键字在 <a href="#keywords">关键字列表</a> 中列出。</p>
+<p>传入的数组可以为空，这样它就会使用默认值，或者包括一个或多个参数设置。两个数组的长度应该相同。程序识别到 <strong>keywords</strong> 数组最后一个非空元素时停止参数解析。</p>
+<p>一般来说按照数组索引顺序处理关键字。结果是如果某个关键字重复了，就会使用最后的那一个值，因此要特别注意参数的顺序，尤其是 dbname，很可能会被 conninfo 字符串覆盖。</p>
+
+<li>PQconnectdb</li>
+<p>创建一个连接到数据库服务器。</p>
+<pre>
+PGconn *PQconnectdb(const char *conninfo);
+</pre>
+<p>该函数使用从 conninfo 字符串获得的参数打开一个新的连接到数据库。</p>
+<p>传递的字符串可以为空，这样就会使用默认值。也可以包括一个或多个由空格分隔的参数设置，还可以是一个 URI。关于合法的 URI，可以查看
+<a href="#URI">URI</a> 章节。</p>
+<li>PQsetdbLogin</li>
+<p>创建一个连接到数据库服务器。</p>
+<pre>
+PGconn *PQsetdbLogin(const char *pghost,
+                     const char *pgport,
+                     const char *pgoptions,
+                     const char *pgtty,
+                     const char *dbName,
+                     const char *login,
+                     const char *pwd);
+</pre>
+<p>这是 PQconnectdb 之前的版本，只支持后者的部分参数。它们有相同的功能，除了前者将不支持的参数都使用默认值。</p>
+<p>如果 dbName 包括 ‘=’ 符号或者有一个有效的 URI 前缀，会被作为一个传入 PQconnectdb 的 conninfo，其余的参数会像为 PQconnectdbParams 那样处理。</p>
+
+<li>PQfinish</li>
+<p>关闭到服务器的连接。同时释放 PGconn 对象使用的内存。</p>
+<pre>
+void PQfinish(PGconn *conn);
+</pre>
+<p>注意即使服务器连接尝试失败了，应用程序也应该调用 PQfinish 释放 PGconn 对象占用的内存。调用 PGfinish 之后不能再使用该 PGconn 指针。</p>
+<li>PQreset</li>
+<p>重置到服务器的连接。</p>
+<pre>
+void PQreset(PGconn *conn);
+</pre>
+<p>该函数会关闭到服务器的连接，然后尝试再次使用和之前完全相同的参数建立一个新的连接。这在连接丢失进行错误恢复的时候非常有用。</p>
+</ul>
+
+<h5>连接字符串</h5>
+<ol>
+<li>keyword/value 连接字符串</li>
+<p>第一种方式是每个参数设置都是 keyword = value 的形式，其中等号两边的空格是可选的。要设置一个空值或者包括空格的值，应该用单引号括起来。值中的单引号或者反斜杠必须使用一个反斜杠进行转义。</p>
+<p>事例：</p>
+<pre>host=localhost port=5432 dbname=mydb connect_timeout=10</pre>
+
+<li><a id="URI">URI</a></li>
+URI 的一般形式是：
+<pre>postgresql://[user[:password]@][netlocation][:port][/dbname][?param1=value1&...]</pre>
+<p>URI 模式可以是 postgresql:// 或者 postgres://。URI 的每个部分都是可选的。下面是一些有效 URI 的例子：</p>
+<pre>
+postgresql://
+postgresql://localhost
+postgresql://localhost:5433
+postgresql://localhost/mydb
+postgresql://user@localhost
+postgresql://user:secret@localhost
+postgresql://other@localhost/otherdb?connect_timeout=10&application_name=myapp
+</pre>
+<p>URI 中的成员也可以作为参数指定值，例如：</p>
+<pre>postgresql:///mydb?host=localhost&port=5433</pre>
+<p>对于<a href="#keywords">关键字</a> 部分没有列出的参数都会被忽视，而且会发送一个相关的 warning 到 stderr。</p>
+</ol>
+
+<h5><a id="keywords">关键字</a></h5>
+<p>当前能识别的关键字包括：</p>
+<ul>
+<li>host</li>连接到的主机名。如果用一个斜杠开头，则表示 Unix-域 连接，而不是 TCP/IP 连接，值是保存 socket 文件的目录。
+<li>hostaddr</li>主机的 IP 地址。值应该是一个标准的 IPv4 或 IPv6 地址，例如 172.28.40.9。
+<li>port</li>服务器主机的连接端口，或 socket 文件名扩展。
+<li>dbname</li>要连接的数据库名称，默认和用户名相同。
+<li>user</li>PostgreSQL 用户名，默认和运行程序的系统用户名相同。
+<li>password</li>用户名对应的密码。
+<li>connect_timeout</li>最大等待时间，单位为秒。0 或者不指定表示无穷大。不推荐使用低于2秒的超时。
+</ul>
+<p>这里只介绍了部分常用的关键字，关于完整的支持关键字，可以查看<a href="http://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-PARAMKEYWORDS" target="_blank">官方文档</a>。</p>
+
+<h4>连接状态函数</h4>
+<p>以下这些函数可以获得现有数据库连接对象的信息，这些值在 PGconn 对象的生命周期内有效。</p>
+<ul>
+<li>PQdb</li>返回连接的数据库名称。
+<pre>char* PQdb(const PGconn *conn);</pre>
+<li>PQuser</li>返回连接的用户名称。
+<pre>char* PQuser(const PGconn *conn);</pre>
+<li>PQpass</li>返回连接的用户名密码。
+<pre>char* PQpass(const PGconn *conn);</pre>
+<li>PQhost</li>返回连接的服务器主机名。
+<pre>char* PQhost(const PGconn *conn);</pre>
+<li>PQport</li>返回连接的端口。
+<pre>char* PQport(const PGconn *conn);</pre>
+<li>PQstatus</li>返回连接的状态。
+<pre>ConnStatusType PQstatus(const PGconn *conn);</pre>
+<li>PQparameterStatus</li>查看当前连接的某个参数设置。
+<pre>const char *PQparameterStatus(const PGconn *conn, const char *paramName);</pre>
+<li>PQerrorMessage</li>返回最近连接操作产生的错误信息。
+<pre>har *PQerrorMessage(const PGconn *conn);</pre>
+</ul>
+<p>更完整的可用连接状态函数介绍，可以查看<a href="http://www.postgresql.org/docs/9.3/static/libpq-status.html" target="_blank">官方文档</a>。</p>
+
+<h4>命令执行函数</h4>
+<h5>主要函数</h5>
+<ul>
+<li>PQexec</li>
+<p>提交一个命令到服务器并等待结果。</p>
+<pre>PGresult *PQexec(PGconn *conn, const char *command);</pre>
+<p>返回一个 PGresult 指针或者空指针。除非内存不够或者发生重大错误，例如无法发送命令到服务器，都会返回一个非空指针。然后应该调用 PQresultStatus 函数检查返回值看是否有错误（包括空指针，此时会返回 PGRES_FATAL_ERROR），要获得关于错误的详细信息，可以调用 PQerrorMessage 函数。</p>
+<p>command 字符串可以包括多个 SQL 命令（用分号分隔）。在一个 PQexec 中发送的多个查询会作为一个事务处理，除非查询中包括显式的 BEGIN/COMMIT 命令，此时会被作为多个事务处理。注意返回的 PGresult 结构体只是最后一个命令的执行结果。</p>
+
+<li>PQexecParams</li>
+<p>提交一个命令到服务器并等待结果，可以传递参数。</p>
+<pre>
+PGresult *PQexecParams(PGconn *conn,
+                       const char *command,
+                       int nParams,
+                       const Oid *paramTypes,
+                       const char * const *paramValues,
+                       const int *paramLengths,
+                       const int *paramFormats,
+                       int resultFormat);
+</pre>
+<p>PQexecParams 和 PQexec 类似，但提供了更多的功能：参数的值可以和命令字符串隔离，可以以二进制或者文本形式返回结果。</p>
+<p>函数的参数包括：</p>
+<pre>
+conn
+    命令发送到的连接
+
+command
+    要执行的命令。如果使用了参数，在命令字符串中通过 $1,$2... 使用。
+
+nParams
+    提供的参数的数目，即 paramTypes[], paramValues[], paramLengths[], 和 paramFormats[] 数组的长度。nParam 为 0 的时候数组可以为空。
+
+paramTypes[]
+    参数符号数据类型的 OID 值，可以在 postgresql 中通过 select typname, oid from pg_type 查看数据类型对应的 oid。如果 paramTypes 为空
+    或者其中的某一个值为 0，服务器会像无类型字面字符串那样为参数符号推断数据类型。
+
+paramValues[]
+    指定参数的实际值。数组中的空指针表示对应的参数值为空；否则指针指向以0结尾的文本字符串（text 格式）或者二进制数据（二进制格式）。
+
+paramLengths[]
+    指定二进制格式参数的实际数据长度（字节数）。空参数或者 text 格式参数会忽视这个值。没有二进制参数的时候该数组可为空。
+
+paramFormats[]
+    指定参数是 text（对应参数位置值置为 0）还是binary 格式（对应参数位置置为 1）。如果数组为空，认为所有参数都是 text 字符串。
+    
+    以二进制格式传递的值要求了解后端的内部表示。例如 integer 必须以网络字节序传递（大端法）。如果主机是小端（大部分机器都是小端的），则需要手动进行字节序转换。
+
+resultFormat
+    0 表示以 text 格式返回结果，1 表示二进制格式。
+</pre>
+<p>PQexecParams 和 PQexec 相比最大的好处是参数值可以和命令字符串分离，从而避免冗长而又容易出错的引号和转义。</p>
+<p>不像 PQexec，PQexecParams 的命令字符串中只允许一个查询。</p>
+
+<li>PQprepare</li>
+<p>提交一个请求用于根据指定的参数创建 prepared 语句并等待执行结果。</p>
+<pre>
+PGresult *PQprepare(PGconn *conn,
+                    const char *stmtName,
+                    const char *query,
+                    int nParams,
+                    const Oid *paramTypes);
+</pre>
+<p>PQprepare 创建一个 prepared 语句用于后面 PQexecPrepared 的执行。这个功能使得要重复执行的命令只需要进行一次语法解析和计划生成。而不是每次执行的时候都要进行。</p>
+<p>该函数为 query 字符串创建一个名为 stmtName 的 prepared 语句，其中 query 只包括一个 SQL 命令。stmtName 可以为空 “” 用于创建一个无命名语句，这种情况下任何之前的无命名语句都会被自动替换；否则如果在当前会话中已经定义了该 stmtName 就会产生错误。如果使用了参数，在查询中通过 $1,$2...引用。这里的 nParams， paramTypes 和 之前介绍的相同。</p>
+
+<li>PQexecPrepared</li>
+<p>发送一个请求用于根据指定的参数执行 prepared 语句并等待执行结果。</p>
+<pre>
+PGresult *PQexecPrepared(PGconn *conn,
+                         const char *stmtName,
+                         int nParams,
+                         const char * const *paramValues,
+                         const int *paramLengths,
+                         const int *paramFormats,
+                         int resultFormat);
+</pre>
+<p>该函数和 PQexecParams 类似，不过要执行的命令通过指定之前定义的 prepared 语句指定，而不是一个 query 字符串。</p>
+</ul>
+<p>关于其它执行命令的介绍可以查看<a href="http://www.postgresql.org/docs/9.3/static/libpq-exec.html#LIBPQ-EXEC-MAIN" target="_blank">官方文档</a>。</p>
+
+<p>关于获取查询结果的函数介绍，可以查看<a href="http://www.postgresql.org/docs/9.3/static/libpq-exec.html#LIBPQ-EXEC-SELECT-INFO" target="_blank">官方文档。</a></p>
+
+<h4>一个完整事例程序</h4>
+[cpp]
+#include <libpq-fe.h>
+#include <stdint.h>
+#include <arpa/inet.h>
+#include <iostream>
+
+int main() {
+   const char conninfo[] = "postgresql://postgres@localhost:5432/dbtest";
+   // const char conninfo[] = "postgresql://postgres@localhost?port=5432&dbname=dbtest";
+   PGconn* conn = PQconnectdb(conninfo);
+   /* Check to see that the backend connection was successfully made */
+   if (PQstatus(conn) != CONNECTION_OK) {
+       std::cout << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
+   }
+
+   PGresult *res = PQexec(conn, "create table tb0927 (id integer, name char(20), age int);");
+   if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+       std::cout << "Create table failed: " << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+   PQclear(res);
+
+   res = PQexec(conn, "insert into tb0927 values(1, 'helloworld', 23);");
+   if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+       std::cout << "Insert into table failed: " << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+   PQclear(res);
+
+   const char command[] = "insert into tb0927 values($1, $2, $3);";
+   int id = htobe32(2);
+   char name[20] = "helloworld2";
+   int age= htobe32(24);
+   int nParams = 3;
+   const char* const paramValues[] = { (char*)&id, name, (char*)&age };
+   const int paramLengths[] = { sizeof(id), sizeof(name), sizeof(age) };
+   const int paramFormats[] = { 1 ,0 ,1 };
+   int resultFormat = 0;
+
+   res = PQexecParams(conn,
+           command,
+           nParams,
+           NULL,
+           paramValues,
+           paramLengths,
+           paramFormats,
+           resultFormat
+           );
+   if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+       std::cout << "PQexecParams failed: " << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+   PQclear(res);
+
+   res = PQprepare(conn,
+           "insertStmt",
+           command,
+           nParams,
+           NULL
+           );
+   if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+       std::cout << "PQprepare failed:" << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+   PQclear(res);
+
+   res = PQexecPrepared(conn,
+           "insertStmt",
+           nParams,
+           paramValues,
+           paramLengths,
+           paramFormats,
+           resultFormat
+           );
+   if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+       std::cout << "PQexecPrepared failed: " << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+   PQclear(res);
+
+   res = PQexec(conn, "select * from tb0927;");
+   if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+       std::cout << "Select failed: " << PQresultErrorMessage(res) << std::endl;
+       return 1;
+   }
+
+   std::cout << "Get " << PQntuples(res) << "tuples, each tuple has " << PQnfields(res) << "fields" << std::endl;
+   for(int i = 0; i < PQnfields(res); i++) {
+       std::cout << PQfname(res, i) << "              " ;
+   }
+   std::cout << std::endl;
+   for(int i = 0; i < PQntuples(res); i++) {
+       for(int j = 0; j < PQnfields(res); j++) {
+           std::cout << PQgetvalue(res,i ,j ) << "   ";
+       }
+       std::cout << std::endl;
+   }
+   PQclear(res);
+   PQfinish(conn);
+   return 0;
+}
+[/cpp]
+<p>编译：g++ libpq.cc -o libpq -lpq -std=c++0x</p>
+<p>运行：./libqp</p>
+<p>运行结果截图如下：</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/09/pgresult1.jpg"/>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/09/pgresult2.jpg"/>
+
+<hr />
+Reference:
+<a href="http://www.postgresql.org/docs/9.3/static/libpq.html" target="_blank">PostgreSQL Documentation Libpq</a>
