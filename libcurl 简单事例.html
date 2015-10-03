@@ -1,0 +1,85 @@
+<p>curl 是利用 URL 语法在命令行方式下工作的开源文件传输工具。它被广泛应用在 Unix、多种 Linux 发行版中，并且有 DOS 和 Win32、Win64 下的移植版本。</p>
+<p>libcurl 主要功能就是用不同的协议连接和沟通不同的服务器,也就是相当封装了的 sock。</p>
+<p>在基于LibCurl的程序里，主要采用callback function （回调函数）的形式完成传输任务，用户在启动传输前设置好各类参数和回调函数，当满足条件时 libcurl 将调用用户的回调函数实现特定功能。下面是利用 libcurl 完成传输任务的流程：</p>
+<ol>
+<li>调用curl_global_init()初始化libcurl</li>
+<li>调用 curl_easy_init()函数得到 easy interface型指针</li>
+<li>调用curl_easy_setopt设置传输选项</li>
+<li>根据curl_easy_setopt设置的传输选项，实现回调函数以完成用户特定任务</li>
+<li>调用curl_easy_perform（）函数完成传输任务</li>
+<li>调用curl_easy_cleanup（）释放内存</li>
+</ol>
+<p>在整过过程中设置curl_easy_setopt()参数是最关键的，几乎所有的libcurl程序都要使用它。</p>
+<p>下面是使用 libcurl 获取一个 URL 返回数据的简单事例：curldata.cc:</p>
+[cpp]
+#include <iostream>                                                                                                                                                    
+#include <curl/curl.h>
+#include <cstring>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+struct url_data {
+    size_t size;
+    char* data;
+};
+
+size_t write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data) {
+    size_t n = size * nmemb;
+    free(data->data);
+    data->data = (char*) malloc (sizeof(char) * (n + 1));
+    if(!data->data) {
+        std::cout << "Failed to allocate memory" << std::endl;
+        return 0;
+    }   
+    memcpy(data->data, ptr, n); 
+    data->data[n] = '\0';
+    return n;
+}
+
+char* handleURL(char* url) {
+    CURL* curl;
+    CURLcode res;
+
+    struct url_data data;
+    data.size = 0;
+    data.data = NULL;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+        res = curl_easy_perform(curl);
+        if(res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",  
+                curl_easy_strerror(res));
+        }
+        curl_easy_cleanup(curl);
+    }
+    return data.data;                                                                                                                                                  
+}
+
+int main() {
+    std::vector<std::string> locations;
+    char url[] = "https://www.baidu.com";
+    char* data = handleURL(url);
+    if(!data) {
+        std::cout << "Curl handle url error" << std::endl;
+        return 1;
+    }
+    std::string str(data);
+    std::cout << str << std::endl;
+    return 0;
+}
+[/cpp]
+<p>
+编译：[shell]g++ curldata.cc -o curldata -lcurl[/shell]
+运行：[shell]./curldata[/shell]</p>
+<p>结果截图如下：</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/libcurl.jpg" />
+
+<hr/>
+Reference:
+<a href="http://curl.haxx.se/libcurl/c/" target="_blank">The libcurl API</a>
+<a href="http://baike.baidu.com/link?url=8m-aCp90gJx8jG4Yb1POE9q6jpAda2EXo5tmbBxr62eT6bKzdzfP7u5rwS3MEYes57sVicdg_OK9aqThybV6da" target="_blank">libcurl 百度百科</a>
