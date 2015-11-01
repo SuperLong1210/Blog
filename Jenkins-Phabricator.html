@@ -1,0 +1,959 @@
+<p class=MsoNormal align=center style='text-align:center'><span lang=EN-US
+style='font-size:16.0pt;font-family:宋体'>Jenkins Phabricator</span><span
+style='font-size:16.0pt;font-family:宋体'>持续集成</span></p>
+
+<p class=MsoToc2><span
+lang=EN-US><a href="#_Toc432782715"><span lang=EN-US style='font-family:宋体'><span
+lang=EN-US>一、</span></span><span lang=EN-US><span lang=EN-US> </span></span><span
+lang=EN-US style='font-family:宋体'><span lang=EN-US>简介</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782716"><span
+style='font-family:"Cambria",serif'>1. </span><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>持续集成</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782717">2. Jenkins<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782718">3. Phabricator<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782719">4. <span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>目标</span></span><span style='color:
+windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc2><span lang=EN-US><a href="#_Toc432782720"><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>二、</span></span><span lang=EN-US><span
+lang=EN-US> </span></span><span lang=EN-US style='font-family:宋体'><span
+lang=EN-US>搭建</span></span><span style='color:windowtext;display:none;
+text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782721">1. <span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>所需的软件</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782722"><b><span
+style='font-family:"Cambria",serif'>2. </span></b><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>环境搭建</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc4><span lang=EN-US><a href="#_Toc432782723">1)<span
+style='color:windowtext;text-decoration:none'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+lang=EN-US style='font-family:宋体'><span lang=EN-US>安装</span></span>Jenkins<span
+lang=EN-US style='font-family:宋体'><span lang=EN-US>和</span></span>Phabricator<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc4><span lang=EN-US><a href="#_Toc432782724">2)<span
+style='color:windowtext;text-decoration:none'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Phabricator
+<span lang=EN-US style='font-family:宋体'><span lang=EN-US>配置</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc4><span lang=EN-US><a href="#_Toc432782725">3)<span
+style='color:windowtext;text-decoration:none'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Jenkins
+<span lang=EN-US style='font-family:宋体'><span lang=EN-US>配置</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc2><span lang=EN-US><a href="#_Toc432782726"><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>三、</span></span><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US> </span></span>Jenkins<span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>和</span></span>Phabricator<span
+lang=EN-US style='font-family:宋体'><span lang=EN-US>集成</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782727"><b><span
+style='font-family:"Cambria",serif'>1. </span></b><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>安装配置</span></span><span
+style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc3><span lang=EN-US><a href="#_Toc432782728">2. <span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>使用</span></span><span style='color:
+windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc2><span lang=EN-US><a href="#_Toc432782729"><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US>四、</span></span><span lang=EN-US
+style='font-family:宋体'><span lang=EN-US> </span></span>Reference<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>18</span></a></span></p>
+
+
+<h2><a name="_Toc432782715"><span style='font-family:宋体'>一、</span> </a><span
+style='font-family:宋体'>简介</span></h2>
+
+<h3><a name="_Toc432782716"><span lang=EN-US style='font-family:"Cambria",serif'>1.
+</span>持续集成</a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>一种软件开发实践，即团队的成员经常集成他们的工作，通常每个成员每天至少集成一次，这导致每天发生多次集成。每次集成都通过自动化的构建</span><span
+lang=EN-US>(</span><span style='font-family:宋体'>包括测试</span><span lang=EN-US>)</span><span
+style='font-family:宋体'>来验证，从而尽快地检测出集成错误。许多团队发现这个过程会大大减少集成问题，让团队能够更快地开发内聚的软件。本质上说，持续集成就是通过快速的反馈降低风险。</span></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<h3><a name="_Toc432782717"><span lang=EN-US>2. Jenkins</span></a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>Jenkins </span><span
+style='font-family:宋体'>是一个用</span><span lang=EN-US>java</span><span
+style='font-family:宋体'>编写的持续集成工具</span><span lang=EN-US>. </span><span
+style='font-family:宋体'>它为软件开发提供持续集成服务。它基于服务器，并运行于</span><span lang=EN-US>servlet</span><span
+style='font-family:宋体'>容器，例如</span><span lang=EN-US>Apache Tomcat</span><span
+style='font-family:宋体'>。它支持版本控制工具，包括</span><span lang=EN-US>CVS, Subversion,
+Git, Mercurial, Perforce, Clearcase </span><span style='font-family:宋体'>和</span><span
+lang=EN-US>RTC, </span><span style='font-family:宋体'>并能执行基于</span><span
+lang=EN-US>Apache Ant </span><span style='font-family:宋体'>和</span><span
+lang=EN-US>Apache Maven </span><span style='font-family:宋体'>的项目。另外，它能通过多种方法开始构建，例如</span><span
+lang=EN-US>, </span><span style='font-family:宋体'>由版本控制系统触发，由</span><span
+lang=EN-US>cron-like</span><span style='font-family:宋体'>机制调度，由远程命令触发，或者通过一个</span><span
+lang=EN-US>URL</span><span style='font-family:宋体'>。</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<h3><a name="_Toc432782718"><span lang=EN-US>3. Phabricator</span></a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>Phabricator </span><span
+style='font-family:宋体'>是一套基于网络的软件开发协作工具，包括代码审查工具、库浏览器、</span><span lang=EN-US>Herald
+</span><span style='font-family:宋体'>变化检测工具、</span><span lang=EN-US>Bug </span><span
+style='font-family:宋体'>跟踪、</span><span lang=EN-US>Phriction Wiki</span><span
+style='font-family:宋体'>。</span><span lang=EN-US>Phabricator </span><span
+style='font-family:宋体'>集成了</span><span lang=EN-US>Git</span><span
+style='font-family:宋体'>、</span><span lang=EN-US>Mercurial</span><span
+style='font-family:宋体'>、和</span><span lang=EN-US>Subversion</span><span
+style='font-family:宋体'>版本控制工具。它在</span><span lang=EN-US>Apache License 2 </span><span
+style='font-family:宋体'>协议下发布的自由软件。</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<h3><a name="_Toc432782719"><span lang=EN-US>4. </span>目标</a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>我们的目标是采用</span><span
+lang=EN-US>Git + Phabricator+ Jenkins</span><span style='font-family:宋体'>模式，实现</span><span
+lang=EN-US>Git</span><span style='font-family:宋体'>托管代码，</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>进行代码审查、</span><span lang=EN-US>Bug </span><span
+style='font-family:宋体'>跟踪，</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>集成构建的流程。通过</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>和</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>的强大功能，完善代码管理和编译，测试以及部署，提高软件质量并加速软件开发。</span></p>
+
+<h2><a name="_Toc432782720"><span style='font-family:宋体'>二、</span> </a><span
+style='font-family:宋体'>搭建</span></h2>
+
+<h3><a name="_Toc432782721"><span lang=EN-US>1. </span>所需的软件</a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>为了搭建一个完整的持续集成系统，我们需要如下软件：</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Apache</span><span style='font-family:宋体'>：</span><span
+lang=EN-US>Internet</span><span style='font-family:宋体'>上最流行的</span><span
+lang=EN-US>Web</span><span style='font-family:宋体'>服务器软件，仅支持静态网页</span></p>
+
+<p class=MsoNormal><span lang=EN-US>PHP</span><span style='font-family:宋体'>：在服务器端执行的嵌入</span><span
+lang=EN-US>HTML</span><span style='font-family:宋体'>文档的脚本语言</span></p>
+
+<p class=MsoNormal><span lang=EN-US>MariaDB/MySQL</span><span style='font-family:
+宋体'>：数据库管理系统</span><b><span style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US>Git</span><span style='font-family:宋体'>：版本控制系统的一个免费开源客户端</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Jenkins</span><span style='font-family:
+宋体'>：持续构建工具</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Phabricator</span><span style='font-family:
+宋体'>：</span><span lang=EN-US>Code review </span><span style='font-family:宋体'>工具</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>以下分别是这些软件的安装配置和使用方法的简要介绍。</span></p>
+
+<h3><a name="_Toc432782722"><b><span lang=EN-US style='font-family:"Cambria",serif'>2.
+</span></b>环境搭建</a></h3>
+
+<h4 style='text-indent:0cm'><a name="_Toc432782723"><span lang=EN-US>1)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span>安装<span
+lang=EN-US>Jenkins</span>和<span lang=EN-US>Phabricator</span></a></h4>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>具体内容查看安装脚本</span><span
+lang=EN-US style='color:red'>install-jenkins-phabricator.sh</span><span
+style='font-family:宋体'>。</span></p>
+
+<h4 style='text-indent:0cm'><a name="_Toc432782724"><span lang=EN-US>2)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+lang=EN-US>Phabricator </span>配置</a></h4>
+
+<p class=MsoNormal><span style='font-family:宋体'>安装完成后，打开</span><span
+lang=EN-US><a href="http://%3cyour-server">http://&lt;your-server</a>&gt; </span><span
+style='font-family:宋体'>，首先注册一个管理员账户。</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>按照官方配置指南</span><span
+lang=EN-US><a
+href="https://secure.phabricator.com/book/phabricator/article/configuration_guide/">Configuration
+Guide</a></span><span style='font-family:宋体'>，需要进行多项配置，这里只介绍几个比较重要的，其余可以省略或自行参考官方指南。</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>&Oslash;<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US><a
+href="https://secure.phabricator.com/book/phabricator/article/configuring_accounts_and_registration/">Accounts
+and Registration</a></span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>打开</span><span
+lang=EN-US><a href="http://%3cyour-server%3e/auth">http://&lt;your-server&gt;/auth</a>
+</span><span style='font-family:宋体'>，添加一个或多个登录系统。登录方法称为</span><span lang=EN-US>AuthenticationProvider</span><span
+style='font-family:宋体'>，例如以下：</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US>Username/Password: </span><span
+style='font-family:宋体'>用户使用用户名和密码进行登录或注册</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US>LDAP: </span><span style='font-family:宋体'>用户使用</span><span
+lang=EN-US>LDAP</span><span style='font-family:宋体'>认证进行登录或注册</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US>OAuth: </span><span style='font-family:宋体'>用户使用支持</span><span
+lang=EN-US>OAuth2 </span><span style='font-family:宋体'>的提供商账户（例如</span><span
+lang=EN-US>Github</span><span style='font-family:宋体'>、</span><span lang=EN-US>Facebook</span><span
+style='font-family:宋体'>或</span><span lang=EN-US>Google</span><span
+style='font-family:宋体'>）进行登录或注册。</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:0cm'><span
+lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span style='font-family:宋体'>恢复管理员账户</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>如果你意外的锁住了你的管理员用户，可以使用</span><span
+lang=EN-US>bin/auth</span><span style='font-family:宋体'>脚本进行恢复，要恢复管理员账户，运行：</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='color:red'>phabricator/$ ./bin/auth
+recover &lt;username&gt;</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span style='font-family:宋体'>使用</span><span lang=EN-US>Web</span><span
+style='font-family:宋体'>控制台管理账户</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>打开</span><span lang=EN-US><a
+href="http://%3cyour-server%3e/people/">http://&lt;your-server&gt;/people/</a> </span><span
+style='font-family:宋体'>管理账户</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span style='font-family:宋体'>手动创建新账户</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>这里有两种方式创建用户，第一种是通过</span><span
+lang=EN-US>web</span><span style='font-family:宋体'>用户界面</span><span lang=EN-US><a
+href="http://%3cyour-server%3e/people/">http://&lt;your-server&gt;/people/</a> </span><span
+style='font-family:宋体'>，另外一种是通过</span><span lang=EN-US>CLI</span><span
+style='font-family:宋体'>使用</span><span lang=EN-US>accountadmin</span><span
+style='font-family:宋体'>可执行文件：</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='color:red'>phabricator/$
+./bin/accountadmin</span><b><span lang=EN-US style='font-size:9.0pt;color:red'>
+</span></b></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>&Oslash;<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US><a
+href="https://secure.phabricator.com/diviner/find/?name=Configuring_Outbound_Email&amp;type=article&amp;jump=1">Configuring
+Outbound Mail</a></span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>Phabricator </span><span
+style='font-family:宋体'>可以通过多种方式发送邮件，称为</span><span lang=EN-US>“</span><span
+lang=EN-US>Adapter</span><span lang=EN-US>”</span><span style='font-family:
+宋体'>。这里使用</span><span lang=EN-US>External SMTP</span><span style='font-family:
+宋体'>，配置已经在安装脚本中写好，只需要设置好对应的参数，不再需要手动配置。如果需要使用其它邮件发送方式，可以查看官方文档。</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>&Oslash;<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-US><a
+href="https://secure.phabricator.com/diviner/find/?name=Diffusion_User_Guide%3A_Repository_Hosting&amp;type=article&amp;jump=1">Diffusion
+User Guide<span lang=EN-US style='font-family:宋体'><span lang=EN-US>：</span></span>Repository
+Hosting</a></span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>Phabricator </span><span
+style='font-family:宋体'>支持</span><span lang=EN-US>Git</span><span
+style='font-family:宋体'>、</span><span lang=EN-US>Subversion</span><span
+style='font-family:宋体'>等版本控制工具，可以通过</span><span lang=EN-US>HTTP</span><span
+style='font-family:宋体'>和</span><span lang=EN-US>SSH</span><span
+style='font-family:宋体'>对其中托管的库进行读写访问验证。这里我们使用</span><span lang=EN-US>Git</span><span
+style='font-family:宋体'>版本控制工具并通过</span><span lang=EN-US>SSH</span><span
+style='font-family:宋体'>进行访问。配置已经在安装脚本中完成，但每个</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>用户还需要在</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>中添加公钥。步骤如下：</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span style='font-family:宋体'>生成密钥</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>运行命令</span><span lang=EN-US
+style='color:red'>ssh-keygen–t rsa –C “Comment message”</span></p>
+
+<p class=MsoListParagraph style='margin-left:21.0pt;text-indent:-21.0pt'><span
+lang=EN-US style='font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span style='font-family:宋体'>上传到</span><span lang=EN-US>Phabricator</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>登录到</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>，打开</span><span
+lang=EN-US><a href="http://%3cyour-server%3e/settings/panel/ssh">http://&lt;your-server&gt;/settings/panel/ssh</a>
+</span><span style='font-family:宋体'>，点击</span><span lang=EN-US>UploadPublic Key</span><span
+style='font-family:宋体'>，将刚才生成的密钥公钥内容</span><span lang=EN-US>~/.ssh/id_rsa.pub</span><span
+style='font-family:宋体'>复制进去。</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<h4 style='text-indent:0cm'><a name="_Toc432782725"><span lang=EN-US>3)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+lang=EN-US>Jenkins </span>配置</a></h4>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>安装完成后，进入</span><span lang=EN-US><a
+href="http://%3cyour-server%3e:8080/manage">http://&lt;your-server&gt;:8080/manage</a>
+</span><span style='font-family:宋体'>配置</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>，在这个页面可以完成配置系统，全局安全设置，从磁盘重新加载配置信息，管理插件，显示系统信息，显示系统日志，显示统计信息，命令行工具，脚本控制台，管理节点，管理认证，关于</span><span
+lang=EN-US>Jenkins</span><span style='font-family:宋体'>，管理旧数据，管理用户和关闭</span><span
+lang=EN-US>jenkins</span><span style='font-family:宋体'>等任务。以下是各个任务的简要介绍。</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>在</span><span
+lang=EN-US><a href="#_Configure_System"><span lang=EN-US style='font-family:
+宋体'><span lang=EN-US>配置系统</span></span></a></span><span style='font-family:
+宋体'>中，可能由于没有安装某些插件而缺少相应的配置选项，只需要在</span><span lang=EN-US><a
+href="#_Manage_plugins"><span lang=EN-US style='font-family:宋体'><span
+lang=EN-US>插件管理</span></span></a></span><span style='font-family:宋体'>部分安装插件即可。对于我们的目标，我们首先需要安装</span><span
+lang=EN-US style='color:red'>gitplugin, git clientplugin, git serverplugin,git
+parameter plugin,build authorization token root plugin, build with parameters,
+post build script plugin, phabricator differential plugin </span><span
+style='font-family:宋体;color:red'>和</span><span lang=EN-US style='color:red'>cobertura
+plugin</span><span style='font-family:宋体'>。安装方法可以查看<span lang=EN-US><a
+href="#_Manage_plugins"><span lang=EN-US><span lang=EN-US>插件管理</span></span></a></span>部分</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<h5><a name="_Configure_System"></a><span lang=EN-US>a)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Configure System</span></h5>
+
+<p class=MsoNormal><span lang=EN-US>Jenkins </span><span style='font-family:
+宋体'>的一些基本配置内容可以查看文件</span><span lang=EN-US>/etc/sysconfig/jenkins</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>系统配置最上面显示了</span><span
+lang=EN-US>Jenkins</span><span style='font-family:宋体'>所在目录</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>点击后面的</span><span lang=EN-US>advances</span><span
+style='font-family:宋体'>可以配置工作目录和日志保存目录</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Workspace root Directory</span><span
+style='font-family:宋体'>：设置每次构建工作区的目录</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Build Record Root Directory</span><span
+style='font-family:宋体'>：设置每次构建日志的目录</span><b><span style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=529 height=394 id="图片 1"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image001.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>工程名称设置，可以要求工程名称符合某种格式</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=553 height=166 id="图片 2"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image002.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>全局属性：这里可以添加一些环境变量，之后在任务中可以引用，还可以添加一些工具，只需要填写工具的名称和所在目录。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=518 height=309 id="图片 5"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image003.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Maven</span><span style='font-family:宋体'>：可以设置所使用的</span><span
+lang=EN-US>Maven</span><span style='font-family:宋体'>来源，默认选项或者自己设置</span><span
+lang=EN-US>maven</span><span style='font-family:宋体'>所在路径</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=572 height=111 id="图片 4"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image004.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>如果我们之前已经安装了</span><span
+lang=EN-US>JDK</span><span style='font-family:宋体'>，那么这里使用默认选项即可，也可以指定<span
+lang=EN-US>JAVA_HOME </span>的路径。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=556 height=319 id="图片 7"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image005.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>上面由于可执行程序</span><span
+lang=EN-US>git</span><span style='font-family:宋体'>已经在系统</span><span lang=EN-US>PATH</span><span
+style='font-family:宋体'>路径中，所以可以不使用完整路径。</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>后面的</span><span lang=EN-US>ANT</span><span
+style='font-family:宋体'>和</span><span lang=EN-US>Maven</span><span
+style='font-family:宋体'>安装类似，这里不再讲述。截图如下：</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=468 height=291 id="图片 8"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image006.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Jenkins URL</span><span style='font-family:
+宋体'>：设置</span><span lang=EN-US>Jenkins</span><span style='font-family:宋体'>的网络地址</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Email Add</span><span style='font-family:
+宋体'>：设置</span><span lang=EN-US>jenkins</span><span style='font-family:宋体'>的</span><span
+lang=EN-US>email</span><span style='font-family:宋体'>地址。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=496 height=83 id="图片 9"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image007.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Git plugin </span><span style='font-family:
+宋体'>和</span><span lang=EN-US>CVS</span><span style='font-family:宋体'>使用默认配置</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=462 height=296
+id="图片 10" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image008.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Email</span><span style='font-family:宋体'>配置：设置发送邮件的</span><span
+lang=EN-US>smtp</span><span style='font-family:宋体'>服务器，应特别注意，缺省邮箱后缀</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>点击</span><span lang=EN-US>“</span><span
+lang=EN-US>Advanced</span><span lang=EN-US>”</span><span style='font-family:
+宋体'>可以配置</span><span lang=EN-US>smtp</span><span style='font-family:宋体'>认证，包括用户名，用户密码，缺省编码等。</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Test configuration by sending test e-mail</span><span
+style='font-family:宋体'>：通过发送邮件测试配置是否成功，点击</span><span lang=EN-US>Test
+Configuration</span><span style='font-family:宋体'>，如果成功会显示</span><span
+lang=EN-US>Email was successfully sent</span><span style='font-family:宋体'>，否则下面会报错，出错时请认真看下面的出错提示，可能错误是</span><span
+lang=EN-US>SMTP server </span><span style='font-family:宋体'>没有配置对，默认是</span><span
+lang=EN-US>localhost</span><span style='font-family:宋体'>，或者是某些服务没有打开，或者是端口已经被其他程序占用，默认端口是</span><span
+lang=EN-US>25</span><span style='font-family:宋体'>，可以不填写，另外重启一下也可能就成功。</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=412 height=306
+id="图片 11" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image009.jpg"></span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>到这里之后点击</span><span
+lang=EN-US>apply</span><span style='font-family:宋体'>或者</span><span lang=EN-US>save</span><span
+style='font-family:宋体'>保存设置，如果出现错误，根据错误提示进行更正即可。</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<h5><span lang=EN-US>b)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Configure global security</span></h5>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>这里主要完成一些关于系统安全和访问权限的配置，勾选</span><span
+lang=EN-US>Enable security</span><span style='font-family:宋体'>才可以配置，否则不启用其机制。前面的一般使用默认配置，如下图</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=510 height=472
+id="图片 13" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image010.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Disable remember me:</span><span
+style='font-family:宋体'>如果勾选，每次登陆都需要输入用户名和密码</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Delegate to servlet container</span><span
+style='font-family:宋体'>：使用容器的用户，</span><span lang=EN-US>tomcat</span><span
+style='font-family:宋体'>也可以添加用户，这里不讨论。</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Jenkins’s own user database</span><span
+style='font-family:宋体'>：使用</span><span lang=EN-US>jenkins</span><span
+style='font-family:宋体'>自身的账户，需要勾选</span><span lang=EN-US>Allow users to sign up</span><span
+style='font-family:宋体'>以允许注册</span><b><span style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>上面还有用户访问权限设置，有下面一些选项：</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Anyone can do anythins:</span><span
+style='font-family:宋体'>任何人可以做任何事</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Legacy mode:</span><span style='font-family:
+宋体'>如果是管理员，则拥有所有权限，其他用户或匿名用户都只有读权限</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Logged-in users can do anythin</span><span
+style='font-family:宋体'>：登录用户可以做任何事</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Matrix-based security</span><span
+style='font-family:宋体'>：基于矩阵的安全，功能看点击后面蓝色问号后的提示，见下图：</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=207
+id="图片 14" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image011.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Project-based Matrix Authorization strategy</span><span
+style='font-family:宋体'>：基于工程的矩阵授权策略，和上面基于矩阵的区别不大，只是基于工程的可以对各个工程进行不同的权限配置，而上面的是对所有</span><span
+lang=EN-US>jobs</span><span style='font-family:宋体'>都一样。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=151
+id="图片 15" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image012.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=66 id="图片 16"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image013.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Disable syntax highlighting</span><span
+style='font-family:宋体'>：是否启用</span><span lang=EN-US>html</span><span
+style='font-family:宋体'>语法高亮</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>&nbsp;</span></p>
+
+<h5><span lang=EN-US>c)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Reload Configuration from Disk</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>重新从磁盘加载配置信息。</span></p>
+
+<h5><a name="_Manage_plugins"></a><span lang=EN-US>d)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Manage plugins</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>管理各种插件，包括安装，升级，删除等等。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=383
+id="图片 17" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image014.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>如上图所示，</span><span lang=EN-US>Updates</span><span
+style='font-family:宋体'>表示已安装可升级插件，</span><span lang=EN-US>Available</span><span
+style='font-family:宋体'>表示可用但未安装插件，</span><span lang=EN-US>Installed</span><span
+style='font-family:宋体'>表示已安装插件，</span><span lang=EN-US>Advanced</span><span
+style='font-family:宋体'>里面可以从本地安装插件。<span style='color:red'>如果</span></span><span
+lang=EN-US style='color:red'>Available</span><span style='font-family:宋体;
+color:red'>界面没有任何可用更新，可能是更新网址不正确。进入</span><span lang=EN-US style='color:red'>Advanced</span><span
+style='font-family:宋体;color:red'>界面更改更新网址为</span><span style='font-family:宋体'>：</span><span
+lang=EN-US><a href="https://updates.jenkins-ci.org/current/update-center.json">https://updates.jenkins-ci.org/current/update-center.json</a>
+</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=342 height=110
+id="图片 19" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image015.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>点击</span><span lang=EN-US>Check
+Now </span><span style='font-family:宋体'>检查是否有可用更新和可用插件。</span></p>
+
+<p class=MsoNormal><span lang=EN-US>Available</span><span style='font-family:
+宋体'>列表里有很多可选插件，插件是按照类型分类，按字母序排序的。类型包括有</span><span lang=EN-US style='font-size:
+9.0pt;font-family:"Verdana",sans-serif'>Artifact Uploaders</span><span
+style='font-size:9.0pt;font-family:宋体'>上传文件插件，</span><span lang=EN-US
+style='font-size:9.0pt;font-family:"Verdana",sans-serif'>Authentication and
+User Management</span><span style='font-size:9.0pt;font-family:宋体'>认证和用户管理类</span><span
+style='font-family:宋体'>插件，</span><span lang=EN-US>Build Notifiers</span><span
+style='font-family:宋体'>构建提示插件，构建报告插件等等。如下图所示，点击类型名可以展开此类型下所有可用的插件，每个插件都有简要的功能介绍。</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>勾选所有想要安装的插件，下拉到最后，可以点击安装，安装完成后重启</span><span
+lang=EN-US>jenkins</span><span style='font-family:宋体'>即可，如下图：</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=488 height=110
+id="图片 20" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image016.jpg"></span></p>
+
+<h5><span lang=EN-US>e)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>System information</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>这里主要显示了一些系统属性，环境变量，已安装的插件汇总等信息。</span></p>
+
+<h5><span lang=EN-US>f)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>System log</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>主要显示了系统的日志</span></p>
+
+<h5><span lang=EN-US>g)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Load statistics</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>一些统计数据，例如节点数目，正在运行的节点数，构建队列长度等信息。</span></p>
+
+<h5><span lang=EN-US>h)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Jenkins CLI</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>命令行接口，需要下载</span><span
+lang=EN-US>jenkins-cli.jar</span><span style='font-family:宋体'>文件。将在</span><span
+lang=EN-US style='color:red'>jenkins cli</span><span style='font-family:宋体;
+color:red'>命令行使用简介</span><span lang=EN-US style='color:red'>.doc</span><span
+style='font-family:宋体'>中详细介绍。</span><b><span style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=540
+id="图片 21" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image017.png"></span></p>
+
+<h5><span lang=EN-US>i)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Script console</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>脚本控制台，通过执行脚本和</span><span
+lang=EN-US>jenkins</span><span style='font-family:宋体'>交互。</span></p>
+
+<h5><span lang=EN-US>j)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>&nbsp;Manage Nodes</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>节点管理，我们暂时只有一个</span><span
+lang=EN-US>master</span><span style='font-family:宋体'>节点，不介绍多节点的使用。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=92 id="图片 22"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image018.jpg"></span></p>
+
+<h5><span lang=EN-US>k)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Manager credential</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>增加，修改或者删除认证，可用于</span><span
+lang=EN-US>jenkins</span><span style='font-family:宋体'>和</span><span lang=EN-US>jenkins
+job</span><span style='font-family:宋体'>和第三方服务的验证。</span></p>
+
+<h5><span lang=EN-US>l)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>About jenkins</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>介绍了</span><span lang=EN-US>jenkins</span><span
+style='font-family:宋体'>的版本信息，还有所依赖的第三方库列表和</span><span lang=EN-US>license</span><span
+style='font-family:宋体'>。</span></p>
+
+<h5><span lang=EN-US>m)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Manager Old Data</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>管理旧数据，具体介绍看</span><span
+lang=EN-US>jenkins</span><span style='font-family:宋体'>的解释</span></p>
+
+<h5><span lang=EN-US>n)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Manager Users</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>管理用户，这个要在</span><span
+lang=EN-US>Configure Global security</span><span style='font-family:宋体'>中选中允许用户注册才可以使用</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=531 height=271
+id="图片 24" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image019.png"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>这里显示了已经注册的用户，已登录的用户后面没有红色删除标记，但可以删除其他用户，点击后面蓝色的配置标记可以进入相应用户的配置。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=553 height=134
+id="图片 23" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image020.jpg"></span></p>
+
+<h5><span lang=EN-US>o)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Prepare for shutdown</span></h5>
+
+<p class=MsoNormal><span style='font-family:宋体'>关掉</span><span lang=EN-US>jenkins</span></p>
+
+<h2><a name="_Toc432782726"><span style='font-family:宋体'>三、 </span><span
+lang=EN-US>Jenkins</span></a><span style='font-family:宋体'>和</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>集成</span></h2>
+
+<h3><a name="_Toc432782727"><b><span lang=EN-US style='font-family:"Cambria",serif'>1.
+</span></b>安装配置</a></h3>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span style='font-family:宋体'>集成</span><span
+lang=EN-US>Jenkins</span><span style='font-family:宋体'>和</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>需要在</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>中安装</span><span lang=EN-US>PhabricatorDifferential
+Plugin</span><span style='font-family:宋体'>插件，配置过程如下：</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>中新建</span><span lang=EN-US>robot</span><span
+style='font-family:宋体'>用户</span><span lang=EN-US>Jenkins</span><b><span
+lang=EN-US style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=385 height=157
+id="图片 25" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image021.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=377 height=149
+id="图片 26" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image022.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>新建用户完成后，进入</span><span
+lang=EN-US>Jenkins</span><span style='font-family:宋体'>用户界面</span><span
+lang=EN-US><a href="http://%3cyour-server%3e/p/jenkins">http://&lt;your-server&gt;/p/jenkins</a>
+</span><span style='font-family:宋体'>，点击右边的</span><span lang=EN-US>Edit Settings</span><span
+style='font-family:宋体'>，再点击</span><span lang=EN-US>Conduit API Tokens</span><span
+style='font-family:宋体'>，点击</span><span lang=EN-US>Generate API Token</span><span
+style='font-family:宋体'>，复制生成的</span><span lang=EN-US>Token</span><span
+style='font-family:宋体'>。进入到</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>系统配置页面</span><span lang=EN-US><a
+href="http://%3cyour-server%3e:8080/configure">http://&lt;your-server&gt;:8080/configure</a>
+</span><span style='font-family:宋体'>，找到</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>部分，添加</span><span lang=EN-US>Credentials</span><span
+style='font-family:宋体'>，填写</span><span lang=EN-US>PhabricatorURL </span><span
+style='font-family:宋体'>并将之前生成的</span><span lang=EN-US>Token</span><span
+style='font-family:宋体'>粘贴到此处。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=416 height=254
+id="图片 27" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image023.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>由于<span lang=EN-US> Jenkins </span>中使用的系统用户是<span
+lang=EN-US>jenkins</span>，也需要把<span lang=EN-US>jenkins </span>用户的<span
+lang=EN-US> SSH Public Key </span>上传到<span lang=EN-US> Phabricator</span>。方法如下：</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>切换到 <span lang=EN-US>Jenkins </span>用户并生成密钥：</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>su Jenkins</span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:宋体'>ssh-keygen </span><span
+lang=EN-US>–</span><span lang=EN-US style='font-family:宋体'>t rsa </span><span
+lang=EN-US>–</span><span lang=EN-US style='font-family:宋体'>C </span><span
+lang=EN-US>“</span><span lang=EN-US style='font-family:宋体'>jenkins@phabricator
+server</span><span lang=EN-US>”</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=45 id="图片 28"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image024.png"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>然后进入 </span><span lang=EN-US><span
+class=MsoHyperlink><span style='font-family:宋体'>http://&lt;your-server&gt;/settings/panel/ssh</span></span></span><span
+lang=EN-US style='font-family:宋体'> </span><span style='font-family:宋体'>点击<span
+lang=EN-US> Upload Public Key</span>，将刚才生成的密钥上传到<span lang=EN-US> Phabricator</span></span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=371 height=189
+id="图片 29" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image025.jpg"></span></p>
+
+<h3><a name="_Toc432782728"><span lang=EN-US>2. </span>使用</a></h3>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>Phabricator
+</span><span style='font-family:宋体'>新建</span><span lang=EN-US>Repository</span><span
+style='font-family:宋体'>处</span><span lang=EN-US>http://&lt;your-server&gt;/diffusion/new</span><span
+style='font-family:宋体'>新建一个</span><span lang=EN-US>Repository</span><span
+style='font-family:宋体'>。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=291
+id="图片 30" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image026.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>1.
+Clone</span><span style='font-family:宋体'>该库至本地，执行</span><span lang=EN-US
+style='font-family:"Segoe UI",sans-serif'>git commit --allow-empty -m
+&quot;initial empty commit&quot; </span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>2.
+git push origin master </span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=244
+id="图片 31" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image027.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>Jenkins
+</span><span lang=EN-US><span class=MsoHyperlink>http://&lt;your-server&gt;:8080/view/All/newJob</span></span><span
+lang=EN-US> </span><span style='font-family:宋体'>中新建对应该</span><span lang=EN-US>Diffusion</span><span
+style='font-family:宋体'>的</span><span lang=EN-US>Job</span><span
+style='font-family:宋体'>，名称为</span><span lang=EN-US>hello-world</span><span
+style='font-family:宋体'>，</span><span lang=EN-US>free-style</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>由于需要将构建结果返回给</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>，这里需要添加两个</span><span
+lang=EN-US>String</span><span style='font-family:宋体'>参数</span><span lang=EN-US>DIFF_ID</span><span
+style='font-family:宋体'>和</span><span lang=EN-US>PHID</span><span
+style='font-family:宋体'>：</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=305 height=284
+id="图片 32" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image028.jpg"></span><span
+lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在源代码管理中，选择</span><span
+lang=EN-US>Git</span><span style='font-family:宋体'>，</span><span lang=EN-US>Repository
+URL </span><span style='font-family:宋体'>填写</span><span lang=EN-US>git clone
+Phabricator Diffusion </span><span style='font-family:宋体'>时的后半部分，由于已经上传了</span>
+<span lang=EN-US>Jenkins </span><span style='font-family:宋体'>用户的公钥到</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>，这里不需要认证。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=550 height=212
+id="图片 33" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image029.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>上面的</span><span lang=EN-US>name</span><span
+style='font-family:宋体'>表示库的</span><span lang=EN-US>ID</span><span
+style='font-family:宋体'>，例如</span><span lang=EN-US>origin</span><span
+style='font-family:宋体'>，用于和其它远端库区分。</span><span lang=EN-US>Refspec</span><span
+style='font-family:宋体'>用于指定获取远端的哪些</span><span lang=EN-US>refs</span><span
+style='font-family:宋体'>以及和本地</span><span lang=EN-US>refs</span><span
+style='font-family:宋体'>对应。如果留空，则和</span><span lang=EN-US>git fetch </span><span
+style='font-family:宋体'>效果相同。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=293
+id="图片 34" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image030.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Branches to build</span><span
+style='font-family:宋体'>：指定要跟踪的分支，如果留空，则会检查构建所有分支。</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>BuildTriggers
+</span><span style='font-family:宋体'>部分，勾选</span><span lang=EN-US>Triggerbuilds
+remotely</span><span style='font-family:宋体'>，这样可以通过</span><span lang=EN-US>URL</span><span
+style='font-family:宋体'>触发构建。也就是后面</span><span lang=EN-US>Phabricator </span><span
+style='font-family:宋体'>发出一个</span><span lang=EN-US>URLPOST</span><span
+style='font-family:宋体'>请求触发构建。这里填写一个验证令牌，用于</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>或</span><span lang=EN-US>URL</span><span
+style='font-family:宋体'>触发时认证。记住下面</span><span lang=EN-US>jenkins</span><span
+style='font-family:宋体'>提示的</span><span lang=EN-US>Use the following URL to
+trigger build remotely</span><span style='font-family:宋体'>：</span><span
+lang=EN-US><a
+href="http://%3cyour-server%3e:8080/job/hello-world/buildWithParameters?token=TOKEN_NAME&amp;param1=value1&amp;param2=value2">http://&lt;your-server&gt;:8080/job/hello-world/buildWithParameters?token=TOKEN_NAME&amp;param1=value1&amp;param2=value2</a>
+</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=109
+id="图片 35" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image031.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体;color:red'>在</span><span
+lang=EN-US style='color:red'>Build</span><span style='font-family:宋体;
+color:red'>部分，填写需要构建的具体内容，例如编译，单元测试，集成测试等</span><span style='font-family:宋体'>。这里打印两个参数的值。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=243 height=113
+id="图片 36" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image032.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>Post-buildActions
+</span><span style='font-family:宋体'>部分，添加</span><span lang=EN-US>Post to
+Phabricator</span><span style='font-family:宋体'>，将构建结果返回给</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=474 height=301
+id="图片 37" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image033.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在 </span><span lang=EN-US
+style='font-family:"Segoe UI",sans-serif'>Phabricator </span><span
+style='font-family:宋体'>中新建 </span><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>Harbormaster
+build plan </span></p>
+
+<p class=MsoNormal><span lang=EN-US><span class=MsoHyperlink><span
+style='font-family:"Segoe UI",sans-serif'>http://&lt;your-server&gt;/harbormaster/plan/edit</span></span></span><span
+lang=EN-US style='font-family:"Segoe UI",sans-serif'> </span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=343 height=111
+id="图片 38" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image034.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在该</span><span lang=EN-US>plan</span><span
+style='font-family:宋体'>中添加 </span><span lang=EN-US>build step</span><span
+style='font-family:宋体'>： </span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=97 id="图片 39"
+src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image035.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>填写名称，由于该</span><span
+lang=EN-US>build step </span><span style='font-family:宋体'>的</span><span
+lang=EN-US>action </span><span style='font-family:宋体'>就是发送一个</span><span
+lang=EN-US>URLPOST </span><span style='font-family:宋体'>请求，这里使用</span><span
+lang=EN-US>MakeHTTP Request</span><span style='font-family:宋体'>，然后在下面的</span><span
+lang=EN-US>URI</span><span style='font-family:宋体'>中填写之前</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>提示的，因为</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>根据</span><span lang=EN-US>PHID</span><span
+style='font-family:宋体'>向</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>返回构建结果，这里需要传递</span><span lang=EN-US>PHID</span><span
+style='font-family:宋体'>作为参数：</span></p>
+
+<p class=MsoNormal><span lang=EN-US><span class=MsoHyperlink>http://&lt;your-server&gt;:8080/job/hello-world/buildWithParameters?token=hello-world-token&amp;DIFF_ID=${buildable.diff}&amp;PHID=${target.phid}</span></span><span
+lang=EN-US> </span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>HTTP
+Method </span><span style='font-family:宋体'>部分选择</span><span lang=EN-US>POST</span><span
+style='font-family:宋体'>，在</span><span lang=EN-US>WhenComplete </span><span
+style='font-family:宋体'>中选择</span><span lang=EN-US>WaitFor Message</span><span
+style='font-family:宋体'>，等待</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>返回结果再进行下一个</span><span lang=EN-US>build step</span><span
+style='font-family:宋体'>。点击</span><span lang=EN-US>SaveBuild Step</span><span
+style='font-family:宋体'>保存构建步骤。</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在下面还列出了其它</span><span
+lang=EN-US>Phabricator</span><span style='font-family:宋体'>可以传递给</span><span
+lang=EN-US>Jenkins</span><span style='font-family:宋体'>的参数以及参数解析。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=406 height=274
+id="图片 40" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image036.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>在</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>中添加</span><span lang=EN-US>Herald</span><span
+style='font-family:宋体'>规则</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>到</span><span lang=EN-US><a
+href="http://%3cyour-server%3e/herald/new">http://&lt;your-server&gt;/herald/new</a>
+</span><span style='font-family:宋体'>创建</span><span lang=EN-US>Herald</span><span
+style='font-family:宋体'>规则：</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>可以针对多种情况创建</span><span
+lang=EN-US>Herald</span><span style='font-family:宋体'>规则，例如</span><span
+lang=EN-US>commit</span><span style='font-family:宋体'>，</span><span lang=EN-US>diff</span><span
+style='font-family:宋体'>或者</span><span lang=EN-US>revision</span><span
+style='font-family:宋体'>等。最主要的就是这三个。这里我们为</span><span lang=EN-US>Differential Revisions
+</span><span style='font-family:宋体'>创建一个</span><span lang=EN-US>Herald</span><span
+style='font-family:宋体'>规则，当新建或者更新</span><span lang=EN-US>revision </span><span
+style='font-family:宋体'>时触发</span><span lang=EN-US>build step </span><span
+style='font-family:宋体'>从而发出</span><span lang=EN-US>HTTP POST </span><span
+style='font-family:宋体'>请求让</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>执行构建。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=437 height=213
+id="图片 41" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image037.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>Rule
+Name</span><span style='font-family:宋体'>填写规则名称，在</span><span lang=EN-US
+style='font-family:"Segoe UI",sans-serif'>Condition </span><span
+style='font-family:宋体'>部分添加条件，在 </span><span lang=EN-US style='font-family:
+"Segoe UI",sans-serif'>Action </span><span style='font-family:宋体'>部分添加满足上</span><span
+style='font-family:宋体'>面的条件时需要执行的操作。例如当有</span><span lang=EN-US
+style='font-family:"Segoe UI",sans-serif'>hello-world </span><span
+style='font-family:宋体'>库有</span><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>revision</span><span
+style='font-family:宋体'>创建或者更新，且</span><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>Author</span><span
+style='font-family:宋体'>是<span lang=EN-US>luoyuanhao</span>时，执行</span><span
+lang=EN-US style='font-family:"Segoe UI",sans-serif'>build plan</span><span
+style='font-family:宋体'>，可以按照如下方式创建</span><span lang=EN-US style='font-family:
+"Segoe UI",sans-serif'>Herald </span><span style='font-family:宋体'>规则：</span><b><span
+style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=453
+id="图片 43" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image038.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-family:"Segoe UI",sans-serif'>5.
+</span><span style='font-family:宋体'>创建</span><span lang=EN-US>revision</span><span
+style='font-family:宋体'>触发</span><span lang=EN-US>jenkins</span><span
+style='font-family:宋体'>构建</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>用户</span><span lang=EN-US>luoyuanhao
+clone Phabricator </span><span style='font-family:宋体'>的</span><span lang=EN-US>hello-world
+Repository</span><span style='font-family:宋体'>，更新了代码并用</span><span lang=EN-US>arc
+diff </span><span style='font-family:宋体'>创建</span><span lang=EN-US>revision</span><span
+style='font-family:宋体'>。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=479 height=129
+id="图片 45" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image039.jpg"></span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=270 height=121
+id="图片 44" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image040.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>这时满足</span><span lang=EN-US>Herald</span><span
+style='font-family:宋体'>规则</span><span lang=EN-US>Runjenkins </span><span
+style='font-family:宋体'>的条件，就会</span><span lang=EN-US>run build plan</span><span
+style='font-family:宋体'>：</span><span lang=EN-US>build hello-world</span><span
+style='font-family:宋体'>。</span><span lang=EN-US>build hello-world </span><span
+style='font-family:宋体'>其实就是向</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>发出一个带参数的</span><span lang=EN-US>HTTP POST</span><span
+style='font-family:宋体'>请求。从而激活</span><span lang=EN-US>Jenkins hello-world job</span><span
+style='font-family:宋体'>。</span><span lang=EN-US>Jenkins hello-world </span><span
+style='font-family:宋体'>就从指定的</span><span lang=EN-US>Git</span><span
+style='font-family:宋体'>库中拉取代码，并逐步执行</span><span lang=EN-US>Build</span><span
+style='font-family:宋体'>部分指定的操作，当所有</span><span lang=EN-US>Build</span><span
+style='font-family:宋体'>部分都成功完成或者某个步骤出错时，进入</span><span lang=EN-US>Post-build
+actions </span><span style='font-family:宋体'>部分，即将</span><span lang=EN-US>build </span><span
+style='font-family:宋体'>结果返回给</span><span lang=EN-US>Phabricator</span><span
+style='font-family:宋体'>。</span></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=554 height=432
+id="图片 46" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image041.png"></span><span
+style='font-family:宋体'>可以在</span><span lang=EN-US>Jenkins Build </span><span
+style='font-family:宋体'>控制台输出查看构建的详细步骤。</span></p>
+
+<p class=MsoNormal><span style='font-family:宋体'>可以在</span><span lang=EN-US><span
+class=MsoHyperlink>http://&lt;your-server&gt;/harbormaster/query/all</span></span><span
+lang=EN-US> </span><span style='font-family:宋体'>处查看</span><span lang=EN-US>Jenkins</span><span
+style='font-family:宋体'>返回的结果：</span><b><span style='font-size:9.0pt'> </span></b></p>
+
+<p class=MsoNormal><span lang=EN-US><img border=0 width=263 height=185
+id="图片 47" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2015/10/image042.jpg"></span></p>
+
+<h2><a name="_Toc432782729"><span style='font-family:宋体'>四、 </span><span
+lang=EN-US>Reference</span></a></h2>
+
+<p class=MsoNormal><span lang=EN-US><a
+href="https://secure.phabricator.com/book/phabricator/article/configuring_accounts_and_registration/"><span
+style='font-family:"Segoe UI",sans-serif'>Phabricator User Documentation</span></a></span></p>
+
+<p class=MsoNormal><span lang=EN-US><a
+href="https://wiki.jenkins-ci.org/display/JENKINS/Use+Jenkins"><span
+style='font-family:"Segoe UI",sans-serif'>Use Jenkins</span></a></span></p>
+
+<p class=MsoNormal><span lang=EN-US><a
+href="http://www.bogotobogo.com/DevOps/Jenkins/images/Intro_install/jenkins-the-definitive-guide.pdf"><span
+style='font-family:"Segoe UI",sans-serif'>Jenkins The Definitive Guide</span></a></span><span
+lang=EN-US style='font-family:"Segoe UI",sans-serif'> </span></p>
+
+<p class=MsoNormal><span lang=EN-US><a
+href="https://wiki.jenkins-ci.org/display/JENKINS/Plugins"><span
+style='font-family:"Segoe UI",sans-serif'>Jenkins Plugins</span></a></span><span
+lang=EN-US style='font-family:"Segoe UI",sans-serif'> </span></p>
+
+<p class=MsoNormal><span lang=EN-US><a
+href="https://wiki.jenkins-ci.org/display/JENKINS/Phabricator+Differential+Plugin"><span
+style='font-family:"Segoe UI",sans-serif'>Phabricator Differential Plugin</span></a></span></p>
