@@ -1,0 +1,480 @@
+﻿<p>最近由于项目要求，需要对 Java Class 文件进行更改。因此必须先了解 Java Class 文件的结构。下面是对 <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/index.html" target="_blank">JVMS（Java Virtual Machine Specification）</a> 和一些博客内容的总结。</p>
+<p>每个 class 文件包括了一个类或者接口的定义。尽管并不是每个类或者接口都要在一个文件中有外部表示（例如通过类加载器生成的类），我们一般认为 class 文件格式是一个类或接口的有效表示。</p>
+<p>一个 class 文件由 8位字节流构成。所有16位、32位以及64位的属性都通过读取2个、4个或者8个连续的8位字节构造出来，并以此类推。多字节字段用大端法存储，也就是说高位优先。在 Java SE 平台中，这种格式由
+	接口 java.io.DataInput 和 java.io.DataOutput 以及 java.io.DataInputStream 和 java.io.DataOutputStream 等类支持。</p>
+<h5>Java Class 文件结构</h5>
+<p>一个 Java Class 文件包括 10 个基本组成部分：</p>
+<ol>
+<li>魔数: 0xCAFEBABE</li>
+<li>Class 文件格式版本号：class 文件的主次版本号（the minor and major versions）</li>
+<li>常量池（Constant Pool）：包含 class 中的所有常量</li>
+<li>访问标记（Access Flags）：例如该 class 是否为抽象类、静态类，等等。</li>
+<li>该类（This Class）：当前类的名称</li>
+<li>父类（Super Class）：父类的名称</li>
+<li>接口（Interfaces）：该类的所有接口</li>
+<li>字段（Fields）：该类的所有字段</li>
+<li>方法（Methods）：该类的所有方法</li>
+<li>属性（Attributes）：该类的所有属性（例如源文件名称，等等）</li>
+</ol>
+<p>下面是一个示意图。</p>
+<pre>ClassFile {
+    u4             magic;
+    u2             minor_version;
+    u2             major_version;
+    u2             constant_pool_count;
+    cp_info        constant_pool[constant_pool_count-1];
+    u2             access_flags;
+    u2             this_class;
+    u2             super_class;
+    u2             interfaces_count;
+    u2             interfaces[interfaces_count];
+    u2             fields_count;
+    field_info     fields[fields_count];
+    u2             methods_count;
+    method_info    methods[methods_count];
+    u2             attributes_count;
+    attribute_info attributes[attributes_count];
+}
+</pre>
+
+<p>下图是使用 <a href="http://set.ee/jbe/" target="_blank">Java Bytecode Editor</a> 打开 HelloWorld.class 文件（该文件由后面的 HelloWorld.java 编译得到）后显示的该文件的一些信息：（后面详细介绍到每个部分的时候可以再看看这个图）
+<img title="Java Class 文件信息" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/general_info.jpg" alt="Java Class 文件信息" /></p>
+
+<p>这里有一些可变长度部分，例如常量池、方法、以及属性，因此在加载之前无法知道 Java Class 文件的长度。在这些部分的前面都有长度信息。这样 JVM 在真正加载这些部分之前就可以知道可变长度部分的大小。</p>
+<p>Class 文件中的数据都是按照单字节对齐并且紧密压缩。这使得 Class 文件能尽可能小。</p>
+<p>Java Class 文件中不同部分的顺序是严格定义的，因此 JVM 知道 Class 文件中每个部分分别是什么、要按照什么顺序加载。</p>
+<p>下面来详细看看一个 Class 文件中的每个部分。</p>
+
+<h5>魔数（Magic number）</h5>
+<p><strong>魔数（Magic number）</strong>用来唯一确定格式并和其它格式区别开来。 Class 文件的头四个字节是<strong>0xCAFEBABE</strong>。<br/>
+<img title="Java Class 文件魔数" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/magic_number.jpg" alt="Java Class 文件魔数" /></p>
+
+<h5>Class 文件版本号</h5>
+<p>Class 文件接下来的 4 个字节表示主次<strong>版本号</strong>。这个数字使得 JVM 可以识别和验证 class 文件。如果数字比 JVM 能够加载的还要大，就会拒接加载该 class 文件并抛出 <strong>java.lang.UnsupportedClassVersionError</strong> 异常。</p>
+<p>你可以使用 <strong>javap</strong> 命令行工具查看任意 Java Class 文件的版本号。例如：</p>
+[shell]javap -verbose MyClass[/shell]
+<p>假设我们有如下一个 Java 类：</p>
+[java]
+public class HelloWorld {
+  private String msg;
+  public HelloWorld(String msg) {
+    this.msg = msg;
+  }
+  public HelloWorld() {
+    this.msg = "Default message";
+  }
+  public String getMsg() {
+    return msg;
+  }
+  public void setMsg(String msg) {
+    this.msg = msg;
+  }
+  public void printMsg() {
+    System.out.println(msg);
+  }
+  public static void main(String args[]) {
+    HelloWorld hw = new HelloWorld("Hello world from Java");
+    hw.printMsg();
+  }
+}
+[/java]
+<p>我们用命令 <strong>javac HelloWorld.java</strong> 编译创建 class 文件。然后执行 <strong>javap -verbose HelloWorld</strong> 命令查看 class 文件的版本号：</p>
+<img title="Java Class 文件版本号" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/version.jpg" alt="Java Class 文件版本号" />
+<p>下面是一个主版本号（Major version）和 class 文件对应 JDK 版本号的列表。</p>
+<table border="2">
+<tr>
+<th>Major Version</th>
+<th>Hex</th>
+<th>JDK version</th>
+</tr>
+<tr>
+<td>51</td>
+<td>0x33</td>
+<td>J2SE 7</td>
+</tr>
+<tr>
+<td>50</td>
+<td>0x32</td>
+<td>J2SE 6.0</td>
+</tr>
+<tr>
+<td>49</td>
+<td>0x31</td>
+<td>J2SE 5.0</td>
+</tr>
+<tr>
+<td>48</td>
+<td>0x30</td>
+<td>JDK 1.4</td>
+</tr>
+<tr>
+<td>47</td>
+<td>0x2F</td>
+<td>JDK 1.3</td>
+</tr>
+<tr>
+<td>46</td>
+<td>0x2E</td>
+<td>JDK 1.2</td>
+</tr>
+<tr>
+<td>45</td>
+<td>0x2D</td>
+<td>JDK 1.1</td>
+</tr>
+</table>
+
+<h5>常量池（Constant Pool）</h5>
+<p>所有和类或者接口相关的常量都保存在常量池里。这些常量包括类名、变量名、接口名称、方法名称、签名和字符串常量等。</p>
+<p>常量在常量池中以一个可变长数组的元素形式保存。常量数组前面有一个数组大小，因此 JVM 知道加载 class 文件的时候需要加载多少个常量。</p>
+<p>对于每一个数组元素，第一个字节是一个标记（tag），表示该位置常量的类型。JVM 通过读取这个字节确定常量的类型。如果单字节标记表示是一个字符串字面值，就会读取后两个字节，表示字符串字面值的长度，根据长度再从后面读取对应长度的字符串的实际值。</p>
+<p>你可以使用 <strong>javap</strong> 命令分析任何 class 文件的常量池。如果对上面的 HelloWorld.class 文件执行 javap 命令，我们可以获得下面的符号表。</p>
+<img title="Java Class 文件常量池" src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/constant_pool.jpg" alt="Java Class 文件常量池" />
+<p>常量池总共有 42 个元素。<strong>注意：constant_pool_count 的值是常量池的数目再加上1，例如这里是 43。一个常量池索引只有大于0且小于 constant_pool_count 时才认为有效。</strong></p>
+<p>下面是单字节标记对应的值及其解释，对于每个类型对应的结构体，可以参考 <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4" target="_blank">JVMS The Constant Pool</a>。</p>
+<table border="2">
+<tr>
+	<td>常量类型</td>
+	<td>值</td>
+</tr>
+<tr>
+	<td>CONSTANT_Class</td>
+	<td>7</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Fieldref</td>
+	<td>9</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Methodref</td>
+	<td>10</td>
+</tr>	
+<tr>
+	<td>CONSTANT_InterfaceMethodref</td>
+	<td>11</td>
+</tr>	
+<tr>
+	<td>CONSTANT_String</td>
+	<td>8</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Integer</td>
+	<td>3</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Float</td>
+	<td>4</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Long</td>
+	<td>5</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Double</td>
+	<td>6</td>
+</tr>	
+<tr>
+	<td>CONSTANT_NameAndType</td>
+	<td>12</td>
+</tr>	
+<tr>
+	<td>CONSTANT_Utf8</td>
+	<td>1</td>
+</tr>	
+<tr>
+	<td>CONSTANT_MethodHandle</td>
+	<td>15</td>
+</tr>	
+<tr>
+	<td>CONSTANT_MethodType</td>
+	<td>16</td>
+</tr>	
+<tr>
+	<td>CONSTANT_InvokeDynamic</td>
+	<td>18</td>
+</tr>	
+</table>
+
+<h5>访问标记（Access flags）</h5>
+<p>常量池后面的就是访问标记。它由两个字节组成，表示该文件定义的是类还是接口、如果是个类，是 public、abstract还是 final 等。下面是访问标记列表及其对应的解释：</p>
+<table border="2">
+<tr>
+<th>标记名称</th>
+<th>值</th>
+<th>解释</th>
+</tr>
+<tr>
+<td><strong>ACC_PUBLIC</strong></td>
+<td>0x0001</td>
+<td>表示<strong>public/strong>；包外的类也可以访问。</td>
+</tr>
+<tr>
+<td><strong>ACC_FINAL</strong></td>
+<td>0x0010</td>
+<td>表示 <strong>final</strong>；不允许有任何子类。</td>
+</tr>
+<tr>
+<td><strong>ACC_SUPER</strong></td>
+<td>0x0020</td>
+<td>通过 invokespecial 指令调用时调用父类的方法。</td>
+</tr>
+<tr>
+<td><strong>ACC_INTERFACE</strong></td>
+<td>0x0200</td>
+<td>是一个<strong>接口</strong>而不是类</td>
+</tr>
+<tr>
+<td><strong>ACC_ABSTRACT</strong></td>
+<td>0x0400</td>
+<td>表示 <strong>抽象类</strong>，不能被实例化。</td>
+</tr>
+</table>
+
+<h5>this Class</h5>
+<p>This class 是一个两个字节的条目，它的值是一个常量池索引。例如对于 HelloWorld.class 文件，该处的值是<strong>0x0006</strong>。在常量池中这个索引指向的条目包括两个部分，第一个部分是单字节标记，表示这是一个类或是接口，第二部分又是一个两个字节的常量池索引，指向表示该类或接口的字符串字面值。例如在这个例子中，<strong>0x0006</strong> 索引所在的条目是一个<strong>Class_info</strong>，它指向索引值为 <strong>0x0021</strong>，也就是 33 的 <strong>Utf8_info</strong>，这个 utf8_info 的值为 HelloWorld，也就是实际的类名。可以查看上面 Java Class 文件常量池示意图对应 #6 和 #33部分。</p>
+
+<h5>super Class</h5>
+<p>接下来的 2 个字节是该类的父类（Super Class）。和 this class 类似，两个字节的值是常量池的一个索引，该索引处的常量值是该类的父类。</p>
+
+<h5>接口（Interfaces）</h5>
+<p>该类（或接口）定义的所有接口都在 class 文件的这个部分。起始的两个字节表示接口的数目，接下来是一个数组，每个数据包括两个字节，这两个字节的值又是一个常量池索引，指向具体的接口名称。</p>
+
+<h5>字段（Fields）</h5>
+<p>一个字段是类或者接口在实例或类层面的变量（属性）。字段（Fields）部分只包括 class 文件中类或接口定义的字段，而不包括从父类或父接口中继承而来的字段。</p>
+<p>Fileds 部分的前两个字节也是一个计数，表示字段的数目。接下来是一个表示每个字段的一个数组。每个数组元素是一个可变长度的结构体。该字段的一些信息保存在这个结构体中，也有一些信息保存在常量池中。</p>
+
+<h5>方法（Methods）</h5>
+<p>Methods 部分包括了该类显式定义的方法，不包括从父类或父接口中继承来的方法。</p>
+<p>头两个字节表示方法的数目。剩下的又是一个可变长度数组，其中保存了每个方法的信息。方法结构体保存了方法的多个信息，例如参数列表、返回值、保存局部变量和操作数需要的堆栈数目、异常表、字节码系列等。</p>
+
+<h5>属性（Attributes）</h5>
+<p>属性部分包括了 class 文件的多个属性信息，例如其中之一是源码属性（source code attribute），表示这个 class 文件是从哪个源文件编译得到的。</p>
+<p>属性部分的前两个字节表示属性的数目，接下来的是属性具体内容。JVM 会忽视任何它无法识别的属性。</p>
+
+<p>前面介绍的可以说是背景知识，下面的就是是实际的动手实践</p>
+
+<h5>Hacking Into Java Class File</h5>
+<p>假如我们手里只有一个 HelloWorld.class 文件，我们想在没有源文件的情况下修改类名，例如我想把类改为 CppWorld。该怎么办呢？一般有两种方法：反编译或者修改直接修改 class 文件。</p>
+下面是我在 <a href="http://www.javadecompilers.com/" target="_blank">Decompilers online</a> 用 CFR 方法反编译 HelloWorld.class 文件得到的结果：
+[java]
+/*
+ * Decompiled with CFR 0_110.
+ */
+import java.io.PrintStream;
+
+public class HelloWorld {
+    private String msg;
+
+    public HelloWorld(String string) {
+        this.msg = string;
+    }
+
+    public HelloWorld() {
+        this.msg = "Default message";
+    }
+
+    public String getMsg() {
+        return this.msg;
+    }
+
+    public void setMsg(String string) {
+        this.msg = string;
+    }
+
+    public void printMsg() {
+        System.out.println(this.msg);
+    }
+
+    public static void main(String[] arrstring) {
+        HelloWorld helloWorld = new HelloWorld("Hello world from Java");
+        helloWorld.printMsg();
+    }
+}
+[/java]
+<p>看起来和上面的 HelloWorld.java 完全一样，这时候我们再修改 .java 文件，更改类名，然后再编译得到新的类。这对于一个 Java 新手来说都是轻而易举。但问题是，对于一个复杂的类或者有很多 .class 文件的 jar 包，反编译的结果仍然正确吗？</p>
+<p>答案显然是否定的，我尝试了<a href="http://www.javadecompilers.com/" target="_blank">Decompilers online</a> 上面的所有方法去反编译一个 JDBC Jar 包，得到的结果存在一大堆错误，从显而易见的到人肉眼都难以发现的错误都有。如果这时候再去一一修正，显然比较困难。一方面反编译出来的源码比较晦涩难懂，例如它里面使用了非常多的 switch case 语句，或者对于无法简单判断出来的类型，反编译器使用了 Object 类代替；另一方面，反编译出来的源码是没有注释的，一个有上千个文件但却没有一行注释的源码，单只是想想就令人恐惧。</p>
+<p>下面我们就尝试第二种方法，直接修改 class文件。显而易见的是我们可以尝试把 class文件中的所有 "HelloWorld" 字符串替换为 “CppWorld” 字符串。这只需要一个支持16进制编辑的文本编辑器就可以实现。例如我使用 UltraEdit 完成这个字符串替换操作，然后把文件名 HelloWorld.class 修改为 CppWorld.class。然后运行，结果如下：</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/utf8_error.jpg" title="简单字符串替换" alt="简单字符串替换" />
+<p>是什么原因呢？这里我们只替换了字符串，但没有替换字符串前面的长度。那么如果替换前后字符串长度相同是不是就可以了呢？例如我想替换为 MycppWorld。再来尝试一次，结果在上面的截图中。可以看出，对于相同长度的字符串，简单地进行字符串替换是可以达到 Hack Class File 目的的。同样，对于字符串长度不一样的情况，我们只需要同时修改字符串前面的长度即可。通过阅读 <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/index.html" target="_blank">JVMS</a> 中的 <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html" target="_blank">Class File Format</a> 章节，发现其实只需要修改 <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4" target="_blank">Constant Pool</a> 部分、其余保持不变即可。例如说下面这个简单的事例程序，它实现了 Class 文件 Constant Pool 部分的字符串替换：</p>
+[java]
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+/**
+ * String replace in Java .class file.
+ * Reference: Java Virtual Machine Specification CLASS file format
+ * https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+ * 
+ * @author luoyuanhao
+ *
+ */
+
+public class Localization {
+
+  public static void localize(String path) {
+    FileInputStream fis = null;
+    FileOutputStream fos = null;
+    long totalsize = 0;
+    int aval_buf = 100;
+    byte[] bs = new byte[aval_buf];
+    try {
+      // Output replaced content to file path.out
+      fis =new FileInputStream(
+          new File(path)); 
+      fos = new FileOutputStream(
+          new File(path + ".out"));
+      System.out.println("Processing: " + path);
+
+      // Skip magic, max and minus version, 8 bytes
+      fis.read(bs, 0, 8);
+      fos.write(bs, 0, 8);
+      totalsize += 8;
+
+      // Get number of constant pool entries, 2 bytes
+      fis.read(bs, 0, 2);
+      fos.write(bs, 0, 2);
+      totalsize += 2;
+      short cp_number = bytes2short(bs, 0, 2);
+      System.out.println("Constant pool number: " + cp_number);
+
+      // Handle each constant pool entry
+      String str = null;
+      for (short i = 1; i < cp_number; i++) {
+        // Read flag, 1 byte
+        fis.read(bs, 0, 1);
+        fos.write(bs, 0, 1);
+        totalsize += 1;
+        // Unless tag value is 1(means utf-8_info where replacement
+        // to be done), just skip specific bytes.
+        short tag = bytes2short(bs, 0, 1);
+        switch (tag) {
+        case 7:
+        case 8:
+        case 16:
+          fis.read(bs, 0 ,2);
+          fos.write(bs, 0, 2);
+          totalsize += 2;
+          break;
+        case 15:
+          fis.read(bs, 0, 3);
+          fos.write(bs, 0, 3);
+          totalsize += 3;
+          break;
+        case 3:
+        case 4:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 18:
+          fis.read(bs, 0, 4);
+          fos.write(bs, 0, 4);
+          totalsize += 4;
+          break;
+        case 5:
+        case 6:
+          fis.read(bs, 0, 8);
+          fos.write(bs, 0, 8);
+          //  Next cp index must be valid but is considered unusable
+          i++;
+          totalsize += 8;
+          break;
+        case 1:
+        {
+          fis.read(bs, 0, 2);
+          totalsize += 2;
+          short str_len = bytes2short(bs, 0 ,2);
+          while (str_len > aval_buf) {
+            System.out.println("Constant pool number: " + i);
+            System.out.println("Buffer overflow, double it from " +
+                aval_buf + " to " + aval_buf * 2);
+            aval_buf *= 2;
+            bs = new byte[aval_buf];
+          }
+          fis.read(bs, 0, str_len);
+          totalsize += str_len;
+          // There may be '\0' in bytes array, but UTF-8 can't
+          // handle it, so using 'ISO-8859-1' to encode string.
+          str = new String(bs, 0, str_len, "ISO-8859-1");
+          str = localizeInternal(str);
+          str_len = (short)str.length();
+          byte[] new_len = short2bytes(str_len);
+          // Update string and length
+          fos.write(new_len, 0, 2);
+          fos.write(str.getBytes("ISO-8859-1"), 0, str_len);
+          break;
+        }
+        default:
+          System.out.println("File: " + path);
+          System.out.println("Unrecognized tag: " + tag + ", cp num: " + i);
+          System.out.println("After: " + str + ". Byte offset:" + totalsize);
+          System.exit(1);
+        }// end switch
+      }// end for
+      // Read rests
+      byte[] bsrest = new byte[fis.available()];
+      fis.read(bsrest);
+      fos.write(bsrest);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (fis != null) {
+        try {
+          fis.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      if (fos != null) {
+        try {
+          fos.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private static short bytes2short(byte[] bs, int offset, int length) {
+    if (length == 1) return (short) (bs[0] & 0xFF);
+    ByteBuffer buf = ByteBuffer.wrap(bs, offset, length);
+    buf.order(ByteOrder.BIG_ENDIAN);
+    return buf.getShort();
+  }
+
+  private static byte[] short2bytes(short val) {
+    ByteBuffer buf = ByteBuffer.allocate(2);
+    buf.putShort(val);
+    return buf.array();
+  }
+
+  private static String localizeInternal(String str) {
+
+    // Replace "HelloWorld" whih "CppWorld"
+    String new_str = str.replaceFirst("HelloWorld", "CppWorld");
+    while (!new_str.equals(str)) {
+      str = new_str;
+      new_str = str.replaceFirst("HelloWorld", "CppWorld");
+    }
+    return str;
+  }
+
+  public static void main(String args[]) {
+    localize("HelloWorld.class");
+  }
+}
+[/java]
+<p>下面是运行的结果，我们首先编译这个工具类 Localization.java，然后使用这个工具类修改 HelloWorld.class 文件生成 HelloWorld.class.out 文件，重命名 HelloWorld.class.out 文件为 CppWorld.class 文件，然后运行 java CppWorld。运行成功！</p>
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/01/localize.jpg" title="Hack into Java Class File">
+
+<p>关于 Java Class 文件格式的介绍和一些简单的 Hack 就到这里，有任何疑问或建议的都欢迎在下面留言共同探讨。</p>
+
+<h5>Reference:</h5>
+<a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html" target="_blank">Java Virtual Machine: Class File Format</a>
+<a href="http://viralpatel.net/blogs/tutorial-java-class-file-format-revealed/" target="_blank">Tutorial_Java Class file format</a>
