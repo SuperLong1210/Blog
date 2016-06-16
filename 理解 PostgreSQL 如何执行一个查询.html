@@ -1,0 +1,477 @@
+<p>在进入下一步之前，你应该掌握 PostgreSQL 执行查询时遵循的流程。 </p>
+<p>当 PostgreSQL 从客户端应用程序接收到一个查询时，会把查询文本传递给语法解析器(parser)。语法解析器会扫描整个查询，检查是否含有语法错误。如果查询语法上是正确的，语法解析器就会把查询转换为一棵语法树。语法树使用正式无二义的数据结构表示你的查询。</p>
+<p>例如对于查询：  
+</p>
+<blockquote>
+<p>SELECT customer_name, balance FROM customers WHERE balance &gt; 0 ORDER BY balance</p>
+</blockquote>
+<p>语法解析器可能生成如图所示的语法树。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/1.gif" alt="语法树事例" /></p>
+<p>语法解析器解析完查询后，就会把生成的语法树传递给规划器/优化器。</p>
+<p>规划器负责遍历整个语法树并为执行查询找出所有可能的计划。计划可能包括顺序扫描整个表，或者存在可用索引时使用索引扫描。如果查询包括两个或多个表，规划器还会推荐一些不同方法进行表的连接。执行计划(Execution Plan)由查询算子(Query Operators)构成。每个查询算子将一个或多个输入集转换为一个临时结果集。例如顺序扫描算子(Seq Scan Operator)，转换输入集合(一个物理表)为一个结果集，并过滤任何不满足查询约束的记录。排序算子(Sort Operator)通过根据一个或多个比较字段重排序输入集产生一个结果集。我稍后会详细介绍每个查询算子。下图是一个简单的执行计划事例(这是一个新的例子，和上图所示的语法树无关)。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/2.gif" alt="执行计划事例" /></p>
+<p>你可以看到一个复杂的查询被切分为简单的步骤。树底层查询算子的输入集通常是一个物理表。上层算子的输入集是下层算子的结果集。</p>
+<p>当生成了所有可能的执行计划时，优化器选择代价最低的计划。每个计划都分配了一个预估执行开销(Estmated Execution Cost)。开销估计通常使用磁盘 IO 作为单元。一个算子从磁盘中读取一个 8192字节(8K) 块的开销为一单元。 CPU 时间也使用磁盘 IO 单元计算，但通常是一个百分数。例如，处理一个元组所需要的 CPU 时间通常假设为一个简单磁盘 IO 的百分之一。你也可以调整很多开销估计。每个查询算子都有一个不同的开销估计。例如，顺序扫描整个物理表的开销是表中 8K 块的数目加上一些 CPU 开销。</p>
+<p>选择好（显而易见的）开销最低的执行计划之后，查询执行器(Query Executor)从计划头部开始执行，并让最顶层的算子产生结果集。每个算子将它的输入集转换为一个结果集。输入集可能来自于树中更底层的算子。当最顶层的算子完成它的转换时，就会把结果集返回给客户端应用程序。</p>
+<ul>
+<li>EXPLAIN</li>
+</ul>
+<p>EXPLAIN 语句可以让你深入了解 PostgreSQL 查询规划器/优化器 如何决定怎么执行一个查询。</p>
+<p>首先，你应该知道 EXPLAIN 语句只能用于分析 SELECT、 INSERT、 DELETE、 UPDATE、 和 DECLARE...CURSOR 命令。</p>
+<p>EXPLAIN 命令的语法为：</p>
+<blockquote>
+<p>EXPLAIN [ANALYZE][VERBOSE] query;</p>
+</blockquote>
+<p>以下面的查询为例：</p>
+<blockquote>
+<p>perf=# EXPLAIN ANALYZE SELECT * FROM recalls;</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Seq Scan on recalls  (cost=0.00..9217.41 rows=39241 width=1917)</p>
+<p>(actual time=69.35..3052.72 rows=39241 loops=1)</p>
+<p>Total runtime: 3144.61 msec</p>
+</blockquote>
+<p>一开始执行计划的格式可能有些令人费解。对于执行计划中的每一步，EXPLAIN 都打印出了以下信息：</p>
+<ul>
+<li>需要的算子类型</li>
+<li>执行的预计开销</li>
+</ul>
+<p>如果你使用 EXPLAIN ANALYZE，就是真正的执行开销。如果不使用 ANALYZE 关键字，只会生成查询计划但并不执行，也就不会显示实际的开销。</p>
+<p>在这个例子中， PostgreSQL 决定对 recalls 表进行顺序扫描。PostgreSQL 有很多可以用于执行查询的算子。我会在后面详细介绍这些算子的类型。</p>
+<p>在开销预估中有三个项目。第一项(cost=0.00..9217.41) 预估该算子开销有多么“昂贵”。“昂贵”按照磁盘读计算。这里有两个数值：第一个表示算子返回第一条结果集最快需要多少时间；第二个数值（通常更重要）表示整个算子需要多长时间。开销预估中的第二项(rows=39241)表示 PostgreSQL 预计该算子会返回多少条记录。最后一项(width=1917)表示结果集中一条记录的平均长度（字节数）。</p>
+<p>如果你在 EXPLAIN 命令中包括了 ANALYZE 关键字， PostgreSQL 就会执行查询并显示实际执行开销。</p>
+<ul>
+<li>开销预估
+为了使计划树更易于阅读，后面的 EXPLAIN 结果中我会删除开销预估部分。别被这诱导，EXPLAIN 命令总是会打印开销预估。</li>
+</ul>
+<p>下面是一个简单的例子。PostgreSQL 执行该查询只需要一步(对整个表做顺序扫描)。很多查询要多个步骤，EXPLAIN 命令会向你显示其中的每一个步骤。然我们来看一个稍微复杂的例子：</p>
+<blockquote>
+<p>perf=# EXPLAIN ANALYZE SELECT * FROM recalls ORDER BY yeartxt;</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Sort (cost=145321.51..145321.51 rows=39241 width=1911)</p>
+<pre><code> (actual time=13014.92..13663.86 rows=39241 loops=1)
+</code></pre>
+
+<p>-&gt;Seq Scan on recalls (cost=0.00..9217.41 rows=39241 width=1917)</p>
+<pre><code>                    (actual time=68.99..3446.74 rows=39241 loops=1)
+</code></pre>
+
+<p>Total runtime: 16052.53 msec</p>
+</blockquote>
+<p>这个例子显示了一个两步查询计划。在这个例子中，第一步在计划的最后面。当你阅读一个查询计划时，要记得计划中每一步都会产生一个中间结果集。每个中间结果集都会被传递给计划的下一步。</p>
+<p>看这个计划，PostgreSQL 首先通过顺序扫描(Seq Scan)整个 recalls 表产生一个中间结果集。这一步大概需要读 9217 个页面，结果集大概会有 39,241 条记录，每条记录平均长度为 1,917 个字节。注意到了没，这些预估值和第一个例子中的完全一样？而且在两个例子中，都对整个表执行了顺序扫描。</p>
+<p>顺序扫描结束产生中间结果集后，就会被发送到计划的下一步。这个例子中计划的最后一步是一个排序操作，这由我们的 ORDER BY 从句产生。排序操作会对顺序扫描产生的结果集进行重排序并返回最后的结果集给客户端应用程序。</p>
+<p>并不是所有的 ORDER BY 从句都会需要一个排序操作。规划器/优化器 可能会决定使用索引实现结果集的有序。</p>
+<p>排序算子只需要一个操作数(一个结果集)。顺序扫描算子需要一个操作数(一个表)。一些算子可能需要多个操作数。例如表 recalls 和 mfgs 的连接：</p>
+<blockquote>
+<p>perf=# EXPLAIN SELECT * FROM recalls, mfgs</p>
+<p>perf-#   WHERE recalls.mfgname = mfgs.mfgname;</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Merge Join</p>
+<p>-&gt; Sort</p>
+<pre><code> -&gt; Seq Scan on recalls
+</code></pre>
+
+<p>-&gt;  Sort</p>
+<pre><code> -&gt; Seq Scan on mfgs
+</code></pre>
+
+</blockquote>
+<p>发挥你的想象力，你可以看到这个查询计划实际上是一个树结构，如下图所示</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/3.gif" alt="执行计划树结构" /></p>
+<p>当 PostgreSQL 执行这个查询计划时，它首先从树的顶部开始执行。合并连接(Merge Join)算子需要两个结果集作为输入，因此 PostgreSQL 必须在树中下移一层；我们假设你首先遍历左孩子。每个排序算子需要一个单独的结果集作为输入，因此查询执行器再次下移一层。在树的底部，顺序扫描算子从表中读取一条记录并返回这条记录给它的双亲。顺序扫描算子扫描完整个表之后，左半边的排序算子就可以完成了。一旦左半边的排序操作完成，合并连接算子就会计算它的右孩子(实际上是并行执行)。在这种情况下，右孩子和左孩子一样进行计算。当两个排序算子都完成时，就会执行合并连接算子，并生成最终的结果集。</p>
+<p>到此，你已经在执行计划中看到了三个查询执行算子。PostgreSQL 现在有 19 个查询算子。让我们来详细看看每个算子。</p>
+<p>顺序扫描(Seq Scan)</p>
+<p>顺序扫描算子是最基本的算子。每个单一表查询都可以使用顺序扫描算子执行。</p>
+<p>顺序扫描从表的起始地址开始扫描，直到表结束。对于表中的每一条记录，顺序扫描计算查询约束(WHERE 从句)；如果满足约束，就会把需要的列添加到结果集。</p>
+<p>可能并不是输入集中的每一条记录都会计算整个 WHERE 从句。PostgreSQL 只会计算特定行(如果有)的那部分从句。对于单表查询（SELECT），会计算整个 WHERE 从句。对于多表连接，只会计算特定行的部分。</p>
+<p>正如你之前看到的，一个表可能包含已死亡(已删除)的行，或者一些因为由于还未提交(COMMIT)而不可见的行。顺序扫描结果集不会包括这些死亡记录，但它必须读这些死亡记录，这对于一个更新频繁的表可能开销很大。</p>
+<p>顺序扫描的开销预估能给你一些算子工作的提示：</p>
+<blockquote>
+<p>Seq Scan on recalls (cost=0.00..9217.41 rows=39241 width=1917)</p>
+</blockquote>
+<p>启动开销总是 0.00。这表示顺序扫描的第一行结果能立即返回，顺序扫面并不是读完整个表才开始返回结果。如果你在使用顺序扫描(不能是其它算子)的查询上创建一个游标(CURSOR)，第一个 FETCH 会立即返回吗？在你能够获取(FETCH)第一条记录之前，你不需要等待生成所有结果集。其它算子(例如 Sort)在返回第一条记录之前确实要读完整个输入集。</p>
+<p>如果没有能够适用于查询的索引，规划器/优化器就会选择顺序扫描。当规划器/优化器认为为了满足排序要求(例如 ORDER BY 从句)，扫描整个表然后排序结果集的代价更小(或者相同)时，也会使用顺序扫描。</p>
+<p>索引扫描(Index Scan)</p>
+<p>索引扫描算子通过遍历索引结构工作。如果你为已有索引的列指定起始值(例如 WHERE record<em>id &gt;= 1000)，索引扫描就会从合适的位置开始扫描。如果你指定一个结束值(例如 WHERE record</em>id &lt; 2000)，当索引扫描发现一个索引项的值大于结束值时就会立即结束。</p>
+<p>和顺序扫描相比索引扫描有两个主要好处。首先，顺序扫描必须读取表的每一行，它只能通过为每一行计算 WHERE 从句的值判断是否移除。如果你指定了开始值和/或者结束值，索引扫描也许不需要读取每一条记录。其次，顺序扫描返回的结果和表的顺序相同，并不是排好序的。而索引扫描会按照索引的顺序返回。</p>
+<p>并不是所有索引都是可扫描的。B树、R树以及 GiST 索引类似是可以扫描的；但是哈希索引就不行。</p>
+<p>当能通过遍历一个范围的索引值降低结果集的大小，或者能避免一次排序时，规划器/优化器就会选择使用索引扫描，因为索引提供了隐式的排序。</p>
+<p>排序(Sort)</p>
+<p>排序算子对结果集进行排序。PostgreSQL 使用两种不同的排序策略： 内排序(in-memory)和外排序(on-disk)。你可以通过调整运行时参数 sort<em>mem 的值来调优 PostgreSQL。如果结果集的大小超出了 sort</em>mem， 排序算子就会把输入集分发为一系列有序的文件，然后再把它们合并起来。如果结果集没有超过 sort_mem*1024 字节，就会在内存中使用快速排序算法完成排序。</p>
+<p>一个排序算子永远不会减少结果集的大小，因为它不会删除行或列。</p>
+<p>和顺序扫描以及索引扫描不同，排序算子在返回第一条记录之前必须处理完整个输入集。</p>
+<p>排序操作用于多种场合。显然，排序能用户 ORDER BY 从句。一些查询算子要求它们的输入集是有序的。例如， 唯一(Unique)算子在读入有序输入集时检测重复值，从而删除行。排序也会用于一些连接(Join)操作、分组(Group)操作或者一些集合(Set)操作(例如 INTERSECT 或 UNION)。</p>
+<p>唯一算子(Unique)</p>
+<p>唯一算子从输入集中删除重复的值。输入集一定要按照列排好序，而且列必须唯一。例如，对于下面的命令：</p>
+<blockquote>
+<p>SELECT DISTINCT mfgname FROM recalls;</p>
+</blockquote>
+<p>可能生成执行计划：</p>
+<blockquote>
+<p>Unique</p>
+<p>-&gt;  Sort</p>
+<pre><code>   -&gt;  Seq Scan on recalls
+</code></pre>
+
+</blockquote>
+<p>该计划中的排序算子按照列 mfgname 对输入集进行排序。唯一算子通过比较该行和上一行的列工作。如果值相同，就会从结果集中移除重复的记录。</p>
+<p>唯一算子只会删除记录。它并不会删除列或者改变结果集的顺序。</p>
+<p>在处理完整个输入集之前唯一算子能返回结果集中的第一条记录。</p>
+<p>规划器/优化器使用唯一算子实现 DISTINCT 从句。唯一算子也用于在 UNION 中删除重复行。</p>
+<p>LIMIT
+LIMIT 算子用户限制结果集的大小。PostgreSQL 使用 LIMIT 算子处理 LIMIT 和 OFFSET。LIMIT 算子忽视输入集中的前 x 行，返回接下来的 y 行，并忽视剩下的行。如果查询中包括了 OFFSET 从句， x 表示偏移量；否则 x 就是 0。如果查询包括一个 LIMIT 从句， y 就表示 LIMIT 值；否则， y 起码和输入集的行数相同。</p>
+<p>是否有序对于 LIMIT 算子输入集并不重要，但对于整个查询通常是有用的。例如，对于下面的查询：</p>
+<blockquote>
+<p>perf=# EXPLAIN SELECT * FROM recalls LIMIT 5;</p>
+<p>NOTICE: QUERY PLAN:</p>
+<p>Limit (cost=0.00..0.10 rows=5 width=1917)</p>
+<p>-&gt; Seq Scan on recalls (cost=0.00..9217.41 rows=39241 width=1917)</p>
+</blockquote>
+<p>显示 LIMIT 算子拒绝了顺序扫描返回的除前 5 条记录以外的所有记录。另外，查询</p>
+<blockquote>
+<p>perf=# EXPLAIN ANALYZE SELECT * FROM recalls ORDER BY yeartxt LIMIT 5;</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Limit (cost=0.00..0.10 rows=5 width=1917)</p>
+<p>-&gt;Sort (cost=145321.51..145321.51 rows=39241 width=1911)</p>
+<p>-&gt;Seq Scan on recalls (cost=0.00..9217.41 rows=39241 width=1917)</p>
+</blockquote>
+<p>显示 LIMIT 算子从有序输入集中返回了前 5 条记录。</p>
+<p>LIMIT 算子不会从结果集中移除列，但切实会删除行。</p>
+<p>如果查询中含有 LIMIT 从句、OFFSET 从句、或者两者，规划器/优化器就会使用 LIMIT 算子。如果查询中只包括一个 LIMIT 从句，在处理完整个输入集之前 LIMIT 算子就能返回第一条记录。</p>
+<p>聚合算子(Aggregate)
+如果查询中包括有任何的聚合函数，规划器/优化器就会生成一个聚合算子。聚合函数包括：AVG()、 COUNT()、 MAX()、 MIN()、 STDDEV()、 SUM()、 以及 VARIANCE()。</p>
+<p>聚合读取输入集中的所有记录并计算聚合值。如果输入集没有分组(not grouped)，集合算子就会产生一行记录。例如：</p>
+<blockquote>
+<p>movies=# EXPLAIN SELECT COUNT(*) FROM customers;</p>
+<p>Aggregate (cost=22.50..22.50 rows=1 width=0)</p>
+<p>-&gt; Seq Scan on customers  (cost=0.00..20.00 rows=1000 width=0)</p>
+</blockquote>
+<p>如果输入集是分组的，聚合算子就会为每个分组计算一条结果记录：</p>
+<blockquote>
+<p>movies=# EXPLAIN</p>
+<p>movies-#   SELECT COUNT(*), EXTRACT( DECADE FROM birth_date )</p>
+<p>movies-#     FROM customers</p>
+<p>movies-#     GROUP BY EXTRACT( DECADE FROM birth_date );</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Aggregate (cost=69.83..74.83 rows=100 width=4)</p>
+<p>-&gt; Group (cost=69.83..72.33 rows=1000 width=4)</p>
+<pre><code>-&gt; Sort (cost=69.83..69.83 rows=1000 width=4)
+
+  -&gt;  Seq Scan on customers  (cost=0.00..20.00 rows=1000 width=4)
+</code></pre>
+
+</blockquote>
+<p>注意未分组聚合的行预估总是为 1；分组聚合的行预估是输入集的 1/10。</p>
+<p>追加算子(Append)
+追加算子用于实现 UNION。追加算子有两个或者多个输入集。Append 首席返回第一个输入集的所有记录、然后是第二个输入集的所有记录、如此类推，直到处理完所有输入集的所有记录。</p>
+<p>下面是一个使用 Append 算子的查询计划：</p>
+<blockquote>
+<p>perf=# EXPLAIN</p>
+<p>perf-#   SELECT * FROM recalls WHERE mfgname = 'FORD'</p>
+<p>perf-#     UNION</p>
+<p>perf=#   SELECT * FROM recalls WHERE yeartxt = '1983';</p>
+<p>Unique</p>
+<p>-&gt;Sort</p>
+<p>-&gt;Append</p>
+<pre><code> -&gt;Subquery Scan *SELECT* 1
+
+   -&gt;Seq Scan on recalls
+
+ -&gt;Subquery Scan *SELECT* 2
+
+   -&gt;Seq Scan on recalls
+</code></pre>
+
+</blockquote>
+<p>Append 算子的开销预估是所有输入集开销预估的和。Append 算子在处理完所有输入记录之前能返回第一条记录。</p>
+<p>当遇到 UNION 从句的时候规划器/优化器就会使用 Append 算子。当你从集成层次中的表选择记录时也会用到 Append。在第三章 &quot;PostgreSQL SQL 语法与使用&quot; 中，我定义了如下三张表。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/4.gif" alt="继承表" /></p>
+<p>表 dvds 继承自 video， 表 tapes 也是。如果你从 dvds 或者 video 中 SELECT 数据， PostgreSQL 就会响应一个简单的查询计划：</p>
+<blockquote>
+<p>movies=# EXPLAIN SELECT * FROM dvds;</p>
+<p>Seq Scan on dvds (cost=0.00..20.00 rows=1000 width=122)</p>
+<p>movies=# EXPLAIN SELECT * FROM tapes;</p>
+<p>Seq Scan on tapes (cost=0.00..20.00 rows=1000 width=86)</p>
+</blockquote>
+<p>记住，由于继承层次结构，一个 dvd 是一个视频，一个磁带也是。如果你从 video 中 SELECT 数据，你会看到所有的 dvd、tape 和 video。查询计划反应了继承层次结构：</p>
+<blockquote>
+<p>movies=# EXPLAIN SELECT * FROM video;</p>
+<p>Result(cost=0.00..60.00 rows=3000 width=86)</p>
+<p>-&gt;Append(cost=0.00..60.00 rows=3000 width=86)</p>
+<p>-&gt;Seq Scan on video  (cost=0.00..20.00 rows=1000 width=86)</p>
+<p>-&gt;Seq Scan on tapes video  (cost=0.00..20.00 rows=1000 width=86)</p>
+<p>-&gt;Seq Scan on dvds video  (cost=0.00..20.00 rows=1000 width=86)</p>
+</blockquote>
+<p>仔细查看开销预估后面的 width 从句。如果你从表 dvds 中 SELECT 数据，宽度预计是每条记录 122 个字节。如果你从表 tapes 中 SELECT 数据，宽度预计就是每行 86 个字节。如果你从表 video 中 SELECT 数据，所有行都预计为 86 个字节。下面是用于创建表 tapes 和 dvds 的命令：</p>
+<blockquote>
+<p>movies=# CREATE TABLE tapes ( ) INHERITS( video );</p>
+<p>movies=# CREATE TABLE dvds</p>
+<p>movies-# (</p>
+<p>movies(#   region_id    INTEGER,</p>
+<p>movies(#   audio_tracks VARCHAR[]</p>
+<p>movies(# ) INHERITS ( video );</p>
+</blockquote>
+<p>你可以看到表 tapes 中的行和表 video 中的行是一样的。它们的大小也是一样(86个字节)。表 dvds 中的一行包括一个 video 以及其它额外的列，因此表 dvds 中的行比 video 中的行长。当你从 表 video 中 SELECT 数据时，你也需要所有的 video。PostgreSQL 会忽视所有表示从表 video 中继承来的列。</p>
+<p>Result 算子
+Result 算子能用于三种情形。</p>
+<p>首先， Result 算子用于执行不会从表中抽取数据的查询。</p>
+<blockquote>
+<p>movies=# EXPLAIN SELECT timeofday();</p>
+<p>Result</p>
+</blockquote>
+<p>在这种情况下， Result 算子只是用于计算表达式的值并返回结果。</p>
+<p>Result 也用于计算 WHERE 从句中不依赖于表中抽取的数据的部分。例如：</p>
+<blockquote>
+<p>movies=# EXPLAIN SELECT * FROM tapes WHERE 1 &lt;&gt; 1;</p>
+<p>Result</p>
+<p>-&gt;Seq Scan on tapes</p>
+</blockquote>
+<p>这个查询看起来没什么作用，但实际上有些客户端应用程序会产生这种形式的查询用于提取表的元数据(列定义)。</p>
+<p>在这种情形下， Result 算子首先计算 WHERE 从句中常量的部分。如果表达式的结果为 FALSE， Result 算子就会结束，不再需要继续执行。如果表示式的结果为 TRUE，Result 就会返回它的输入集。</p>
+<p>如果查询计划中最顶部的结点是一个 Append 算子，规划器/优化器也会生成一个 Result 算子。这个规则令人费解，但并没有性能影响；它只是使查询规划器和执行器变得简单，便于 PostgreSQL 开发者维护。</p>
+<p>嵌套循环(Nested Loop)</p>
+<p>嵌套循环算子用于两个表的连接。嵌套循环算子需要两个输入集(假设该嵌套循环算子连接两个表)。</p>
+<p>嵌套循环算子从每个输入集中获取每一条记录(称为外部表)。对于外部表中的每条记录，从其它输入集(内部表)中搜寻满足连接条件的记录。</p>
+<p>下面是一个例子：</p>
+<blockquote>
+<p>perf=# EXPLAIN</p>
+<p>perf-#   SELECT * FROM customers, rentals</p>
+<p>perf=#   WHERE customers.customer<em>id = rentals.customer</em>id;</p>
+<p>Nested Loop</p>
+<p>-&gt; Seq Scan on rentals</p>
+<p>-&gt; Index Scan using customer_id on customers</p>
+</blockquote>
+<p>在查询计划中，外部表显示在最前面(在这个例子中 rentals 是外部表)。执行该计划时，嵌套循环算子从 rentals 表中读取每条记录。对于 rentals 中的记录，嵌套循环算子使用索引 customer_id 从表 customers 中读取查找响应的记录。</p>
+<p>实际上，嵌套循环只会读取满足查询约束的记录。</p>
+<p>嵌套循环算子能用于进行内连接、左外连接和联合。</p>
+<p>由于嵌套循环不会处理整个内部表，因此不能用于其它类型的连接(全连接、右半连接，以及其它)。</p>
+<p>合并连接(Merge Join)</p>
+<p>合并连接算子也用于两个表的连接。和嵌套循环算子类似，合并连接算子要求有两个输入集：一个外部表和一个内部表。每个输入集必须按照连接列排好序。</p>
+<p>让我们再来看看之前的查询，这时执行一个合并连接：</p>
+<blockquote>
+<p>perf=# EXPLAIN</p>
+<p>perf-#   SELECT * FROM customers, rentals</p>
+<p>perf=#   WHERE customers.customer<em>id = rentals.customer</em>id;</p>
+<p>Merge Join</p>
+<p>-&gt; Sort</p>
+<pre><code>-&gt; Seq Scan on rentals
+</code></pre>
+
+<p>-&gt; Index Scan using customer_id on customers</p>
+</blockquote>
+<p>合并连接从每个表中读取第一条记录。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/5.gif" alt="合并连接 1" /></p>
+<p>如果连接列相等(正如该情形)，合并连接根据每个输入表创建一个包含所有需要列的记录并返回。合并连接然后处理外部表的下一条记录，并和内部表中相应的记录连接。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/6.gif" alt="合并连接 2" /></p>
+<p>接下来，合并连接读取外部表的第三条记录。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/7.gif" alt="合并连接 3" /></p>
+<p>现在，在产生下一条结果记录之前合并连接需要在内部表中前进两条记录。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/8.gif" alt="合并连接 4" /></p>
+<p>根据 customer_id=3 产生结果记录后，合并连接移动到外部表的最后一条记录，然后在内部表中移动到下一条匹配的记录。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/06/9.gif" alt="合并连接 5" /></p>
+<p>合并连接产生最后一条结果记录后结束(customer_id = 4)。</p>
+<p>你可以看到合并连接遍历两个排好序的表查找匹配的记录。难点在于维持指针的同步。</p>
+<p>这个列子介绍的是内连接(inner join)，但合并连接算子通过不同的方式遍历有序的输入集能实现其它类型的连接。合并连接能用于内连接(inner join)、外连接(outer join)以及联合(union)。</p>
+<p>哈希和哈希连接(Hash and Hash Join)</p>
+<p>哈希算子和哈希连接算子一起工作。哈希连接算子需要两个输入集(外部表和内部表)。下面是一个使用哈希连接算子的查询计划：</p>
+<blockquote>
+<p>movies=# EXPLAIN</p>
+<p>movies-#   SELECT * FROM customers, rentals</p>
+<p>movies-#     WHERE rentals.customer<em>id = customers.customer</em>id;</p>
+<p>Hash Join</p>
+<p>-&gt; Seq Scan on customers</p>
+<p>-&gt; Hash</p>
+<pre><code>  -&gt; Seq Scan on rentals
+</code></pre>
+
+</blockquote>
+<p>和其它连接算子不同，哈希连接不要求输入集按照连接列有序。相反，内部表通常是个哈希表，外部表是否有序并不重要。</p>
+<p>哈希连接算子通过哈希算子生成内部表。哈希算子对内部表的连接列创建一个临时哈希索引。</p>
+<p>当哈希表(内部表)创建完成后，哈希连接读取外部表的每一条记录，对(外部表的)连接列进行哈希，并在临时哈希索引中搜索匹配的值。</p>
+<p>哈希连接算子能用于内连接(inner join)、左外连接(left outer join)和联合(union)。</p>
+<p>分组(Group)</p>
+<p>分组算子(Group Operator)用于计算 GROUP BY 从句。Group 算子需要一个输入集，而且必须按照分组列有序。</p>
+<p>Group 能两种不同的工作方式。如果你计算一个已经分组的聚合，Group 会返回输入集的每一条记录，每个分组后面是一个空行(NULL row)表示分组结束(空行用于内部记录，并不会出现在最后的结果集中)。
+例如：</p>
+<blockquote>
+<p>movies=# EXPLAIN</p>
+<p>movies-#   SELECT COUNT(*), EXTRACT( DECADE FROM birth_date )</p>
+<p>movies-#     FROM customers</p>
+<p>movies-#     GROUP BY EXTRACT( DECADE FROM birth_date );</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Aggregate (cost=69.83..74.83 rows=100 width=4)</p>
+<p>-&gt; Group (cost=69.83..72.33 rows=1000 width=4)</p>
+<pre><code>-&gt; Sort (cost=69.83..69.83 rows=1000 width=4)
+
+  -&gt;  Seq Scan on customers  (cost=0.00..20.00 rows=1000 width=4)
+</code></pre>
+
+</blockquote>
+<p>注意到Group 算子中开销预估中的行数目和输入集的大小相同。</p>
+<p>如果你不是计算一个已分组的聚合，Group 会为输入集的每个组返回一条记录。例如：</p>
+<blockquote>
+<p>movies=# EXPLAIN</p>
+<p>movies-#   SELECT EXTRACT( DECADE FROM birth_date ) FROM customers</p>
+<p>movies-#     GROUP BY EXTRACT( DECADE FROM birth_date );</p>
+<p>Group (cost=69.83..69,83 rows=100 width=4)</p>
+<p>-&gt; Sort (cost=69.83..69.83 rows=1000 width=4)</p>
+<pre><code>     -&gt; Seq Scan on customers  (cost=0.00..20.00 rows=1000 width=4)
+</code></pre>
+
+</blockquote>
+<p>这种情况下，预计记录数目是 Group 算子输入集的 1/10。</p>
+<p>子查询扫描和子计划(Subquery Scan and Subplan)</p>
+<p>子查询扫描算子用于计算 UNION 从句；Subplan 用于 subselects。这些算子扫面它们的输入集，并把每条记录添加到结果集。这些算子都起内部书签的作用，并不会影响整个查询计划。通常可以忽视它们。</p>
+<p>为了让你了解什么时候会使用到它们，下面是两个显示子查询扫描和子计划算子的例子：</p>
+<blockquote>
+<p>perf=# EXPLAIN</p>
+<p>perf-#   SELECT * FROM recalls WHERE mfgname = 'FORD'</p>
+<p>perf-#     UNION</p>
+<p>perf=#   SELECT * FROM recalls WHERE yeartxt = '1983';</p>
+<p>Unique</p>
+<p>-&gt;Sort</p>
+<p>-&gt;Append</p>
+<pre><code> -&gt;Subquery Scan *SELECT* 1
+
+   -&gt;Seq Scan on recalls
+
+ -&gt;Subquery Scan *SELECT* 2
+
+   -&gt;Seq Scan on recalls
+</code></pre>
+
+<p>movies=# EXPLAIN</p>
+<p>movies-#   SELECT * FROM customers</p>
+<p>movies-#     WHERE customer_id IN</p>
+<p>movies-#       (</p>
+<p>movies(#          SELECT customer_id FROM rentals</p>
+<p>movies(#       );</p>
+<p>NOTICE:  QUERY PLAN:</p>
+<p>Seq Scan on customers  (cost=0.00..3.66 rows=2 width=47)</p>
+<p>SubPlan</p>
+<p>-&gt;  Seq Scan on rentals  (cost=0.00..1.04 rows=4 width=4)</p>
+</blockquote>
+<p>Tid Scan
+Tid 扫描(tuple ID scan)算子通常很少会用到。一个元组几乎就是一行。每个元组都有一个表内唯一的标识符，称为元组 ID。当你选择一行时，你也可以获取改行的元组 ID：</p>
+<blockquote>
+<p>movies=# SELECT ctid, customer<em>id, customer</em>name FROM customers;</p>
+<p>ctid  | customer<em>id |    customer</em>name</p>
+<p>-------+-------------+----------------------</p>
+<p>(0,1) |           1 | Jones, Henry</p>
+<p>(0,2) |           2 | Rubin, William</p>
+<p>(0,3) |           3 | Panky, Henry</p>
+<p>(0,4) |           4 | Wonderland, Alice N.</p>
+<p>(0,5) |           8 | Wink Wankel</p>
+</blockquote>
+<p>&quot;ctid&quot; 是比较特殊的一列(类似于 oid)，每行都会自动添加这一列。一个元组 ID 由块号(block number)和块内的元组号(tuple number)构成。上面例子中所有的行都存储在块0(表文件的第一块)。customers 中的 &quot;Panky, Henry&quot; 是块0的第三个元组。</p>
+<p>当你知道了一个行的元组 ID，你就可以通过它的 ID 请求这一行：</p>
+<blockquote>
+<p>movies=# SELECT customer<em>id, customer</em>name FROM customers</p>
+<p>movies-#   WHERE ctid = '(0,3)';</p>
+<p>customer<em>id | customer</em>name</p>
+<p>-------------+---------------</p>
+<pre><code>      3 | Panky, Henry
+</code></pre>
+
+</blockquote>
+<p>元组 ID 类似于书签。但是，一个元组 ID 尽在一个单独的事务中有效。事务结束后，就不该再使用该元组 ID。</p>
+<p>当规划器/优化器遇到类似 ctid = expression 或 expression = ctid 的约束时就会使用 Tid 扫描算子。</p>
+<p>获取一行最快的方式就是通过它的元组 ID。当你通过元组 ID SELECT 时，Tid 扫描算子读取元组 ID 中指定的块并返回请求的元组。</p>
+<p>物化(Materialize)</p>
+<p>物化算子用于一些 subselect 操作。规划器/优化器可能会认为一次性物化一个 subselect 的开销会比重复计算顶层的每一条记录要小。</p>
+<p>物化也用于一些合并操作算子。尤其当合并连接算子内部表输入集不是由顺序扫描、索引扫描、排序或者物化算子产生时，规划器/优化器会插入一个物化算子到计划中。该规则背后的原因并非显而易见。和性能以及你数据的结构相比，它和其它算子的功能更加相关。合并连接算子其实很复杂；合并连接的其中一个要求是输入集必须按照连接列有序。第二个要求是内部表输入集必须可以重定位；也就是说，合并连接需要在输入集中前后移动。并非所有有序算子都能前后移动。如果内部表输入集是由一个不可重定位的算子产生的，规划器/优化器就会插入一个物化算子。</p>
+<p>集合算子(Intersect, Intersect All, Except, Except All)</p>
+<p>有 4 个集合算子:Intersect、Intersect All、 Except 和 Except All。只有当规划器/优化器遇到 INTERSECT、 INTERSECT ALL、 EXCEPT 或 EXCEPT ALL 从句时才会生成这些算子。 </p>
+<p>所有的集合算子都要求有两个输入集。集合算子首先把输入集合并到一个有序列表中，然后识别出相同行并分组。对于每个组，集合算子计算每个输入集产生的记录数。最后，每个集合算子使用计数决定哪些行要加入到结果集。</p>
+<p>通过下面的例子比较容易理解。这里有两个查询；第一个选择所有在 19 世纪 70 年代 出生的客户：</p>
+<blockquote>
+<p>movies=# SELECT * FROM customers</p>
+<p>movies-#   WHERE EXTRACT( DECADE FROM birth_date ) = 196;</p>
+<p>customer<em>id |    customer</em>name     |  phone   | birth_date | balance</p>
+<p>-------------+----------------------+----------+------------+---------</p>
+<pre><code>      3 | Panky, Henry         | 555-1221 | 1968-01-21 |    0.00
+
+      4 | Wonderland, Alice N. | 555-1122 | 1969-03-05 |    3.00
+</code></pre>
+
+</blockquote>
+<p>第二个查询选择所有客户余额(balance)大于 0 的客户：</p>
+<blockquote>
+<p>movies=# SELECT * FROM customers WHERE balance &gt; 0;</p>
+<p>customer<em>id |    customer</em>name     |  phone   | birth_date | balance</p>
+<p>-------------+----------------------+----------+------------+---------</p>
+<pre><code>      2 | Rubin, William       | 555-2211 | 1972-07-10 |   15.00
+
+      4 | Wonderland, Alice N. | 555-1122 | 1969-03-05 |    3.00
+</code></pre>
+
+</blockquote>
+<p>然后用一个 INTERSECT 从句把两个查询组合起来：</p>
+<blockquote>
+<p>movies=# EXPLAIN</p>
+<p>movies-#  SELECT * FROM customers</p>
+<p>movies-#    WHERE EXTRACT( DECADE FROM birth_date ) = 196</p>
+<p>movies-#  INTERSECT</p>
+<p>movies-#    SELECT * FROM customers WHERE balance &gt; 0;</p>
+<p>SetOp Intersect</p>
+<p>-&gt; Sort</p>
+<pre><code>-&gt; Append
+
+   -&gt; Subquery Scan *SELECT* 1
+
+      -&gt; Seq Scan on customers
+
+    -&gt; Subquery Scan *SELECT* 2
+
+       -&gt; Seq Scan on customers
+</code></pre>
+
+</blockquote>
+<p>查询执行器首先执行两个查询，然后把结果合并到一个有序列表。额外添加了一列记录每一条记录来自于哪个输入集：</p>
+<blockquote>
+<p>customer<em>id |    customer</em>name     | birth_date | balance | input set</p>
+<p>-------------+----------------------+------------+---------+----------</p>
+<pre><code>      2 | Rubin, William       | 1972-07-10 |   15.00 | inner
+
+      3 | Panky, Henry         | 1968-01-21 |    0.00 | outer
+
+      4 | Wonderland, Alice N. | 1969-03-05 |    3.00 | outer
+
+      4 | Wonderland, Alice N. | 1969-03-05 |    3.00 | inner
+</code></pre>
+
+</blockquote>
+<p>集合算子根据重复的行进行分组(忽视伪行 input set)。对于每个分组，集合算子统计每个输入集产生的记录数目。外部表产生的记录数称为  count(outer)，内部表产生的记录数称为 count(inner)。</p>
+<p>下面是统计每个分组后的结果：</p>
+<blockquote>
+<p>customer<em>id |    customer</em>name     | birth_date | balance | input set</p>
+<p>-------------+----------------------+------------+---------+----------</p>
+<pre><code>      2 | Rubin, William       | 1972-07-10 |   15.00 | inner
+
+                          count(outer) = 0
+
+                          count(inner) = 1
+
+      3 | Panky, Henry         | 1968-01-21 |    0.00 | outer
+
+                          count(outer) = 1
+
+                          count(inner) = 0
+
+      4 | Wonderland, Alice N. | 1969-03-05 |    3.00 | outer
+
+      4 | Wonderland, Alice N. | 1969-03-05 |    3.00 | inner
+
+                          count(outer) = 1
+
+                          count(inner) = 1
+</code></pre>
+
+</blockquote>
+<p>第一个分组只有一行，由内部表输入集产生。第二个分组也只有一行，由外部表输入集产生。最后一个分组有两行，每个输入集产生一行。</p>
+<p>当集合算子遇到重复行分组的结束时，就会根据下面的规则决定复制多少记录到结果集中：</p>
+<p>INTERSECT：如果 count(outer) &gt; 0 且  count(inner) &gt; 0，复制一行到结果集；否则，不把行添加到结果集。</p>
+<p>INTERSECT ALL： 如果 count(outer) &gt; 0 且 count(inner) &gt; 0，重复写 n 条记录到结果集；其中 n 是 count(outer) 和 count(inner) 中的较大值。</p>
+<p>EXCEPT： 如果 count(outer) &gt; 0 且 count(inner) = 0， 复制一行到结果集。</p>
+<p>EXCEPT ALL： 如果 count(inner) &gt;= count(outer)，重复性 n 条记录到结果集；其中 n 是 count(outer) - count(inner)。</p>
+<p>原文:<a href="http://etutorials.org/SQL/Postgresql/Part+I+General+PostgreSQL+Use/Chapter+4.+Performance/Understanding+How+PostgreSQL+Executes+a+Query/">Understanding How PostgreSQL Executes a Query</a></p>
