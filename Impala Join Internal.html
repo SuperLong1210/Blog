@@ -1,0 +1,87 @@
+<h5>数据库连接的三种方式</h5>
+<h6>Nested loop join</h6>
+<p>从最简单的形式来说，一个nested loops join从其中的一个表取出的行（也叫outer 表）与另外一个表的行（也叫inner 表）进行比较，来寻找符合连接谓词的行。这边的outer 和inner不是指inner join 和 outer join这两个逻辑操作，而是我们重新定义的，其实叫外表（驱动表）和内表（被驱动表）。
+该算法的伪代码描述如下：<br />
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/nested-loop-join.jpg" alt="嵌套循环连接" /></p>
+<p>嵌套循环连接的名字就是从该算法的第二个for(嵌套循环）中得来的。</p>
+<p>所有的行比较数目，也就是，该算法的成本就相当于outer表与inner表的大小成比例关系。</p>
+<p>对于被连接的数据子集（外表）较小的情况，嵌套循环连接是个较好的选择。在嵌套循环中，内表被外表驱动，外表返回的每一行都要在内表中检索找到与它匹配的行，因此整个查询返回的结果集不能太大（大于1 万不适合），要把返回子集较小表的作为外表（CBO 默认外表是驱动表），而且在内表的连接字段上一定要有索引。
+循环嵌套连接支持所有的谓词，包括equijoin（相等谓词） 和不等谓词</p>
+<p>嵌套循环连接支持的连接类型：<br />
+- Inner join<br />
+- Left outer join<br />
+- Cross join<br />
+- Cross apply and outer apply<br />
+- Left semi-join and left anti-join  </p>
+<h6>Merge join</h6>
+<p>与支持任何连接谓词的嵌套循环连接不同，合并连接要求至少一个连接谓词。此外，合并连接的输入必须在连接的键上（key）进行排序。例如，如果我们有一个连接谓词”T1.a = T2.b”，表 T1必须在 T1.a 上排序 和 T2 表必须在 T2.b 上进行排序。</p>
+<p>合并连接的工作方式是一次同时读取并比较两个已经排好序的输入中的一行。在每一步，我们将从每个输入的下一行进行比较。如果行是相等的，我们就输出连接后的行并继续。如果行不相等，我们放弃两个输入中较小的一个并继续。由于输入已经排好序，我们知道我们正在放弃的行会小于任何输入的所有剩余行，因此，后面也就不可能再进行连接。</p>
+<p>算法伪代码如下：<br />
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/merge-join.jpg" alt="合并连接" /></p>
+<p>与嵌套循环连接不同的是，在嵌套循环连接里面总的成本可能会与输入表中的行数的乘积成正比，而合并连接中，每个表最多被read一次，所以总的成本与输入中的行数的总和成正比。因此，合并连接通常是在更大的输入时是更好的选择。但要求两边输入有序。</p>
+<h6>Hash join</h6>
+<p>hash连接分两步执行：构建和探测（build and probe）。在构建阶段，它会从第一个输入里面读取所有的行（Impala中为右表），然后计算equijoin 键的hash值，然后创建一个在内存中的hash表。在探测阶段，它会从第二个输入（左表）读取所有的行，在相同的equijoin键上计算hash值，然后根据hash表进行查找。因为hash函数会导致冲突（两个不同的键值在经过hash计算后会得出相同的hash值），Impala 还需要检查每个潜在的匹配来确保确实符合连接条件。</p>
+<p>算法伪代码如下：<br />
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/hash-join.jpg" alt="哈希连接" /></p>
+<p>注意到，不同于嵌套循环连接及合并连接会立刻开始返回输出行，hash连接会在它的构建输入时，阻止输出。也就是说，在返回任何输出之前它必须读取和处理它的整个构建输入。</p>
+<p>更进一步讲，不同于其他连接方法，hash连接要求一块内存来存放hash表。也就是说，对某个指定的时间点，能同时执行hash连接的数目就需要有一个限制。</p>
+<h7>内存和溢出</h7>
+<p>在hash连接开始执行之前，Impala会尝试估算它需要多少内存来构建它的hash表。然后，我们会尝试保存这么多的内存，确保hash连接可以成功执行。</p>
+<p>如果因为我们给了hash连接较少的内存，在这些情况下，hash连接的构建阶段就可能会出现运行内存不足。如果hash连接耗尽了内存，它会开始将总的hash表中的一小部分溢出（spill)到磁盘中。hash连接会跟踪hash表中的哪些部分仍然在内存中，哪些部分已经溢出到磁盘中。当我们从构建表（build table）中读取每一新行时，我们会检查一下是否hash到了内存中或者磁盘上。如果是hash到内存中，则进行正常的hash处理。如果是hash到磁盘上的，我们会将该行写入磁盘。这一耗尽内存和溢出到磁盘的过程可能重复多次，直到构建阶段已经完成为止。</p>
+<p>我们在探测阶段会进行一个类似的过程。对探测表的每个新行，我们需要检查以查看是否hash到了内存中或者磁盘上。如果是hash到内存部分，我们会对hash表进行探测，生成任何合适的连接的行，并丢弃该行。如果hash到了磁盘部分，我们则将该行写入磁盘。一旦我们完成了对探测表的一次遍历，我们会逐个返回已经溢出的部分，将构建表中的行读回内存，为每一部分重建hash表，接着读取对应的探测部分来完成连接。</p>
+<h7>Impala 哈希连接的流程</h7>
+<p>The operator runs in these distinct phases:<br />
+1. Consume all build input and partition them. No hash tables are maintained.<br />
+2. Construct hash tables from as many partitions as possible.<br />
+3. Consume all the probe rows. Rows belonging to partitions that are spilled must be spilled as well.<br />
+4. Iterate over the spilled partitions, construct the hash table from the spilled build rows and process the spilled probe rows. If the partition is still too big, repeat steps 1-4, using this spilled partitions build and probe rows as input.</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/hash-join1.jpg" alt="哈希连接1" /><br />
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/hash-join2.jpg" alt="哈希连接2" /><br />
+<img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/hash-join3_4.jpg" alt="哈希连接3-4" /></p>
+<h6>三种连接总结</h6>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/join-summary.jpg" alt="连接总结" /></p>
+<h5>Impala 实现分布式连接的两种策略</h5>
+<h6>Broadcast Join</h6>
+<p>广播连接是Impala 最先使用、也是默认的连接策略</p>
+<p>广播连接中 Impala 将较小的表通过网络分发到所有需要执行该连接的Impala后台进程中。分发完成后，参与连接的Impala进程会根据数据建立哈希表并保存在内存中。然后每个Impala后台进程读取大表在本节点中的数据并使用内存中的哈希表查找匹配的记录。</p>
+<p>这种方式不需要讲整个大表的数据读入到内存，因此Impala使用1GB的缓存读取大表的数据，一部分一部分读入并进行连接。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/broadcast-join1.jpg" alt="广播连接" /></p>
+<ul>
+<li>小数据集在每个节点中都占用内存。  </li>
+<li>缓存在内存中的数据并不是整个表的数据，而是连接列的哈希值以及查询需要用到的列。  </li>
+<li>小表会分发到所有Impala进程。  </li>
+<li>Impala 使用基于开销的优化估算表的大小并决定是否进行广播连接、哪个表比较小、哈希表需要多少内存等。</li>
+</ul>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/broadcast-join2.jpg" alt="广播连接" /></p>
+<ul>
+<li>小表数据分发并缓存完成后，大表的数据就流式地通过内存中小表的哈希表。每个Impala进程负责大表的一部分数据，扫面读入，并用哈希连接的函数计算值。</li>
+<li>大表的数据一般由Impala进程从本地磁盘读入从而减少网络开销。由于小表的数据已经缓存在每个节点中，因此在此阶段唯一可能的网络传输就是将结果发送给查询计划中的另一个连接节点。</li>
+</ul>
+<h6>Partitioned Hash Join</h6>
+<p>分区哈希连接需要更多的网络开销，但可以允许大表的连接而不要求整个表的数据都能放到一个节点的内存中。当统计数据显示表太大而无法放到一个节点的内存中或者有查询提示时就会使用分区哈希连接。</p>
+<p>进行分区哈希连接时（也称为shuffle join），每个Impala进程读取两个表的本地数据，使用一个哈希函数进行分区并把每个分区分发到不同的Impala进程。</p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/partitioned-hash-join1.jpg" alt="分区哈希连接" /></p>
+<p><img src="http://www.mutouxiaogui.cn/blog/wp-content/uploads/2016/08/partitioned-hash-join2.jpg" alt="分区连接" /></p>
+<p>正如上图所示，大表的数据也通过相同的哈希函数就行分区并把分区发送能和小表相应数据进行连接的结点。注意，和广播连接不同的是，广播连接只有小表的数据需要通过网络分发，而分区哈希连接需要通过网络分发大表和小表的数据，因此需要更高的网络开销。</p>
+<p>总而言之，Impala有两种连接策略：广播连接，需要更多的内存并只适用于大小表连接。分区连接，需要更多的网络资源，性能比较低，但是能进行大表之间的连接。</p>
+<h2>Reference：  </h2>
+<p><a href="https://blogs.msdn.microsoft.com/craigfr/2006/07/26/nested-loops-join/" title="Nested Loop Join">Nested Loop Join</a><br />
+<a href="https://blogs.msdn.microsoft.com/craigfr/2006/08/03/merge-join/" title="Merge Join">Merge Join</a><br />
+<a href="https://blogs.msdn.microsoft.com/craigfr/2006/08/10/hash-join/" title="Hash Join">Hash Join</a>
+<a href="https://blogs.msdn.microsoft.com/craigfr/2006/08/16/summary-of-join-properties/" title="Join Summary">Join Summary</a><br />
+<a href="http://file.allitebooks.com/20151122/Hadoop%20Application%20Architectures.pdf" title="Hadoop Application Architectures">Hadoop Application Architectures</a>  </p>
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
