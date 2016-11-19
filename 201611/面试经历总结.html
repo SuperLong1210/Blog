@@ -1,0 +1,398 @@
+<body>
+<h3>招商银行信息技术部一二面（offer）</h3>
+<p>自我介绍（要有针对性：应聘岗位、企业）</p>
+<p>项目（背景、贡献、算法、协作）</p>
+<p>喜欢的课程，为什么</p>
+<p>自己最大的优点、缺点</p>
+<p>和他人的冲突、怎么解决（如何处理人际关系、同事关系、上下级关系）</p>
+<p>对我们公司有什么了解？</p>
+<p>为什么选择我们公司？面试之前一定要对其有所了解，和上面问题结合回答</p>
+<p>如何看待加班？</p>
+<p>职业规划？</p>
+<h3>阿里实习电面</h3>
+<p>Java 多线程有哪些接口？</p>
+<blockquote>
+<p>Thread类 Runnable接口。ThreadPool</p>
+</blockquote>
+<p>如何减少哈希函数冲突的概率？</p>
+<p>哈希的过程有什么作用？</p>
+<blockquote>
+<p>分散、映射到一定范围</p>
+</blockquote>
+<p>HashTable 的实现原理？</p>
+<blockquote>
+<p>链表数组</p>
+</blockquote>
+<p>Java 有哪些集合类型？</p>
+<blockquote>
+<p>有序：List，Vector，LinkedList，ArrayList  无序：Set，Map，</p>
+</blockquote>
+<p>数据库：ACID（定义）</p>
+<p>CAP 表示什么意思？</p>
+<blockquote>
+<p>是在一个分布式系统中， Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），三者不可得兼。举例一个场景。</p>
+</blockquote>
+<p>为什么要有NoSQL？传统的关系型数据库有很多限制，面对大数据和4大类及代表产品?</p>
+<blockquote>
+<p>KV：Redis<br />
+文档：MongoDB<br />
+列：HBase<br />
+图数据库：Neo4j  
+</p>
+</blockquote>
+<h3>招商银行hr面</h3>
+<p>自我介绍</p>
+<p>爱好介绍</p>
+<p>觉得自己有哪方面的不足？</p>
+<p>怎么知道招行的？</p>
+<p>如何选择导师，希望导师是怎样的人？（怎样的上级）</p>
+<p>为什么会在计算所读研？</p>
+<p>为什么选择招行（我说了福利待遇、工作强度、工作地点。注意，前两点以后绝对不能说。）</p>
+<blockquote>
+<p>可以先说自己对招行的了解，对技术的追求（第一个支持网上银行）说到理念：因势而变、因您而变。转向互联网+，大数据产业，传统金融和互联网金融的融合。因您而变主要是要为客户提供最优质的服务。用招行管理资金规模，获得的荣誉来佐证。</p>
+</blockquote>
+<p>能否实习？</p>
+<p>什么时候能拿到三方？</p>
+<p>最想去哪家公司？</p>
+<p>5 年规划？</p>
+<h3>华为高斯实验室(offer)</h3>
+<p>技术面：自我介绍，项目介绍</p>
+<p>经理面：项目介绍，大学时印象最深刻的事情，平时喜欢做什么，加班的看法，职业规划</p>
+<h3>百度基础架构(offer)</h3>
+<p>7/27 周三下午3点到6点 三面</p>
+<p>为什么要用 Impala 和 PostgreSQL 结合，有什么优势？PostgreSQL 的核心技术？和Greenplum 有什么不同？</p>
+<blockquote>
+<p>Impala 分布式的优势跟PostgreSQL对事务、索引比较好的支持相结合。<br />
+<a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">MVCC</a>，好多数据库也用了MVCC；伪继承</p>
+</blockquote>
+<p>MPP 架构最本质的东西是什么？ </p>
+<blockquote>
+<p><a href="http://server.51cto.com/sCollege-198840.htm">参考博客</a></p>
+</blockquote>
+<p>替换Hive Metastore之后为什么会有性能提升？大概提升多少，怎么看出来的？</p>
+<blockquote>
+<p>Hive metastore也用了datanucleus进行持久化，但需要另起一个jvm。使用延迟加载机制，多次测试重启、DDL操作等。</p>
+</blockquote>
+<p>codegen 原理，怎么优化的？</p>
+<blockquote>
+<p>LLVM是构架编译器(compiler)的框架系统，以C++编写而成，用于优化以任意程序语言编写的程序的编译时间(compile-time)、链接时间(link-time)、运行时间(run-time)以及空闲时间(idle-time)。LLVM 核心库提供了与编译器相关的支持，可以作为多种语言编译器的后台来使用。能够进行程序语言的编译期优化、链接优化、在线编译优化、代码生成。代码生成器的任务是把高级的、几乎机器无关的LLVM IR转换为低级的、机器相关的机器语言。指令选择是这样的过程，其中IR中的抽象操作被映射到目标机器架构的具体指令。</p>
+</blockquote>
+<p>使用 Impala 的过程中遇到什么问题，是怎么解决的？</p>
+<blockquote>
+<p>FE，BE 端 有没有遇到过OOM，原因是什么，怎么解决的？</p>
+</blockquote>
+<p>Hash Join的HashTable过大导致 OOM，是不是因为一个计算节点扫面太多数据？如果把数据分散开是不是就不会出现这个问题？</p>
+<blockquote>
+<p>两个大表的Join，通过repartition解决。</p>
+</blockquote>
+<p>Impala 如何做数据和查询的负载均衡？</p>
+<blockquote>
+<p>数据分布负载均衡主要靠HDFS实现、暂时无查询的负载均衡</p>
+</blockquote>
+<p>特定查询（场景）调优（慢查询调优）</p>
+<blockquote>
+<p>数据库的优化：索引、表结构、硬件、软件配置</p>
+</blockquote>
+<p>如何看代码的？看代码的时候有没有发现代码设计的问题？</p>
+<blockquote>
+<p>架构、博客；源码分析、调试跟踪<br />
+不够模块化，我们添加数据源时改动比较大<br />
+<a href="http://www.cnblogs.com/ShaYeBlog/archive/2013/08/05/3237529.html">面向对象设计的SOLID 原则</a></p>
+</blockquote>
+<p>针对一个查询，Impala是如何优化的（多个表连接大小表的顺序如何调整）</p>
+<blockquote>
+<p>基于规则的优化和基于开销的优化：<br />
+1. 基于规则：where条件列有索引使用索引查询<br />
+2. 基于开销(CPU, MEM)的优化：统计信息，动态查询，看返回的数据量，每行长度等信息。调整join顺序。执行计划树中最左表是最大表，右边其它表并没有特定顺序。</p>
+</blockquote>
+<p>Java GC的一些算法是否了解？</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/hnrainll/archive/2013/11/06/3410042.html">Java 内存区域和GC机制</a></p>
+</blockquote>
+<p>JVM 参数调优</p>
+<blockquote>
+<p><a href="http://uule.iteye.com/blog/2114697">http://uule.iteye.com/blog/2114697</a>
+<a href="http://www.360doc.com/content/12/0113/08/1073512_179088229.shtml">http://www.360doc.com/content/12/0113/08/1073512_179088229.shtml</a></p>
+</blockquote>
+<p>是否了解 SparkSQL</p>
+<blockquote>
+<p>说了一下 Spark 的基本原理，架构，然后怎么使用Spark实现SQL查询；以及和Hive的一些对比。</p>
+</blockquote>
+<p>c++ 中static 的作用</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/cn_cainiao/article/details/5943070">http://blog.csdn.net/cn_cainiao/article/details/5943070</a><br />
+<a href="http://www.cnblogs.com/qintangtao/archive/2012/12/12/2814134.html">http://www.cnblogs.com/qintangtao/archive/2012/12/12/2814134.html</a></p>
+</blockquote>
+<p>设计模式</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/beijiguangyong/archive/2010/11/15/2302807.html">23 种设计模式</a></p>
+</blockquote>
+<h3>阿里内推电面</h3>
+<p>7/28 周四晚上7点半到8点半 一面</p>
+<p>Impala 和 Hive 有什么区别，优势？</p>
+<p>Impala中一个查询的执行流程
+词法语法分析如何实现，词法，语法分析分别做什么？</p>
+<blockquote>
+<p>词法分析阶段是编译过程的第一个阶段。这个阶段的任务是从左到右一个字符一个字符地读入源程序，即对构成源程序的字符流进行扫描然后根据构词规则识别单词(也称单词符号或符号)。
+语法分析是编译过程的一个逻辑阶段。语法分析的任务是在词法分析的基础上将单词序列组合成各类语法短语，语法分析程序判断源程序在结构上是否正确.源程序的结构由上下文无关文法描述.</p>
+</blockquote>
+<p>语法解析之后生成什么？</p>
+<blockquote>
+<p>抽象语法树</p>
+</blockquote>
+<p>优化引擎及实现原理</p>
+<blockquote>
+<p>CBO，基于规则的优化
+<a href="http://blog.csdn.net/java3344520/article/details/5488644">Oracle优化器介绍</a> <a href="http://database.51cto.com/art/201004/193992.htm">oracle</a> 
+<a href="http://blog.sina.com.cn/s/blog_78dab8d20100x973.html">MySQL查询优化器</a></p>
+</blockquote>
+<p>嵌套连接、合并连接、哈希连接，Impala如何判断什么情况下使用？</p>
+<p>Impala 数据扫描方式。如何获取PostgreSQL数据？</p>
+<blockquote>
+<p>问数据存取方式，例如索引，索引范围，全量索引，全表扫描，Index Only,Bit map</p>
+</blockquote>
+<p>下推如何实现？</p>
+<p>高可用如何实现？</p>
+<p>分布式一致性算法</p>
+<blockquote>
+<p><a href="http://itindex.net/detail/53580-%E7%B3%BB%E7%BB%9F-%E7%AE%97%E6%B3%95">分布式一致性算法简介</a></p>
+</blockquote>
+<p>Undo，Redo何时发生，何时生成Undo，Redo文件？</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/Bozh/archive/2013/03/18/2966494.html">MySQL undo/redo</a></p>
+</blockquote>
+<p>MVCC机制</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/youling_lh/article/details/10473679">MVCC机制和原理</a></p>
+</blockquote>
+<p>事务隔离级别，怎么发生，如何解决？</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/fg2006/article/details/6937413">数据库事务隔离级别</a></p>
+</blockquote>
+<p>单向链表是否出现环。</p>
+<blockquote>
+<p>通过快慢指针实现（leetcode）</p>
+</blockquote>
+<p>利用能随机生成0,1的函数构造随机生成范围为a，b的函数</p>
+<blockquote>
+<p>b-a=c，用随机函数构造c的二进制表示</p>
+</blockquote>
+<h3>腾讯 MIGLBS(offer)</h3>
+<p>7月30下午4点到7点 三面</p>
+<p>公交A间隔10分钟、公交B间隔5分钟，两者相互独立。乘客可以乘坐公交A或B到达目的地，求乘客的平均等待时间。有能等概率生成0-1之间实数的随机函数rand() 可用。</p>
+<p>设计合适的数据结构，在二维空间表示两个矩形，并实现函数判断它们之间的位置关系。</p>
+<p>C++中 Union 和 Struct 的区别</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/firefly_2002/article/details/7954458">Union和Struct有什么区别</a>
+空间分配，内存对齐，sizeof，构造函数</p>
+</blockquote>
+<p>vector容器底层实现、扩容</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/huangkq1989/article/details/7277282">STL容器底层数据结构</a></p>
+</blockquote>
+<p>传指针、值、引用的区别</p>
+<blockquote>
+<p><a href="http://blog.163.com/guilin1_happy/blog/static/171988006201092105427996/">传指针、值、引用的区别</a></p>
+</blockquote>
+<p>extern 关键字的作用</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/yc_sunniwell/archive/2010/07/14/1777431.html">extern 关键字</a>
+（原因、为什么C++要这样命名symbol？为了实现重载）</p>
+</blockquote>
+<p>sizeof 的值（类、结构体、数组、指针）</p>
+<p>归并排序原理，时间空间复杂度</p>
+<p>面向对象的4个特性</p>
+<blockquote>
+<p>（抽象、继承、封装、多态）</p>
+</blockquote>
+<p>多态分为哪些？如何实现？</p>
+<blockquote>
+<p>静态多态：重载；动态多态：虚函数</p>
+</blockquote>
+<p>动态多态实现机制</p>
+<blockquote>
+<p>虚函数，画图说明内存结构</p>
+</blockquote>
+<p>一个类中同名函数形参完全相同，返回值不同，属于什么？</p>
+<blockquote>
+<p>（报错）</p>
+</blockquote>
+<p>TCP UDP 区别</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/bizhu/archive/2012/05/12/2497493.html">TCP UDP 区别</a></p>
+</blockquote>
+<p>TCP 4 次挥手</p>
+<blockquote>
+<p><a href="http://blog.csdn.net/whuslei/article/details/6667471">TCP 4 次挥手</a></p>
+</blockquote>
+<p>线程同步方式</p>
+<blockquote>
+<p>临界区、事件、互斥量、信号量、锁、条件变量</p>
+</blockquote>
+<p>项目介绍，没有细问</p>
+<p>实习项目介绍</p>
+<p>设计系统：实时公交，有线路、站点（xy坐标），乘客希望查看下一辆公交到来的时间。有哪些模块、主要的数据结构、扩展性</p>
+<p>数仓底层研发和数据挖掘如何选择？</p>
+<p>最成功的事情（学习方面、生活方面）</p>
+<p>自己最大的缺点</p>
+<p>如果boss让自己干自己不感兴趣的事情（和自己喜欢的方向不太符合），如果选择？</p>
+<p>写程序实现（多字节）分隔符切分字符串。</p>
+<blockquote>
+<p>用stringstream、getline实现单字节分隔符，朴素字符串匹配实现多字节分隔符，考虑性能，优化</p>
+</blockquote>
+<p>分段有序，查找转折点</p>
+<blockquote>
+<p>（leetcode 153/154）</p>
+</blockquote>
+<h3>网易游戏</h3>
+<p>连通子图的数目（半小时编程）</p>
+<p>rand()函数随机生成0和1，使用此函数生成1-100的随机函数</p>
+<p>抛硬币概率为75%的情况</p>
+<p><a href="http://www.cplusplus.com/reference/vector/vector/">vector</a>&lt;bool&gt; 和vector&lt;int&gt;内存占用大小</p>
+<p>实现 <a href="http://www.cplusplus.com/reference/vector/vector-bool/">vector&lt;bool&gt;</a>，尽可能占用较少的空间</p>
+<p>B树和B+树的区别 </p>
+<blockquote>
+<p><a href="http://blog.csdn.net/dazhong159/article/details/7963846">参考</a></p>
+</blockquote>
+<p>STL中 <a href="http://www.cplusplus.com/reference/list/list/">list</a>的底层实现</p>
+<p>实现智能指针 <a href="http://www.cplusplus.com/reference/memory/shared_ptr/">shared_ptr</a></p>
+<blockquote>
+<p><a href="http://codereview.stackexchange.com/questions/26353/efficient-smart-pointer-implementation-in-c">参考</a></p>
+</blockquote>
+<p>C++ 11的新特性</p>
+<blockquote>
+<p><a href="http://blog.smartbear.com/c-plus-plus/the-biggest-changes-in-c11-and-why-you-should-care/">C++ 11的新特性</a></p>
+</blockquote>
+<p>实现 LRU cache</p>
+<blockquote>
+<p><a href="https://leetcode.com/problems/lru-cache/">LRU cache</a></p>
+</blockquote>
+<p>有序数组查找所有a+b=c的情况</p>
+<p>Thrift中客户端连接IP Port对于IP不存在和Server没有在监听的返回值</p>
+<p>Thrift中同步和异步调用</p>
+<blockquote>
+<p>参考 <a href="http://blog.csdn.net/sunmenggmail/article/details/46818147">Thrift server端的几种工作模式分析</a></p>
+</blockquote>
+<h3>HR面试题目汇总</h3>
+<p>任何问题尽可能分点作答。</p>
+<p>自我介绍</p>
+<blockquote>
+<p>姓名、籍贯、教育经历、实习经历。性格优势、爱好。这些最好能和面试岗位相关。</p>
+</blockquote>
+<p>跟上级意见不统一时如何解决</p>
+<blockquote>
+<ol>
+<li>上级考虑的方面比较全面、阅历丰富，应该服从安排  
+</li>
+<li>请教自己观点哪里存在不足，怎样才能避免和加以改进  
+</li>
+<li>有时间和精力可以按照自己的意见进行尝试</li>
+</ol>
+</blockquote>
+<p>和别人相比自己最大的优势</p>
+<p>自己最大的缺点</p>
+<blockquote>
+<p>一直待在学校里，比较缺少相应的社会实践技能，为了克服这个，自己一直积极参加实验室、或者校外的相关活动。</p>
+</blockquote>
+<p>职业规划</p>
+<p>兴趣和上级任务不一致时如何选择</p>
+<blockquote>
+<p>首先服从上级安排、优先考虑集体利益。虽然任务可能和自己兴趣不是特别相关、或者之前没有接触过，这对我来说会是一个挑战，但我觉得更是一个机会，既能学习到新的知识，又能证明自己的能力。</p>
+</blockquote>
+<p>底层研发、算法数据挖掘、产品三者之间比较想做什么</p>
+<p>对薪资有什么要求</p>
+<blockquote>
+<p>对工资没有硬性要求，贵公司一定有一套成熟的薪资方案，我相信贵公司在处理我的问题上会友善合理。我注重的是贵公司提供的发展空间，我希望通过自己的努力能为公司创造财富，也从中提升自己，并获得相应的报酬。</p>
+</blockquote>
+<p>现在还投了其它企业吗？</p>
+<blockquote>
+<p>如实回答，为什么会选择这些企业。如果他们也给了offer，你怎么考虑？</p>
+</blockquote>
+<p>平台、兴趣方向、薪资三者排序</p>
+<p>加班的看法</p>
+<blockquote>
+<p>如果工作需要我会义不容辞加班，我现在没有任何家庭负担，可以全身心的投入工作。但同时我也会提高工作效率，减少不必要的加班。</p>
+</blockquote>
+<p>工作一段时间发现不适合</p>
+<blockquote>
+<p>不断学习，虚心向领导和同事学习业务知识和处事经验，了解这个职业的精神内涵和职业要求，力争减少差距。</p>
+</blockquote>
+<p>难以和同事、上司相处</p>
+<blockquote>
+<ol>
+<li>我会服从领导的指挥，配合同事的工作。  
+</li>
+<li>我会从自身找原因，仔细分析是不是自己工作做得不好让领导不满意，同事看不惯。还要看看是不是为人处世方面做得不好，如果是这样的话我会努力改正。  
+</li>
+<li>如果我找不到原因，我会找机会跟他们沟通，请他们指出我的不足，有问题就及时改正。  
+</li>
+<li>作为优秀的员工，应该时刻以大局为重，即使在一段时间内，领导和同事对我不理解，我也会做好本职工作，虚心向他们学习，我相信，他们会看见我在努力，总有一天会对我微笑的。</li>
+</ol>
+</blockquote>
+<p>欣赏哪种性格的人</p>
+<blockquote>
+<p>诚实、容易相处、乐于助人、有实际行动</p>
+</blockquote>
+<p>为什么选择该公司</p>
+<blockquote>
+<ol>
+<li>国内综合实力最靠前的IT企业，有浓郁的技术氛围、有良好的开发环境</li>
+<li>贵公司一直都稳定发展，在市场上很有竞争力</li>
+<li>有完善的薪酬和晋升体系，自己能有很大的发展空间</li>
+</ol>
+</blockquote>
+<p>如何开展工作</p>
+<blockquote>
+<ol>
+<li>听取领导指示和要求</li>
+<li>了解熟悉相关情况</li>
+<li>指定近期工作计划并和上司讨论确定</li>
+<li>根据实际情况开展工作</li>
+</ol>
+</blockquote>
+<p>希望和怎样的上司相处</p>
+<blockquote>
+<p>在工作中对我多指导，对我工作中的错误能够立即指出。</p>
+</blockquote>
+<p>申请这个职位存在的问题和挑战</p>
+<blockquote>
+<p>对于这个职位和我的能力来说，我相信自己是可以胜任的，只是缺乏经验，这个问题我想我可以进入公司以后以最短的时间来解决，我的学习能力很强，我相信可以很快融入公司的企业文化，进入工作状态。</p>
+</blockquote>
+<p>校招目标公司</p>
+<p>岗位对自己最大的吸引力</p>
+<blockquote>
+<ol>
+<li>对该岗位的看法、了解  
+</li>
+<li>能充分发挥自己的优势、提高自己的能力</li>
+<li>公司在这方面很有发展前景、符合自己的职业规划。</li>
+</ol>
+</blockquote>
+<p>对于公司、应聘岗位、业务有什么问题</p>
+<p>对已面试公司的了解、感觉（BAT三家哪家更适合自己）</p>
+<h3>有什么问题</h3>
+<p>入职培训、平时技能培训</p>
+<p>晋升机制、内部调动</p>
+<p>面试评价、建议</p>
+<p>如何能加入贵公司，可以先学点什么准备一下？</p>
+<p>是什么部门，最近有什么项目，实习的话要不要先学习准备，还是到时候有培训？</p>
+<p>录用比例</p>
+
+</body>
+</html>
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script
