@@ -1,0 +1,218 @@
+<body>
+<h2>Google 日志库（glog）简介</h2>
+<h3>简介</h3>
+<p><strong>Google glog</strong> 是一个实现应用级别日志的库。该库提供基于C++样式流的API以及多种好用的宏。你只需要简单地使用流导向LOG(<一个严重级别>)即可实现消息记录。例如：</p>
+<pre><code>#include &lt;glog/logging.h&gt;
+int main(int argc, char* argv[]) {
+ // Initialize Google's logging library.
+ google::InitGoogleLogging(argv[0]);
+
+ // ...
+ LOG(INFO) &lt;&lt; &quot;Found &quot; &lt;&lt; num_cookies &lt;&lt; &quot; cookies&quot;;
+}
+</code></pre>
+
+<p>Google glog 定义了一系列宏用于简化很多常见的日志任务。你可以按照严重级别记录日志、使用命令行控制日志行为、基于条件记录日志、预期情形没有出现时退出程序、引入你自己的日志等级，等等。该文档介绍了glog支持的一些功能。请注意，该文档只介绍了该库最有用的一些功能，并非全部。如果你想了解一些比较不常使用的功能，你可以查看 <strong>src/glog</strong> 目录下面的头文件。</p>
+<h3>严重级别</h3>
+<p>你可以使用以下严重级别（按照严重性递增）：<strong>INFO</strong>、<strong>WARNING<strong>、</strong>ERROR</strong> 和 <strong>FATAL</strong>。记录 <strong>FATAL</strong> 日志会（在信息记录完成后）终止程序。注意，特定级别的信息并非只保存到对应的日志文件，还会保存到低等级的日志文件。例如FATAL的日志会保存到 <strong>FATAL</strong>、<strong>ERROR<strong>、</strong>WARNING</strong>和<strong>INFO</strong>对应的文件。</p>
+<p><strong>DFATAL</strong> 等级在调试模式下记录 <strong>FATAL</strong> 信息（注意，没有定义宏 <strong>NDEBUG</strong>），但不会像生产环境中那样终止程序执行，而是自动降低到 <strong>ERROR</strong> 级别。</p>
+<p>除非特别指定，glog日志文件名格式为 “<strong>/tmp/&lt;program name&gt;.&lt;hostname&gt;.&lt;username&gt;.log.&lt;severity level&gt;.&lt;date&gt;.&lt;time&gt;.&lt;pid&gt;</strong>”。（例如&quot;<strong>/tmp/hello_world.example.com.hamaji.log.INFO.20080709-222411.10474<strong>&quot;）。默认情况下，glog还会把</strong>ERROR</strong>和<strong>FATAL</strong>级别的信息打印到标准输出。</p>
+<h3>设置标记</h3>
+<p>很多标记会影响 glog 的输出行为。如果你安装了<a href="http://code.google.com/p/google-gflags/">Google gflags library</a> ，<strong>configure</strong> 脚本（查看软件包中的<strong>INSTALL</strong>脚本了解该脚本的详细信息）会自动检测并使用该库，从而允许你通过命令行传递标记。例如，如果你想启用 <strong>--logtostderr</strong> 标记，你可以用下面的命令行启动程序：  </p>
+<pre><code>./your_application --logtostderr=1
+</code></pre>
+
+<p>如果你没有安装 Google gflags 库，你可以通过在标记名称前面使用 “<strong>GLOG_</strong>”前缀的环境变量设置标记，例如：</p>
+<pre><code>GLOG_logtostderr=1 ./your_application
+</code></pre>
+
+<p>下面是一些通常会用到的标记：</p>
+<pre><code>logtostderr (bool, default=false)
+    将日志输出到 stderr 而不是日志文件。
+    注意：你可以使用1、true或者yes(大小写敏感)设置二值标记为真。同样，你也可以使用 0、false或者no（大小写敏感）设置二值标记为假。
+stderrthreshold (int, default=2, which is ERROR)
+    除了将信息输出到日志文件外，还将等于、高于该等级的信息输出到stderr。严重级别 INFO、WARNING、ERROR 和 FATAL 分别对应数字0、1、2和3.
+minloglevel (int, default=0, which is INFO)
+    只记录不小于该等级的日志信息。同样，严重级别 INFO、WARNING、ERROR 和 FATAL 分别对应数字0、1、2和3.
+log_dir (string, default=&quot;&quot;)
+    如果指定了该标记，日志文件会被写到该目录而不是默认日志目录。
+v (int, default=0)
+    显示所有不大于该等级的日志信息。可以被 --vmodule 覆盖。可以阅读详细日志章节进一步了解该标记。
+vmodule (string, default=&quot;&quot;)
+    每个模块的详细日志级别。该参数由逗号分隔的 &lt;module name&gt;=&lt;log level&gt; 对组成。&lt;module name&gt; 是一个全局模式（例如 gfs* 代表所有以 “gfs”开头的模块），和文件名匹配（即忽略.cc/.h/-inl.h 后缀）。&lt;log level&gt; 会覆盖 --v 指定的值。阅读详细日志章节了解该标记。
+</code></pre>
+
+<p>logging.cc 中还定义了一些其它的标记。你可以通过用 grep 在该文件中搜索关键字 &quot;<strong>DEFINE_</strong>&quot; 获取标记的完整列表。 </p>
+<p>你也可以通过在你的程序中更改全局变量 <strong>FLAGS<em></strong>* 改变标记的值。大部分设定在你更新 <strong>FLAGS</em></strong>* 后就会立即生效。和目标文件相关的标记例外。例如，你需要在调用 <strong>google::InitGoogleLogging</strong> 之前设置标记 <strong>FLAGS<em>log</em>dir</strong>，下面是个具体例子：</p>
+<p>LOG(INFO) &lt;&lt; &quot;file&quot;;
+   // 大部分标记在更新值后立即生效
+   FLAGS<em>logtostderr = 1;
+   LOG(INFO) &lt;&lt; &quot;stderr&quot;;
+   FLAGS</em>logtostderr = 0;
+   // 这不会改变日志目录。如果你想要设置这个值，你要在调用
+   // google::InitGoogleLogging 之前设置。
+   FLAGS<em>log</em>dir = &quot;/some/log/directory&quot;;
+   LOG(INFO) &lt;&lt; &quot;the same file&quot;;</p>
+<h3>条件/频次日志</h3>
+<p>有时候，你可能想只有在某些情形下才记录日志。你可以使用下面的宏进行日志条件记录：</p>
+<pre><code>LOG_IF(INFO, num_cookies &gt; 10) &lt;&lt; &quot;Got lots of cookies&quot;;
+    &quot;Got lots of cookies&quot; 消息只有当变量 num_cookies 超过 10后才会记录。如果一行代码可能执行多次，按照特定间隔记录日志也许会非常有用。这种类型日志通常适用于消息性信息。
+LOG_EVERY_N(INFO, 10) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER &lt;&lt; &quot;th cookie&quot;;
+    上面的代码会在第1、11、21次...执行时记录日志。注意，这里使用了一个特殊的变量 google::COUNTER 记录执行的次数。
+</code></pre>
+
+<p>你可以使用下面的宏将条件日志和频次日志结合起来。</p>
+<pre><code>LOG_IF_EVERY_N(INFO, (size &gt; 1024), 10) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER
+                                       &lt;&lt; &quot;th big cookie&quot;;
+</code></pre>
+
+<p>和每n次记录一条日志不同，你也可以只记录前面 n 次：</p>
+<pre><code>LOG_FIRST_N(INFO, 20) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER &lt;&lt; &quot;th cookie&quot;;
+</code></pre>
+
+<p>上面的语句只会记录前面 20 次执行。</p>
+<h3>调试模式支持</h3>
+<p>特殊的 “调试模式” 日志宏只在调试模式下有效、而在非调试模式编译时会被编译去除。使用下面的宏避免在生产环境中由于庞大的日志拖慢你的程序。</p>
+<pre><code>DLOG(INFO) &lt;&lt; &quot;Found cookies&quot;;
+
+DLOG_IF(INFO, num_cookies &gt; 10) &lt;&lt; &quot;Got lots of cookies&quot;;
+
+DLOG_EVERY_N(INFO, 10) &lt;&lt; &quot;Got the &quot; &lt;&lt; google::COUNTER &lt;&lt; &quot;th cookie&quot;;
+</code></pre>
+
+<h3>CHECK 宏</h3>
+<p>在程序中经常检查预期情形以便尽早地发现错误是个很好的习惯。 宏CHECK 使得当一个条件没有满足时退出执行的能力、这和标准 C 库中定义的宏 assert 类似。 </p>
+<p>如果某个条件为假 CHECK 就会退出程序。和 assert 不同，它不由 NDEBUG 控制，因此 check 的执行和编译模式无关。因此，下面例子中的  fp-&gt;Write(x) 总会执行。</p>
+<p>CHECK(fp-&gt;Write(x) == 4) &lt;&lt; &quot;Write failed!&quot;;</p>
+<p>这里有很多好用的等值/不等值宏 - <strong>CHECK<em>EQ</strong>, <strong>CHECK</em>NE</strong>, <strong>CHECK<em>LE</strong>, <strong>CHECK<em>LT</strong>, <strong>CHECK</em>GE</strong>, 以及 <strong>CHECK</em>GT</strong>。它们会比较这两个值，如果比较结果和预期不同，就会以 <strong>FATAL</strong>日志形式记录这两个值。值必须定义了 &lt;&lt;(ostream,...) 操作符。</p>
+<p>你可以像下面这样追加错误信息：</p>
+<pre><code>CHECK_NE(1, 2) &lt;&lt; &quot;: The world must be ending!&quot;;
+</code></pre>
+
+<p>我们尽可能保证每个参数都只会计算一次值，任何可以作为函数参数传递的东西在这里都合法。尤其是、参数可能是该语句执行后就会被删除的临时表达式，例如：</p>
+<pre><code>CHECK_EQ(string(&quot;abc&quot;)[1], 'b');
+</code></pre>
+
+<p>如果上面的一个参数一个是指针而另一个为空，编译器就会报错。为了解决这个问题，你可以使用 <strong>static_cast</strong> 将 NULL 转换为需要的指针类型。</p>
+<pre><code>CHECK_EQ(some_ptr, static_cast&lt;SomeType*&gt;(NULL));
+</code></pre>
+
+<p>更好的办法是使用 CHECK<em>NONULL 宏：
+Better yet, use the CHECK</em>NOTNULL macro:</p>
+<pre><code>CHECK_NOTNULL(some_ptr);
+some_ptr-&gt;DoSomething();
+</code></pre>
+
+<p>由于该宏返回指定的指针，因此在构造函数初始化列表中非常有用。</p>
+<pre><code>struct S {
+    S(Something* ptr) : ptr_(CHECK_NOTNULL(ptr)) {}
+    Something* ptr_;
+};
+</code></pre>
+
+<p>注意由于它的特性你不能像 C++ 流那样使用这个宏。请使用上面介绍的 <strong>CHECK_EQ</strong> 在退出程序之前记录自定义的信息。</p>
+<p>如果你想和 C 字符串（char*）比较，一些好用的宏可以进行大小写敏感（不敏感）比较 -  <strong>CHECK<em>STREQ</strong>, <strong>CHECK</em>STRNE</strong>, <strong>CHECK<em>STRCASEEQ</strong>, 以及 <strong>CHECK</em>STRCASENE</strong>。 带有 <strong>CASE</strong> 的是大小写敏感的。你可以放心地传递空指针给这些宏。它们认为空指针和任何非空字符串是不相等的，两个空指针之间是相等的。</p>
+<p>注意，两个参数都可以是在当前表达式之后会被析构的临时字符串（例如 CHECK<em>STREQ(Foo().c</em>str(), Bar().c_str())，其中 Foo 和 Bar 函数都返回 C++ 的 std::string）。</p>
+<p>宏 <strong>CHECK<em>DOUBLE</em>EQ</strong> 用于比较两个浮点类型是否相等，允许一些小的误差。 <strong>CHECK_NEAR</strong> 接受第三个参数用于指定允许的误差。</p>
+<h3>详细日志</h3>
+<p>当你追踪难以解决的错误时，浏览日志信息通常很有帮助。但在通常的开发中，你可能希望忽略太详细的日志信息。对于这种类型的详细日志， glog 提供了宏 <strong>VLOG</strong>，它允许你定义自己的数值日志级别。<strong>--v</strong> 命令行参数控制哪个等级的详细日志会被记录：</p>
+<pre><code>VLOG(1) &lt;&lt; &quot;I'm printed when you run the program with --v=1 or higher&quot;;
+VLOG(2) &lt;&lt; &quot;I'm printed when you run the program with --v=2 or higher&quot;;
+</code></pre>
+
+<p>使用 <strong>VLOG</strong>，越低的详细等级会更大可能记录到日志中。例如，如果 <strong>--v==1</strong>， <strong>VLOG(1)</strong>会记录日志，但是** VLOG(2)** 不会。这和严重等级中 <strong>INFO</strong> 对应 0， <strong>ERROR</strong> 对应 2 相反， <strong>--minloglevel=1</strong> 会记录 <strong>WARNING</strong> 及以上等级的信息。尽管你可以为宏 <strong>VLOG</strong> 以及 <strong>--v</strong> 标记指定任意的整数，通常使用的都是小正整数。例如，如果你使用 <strong>VLOG(0)</strong>，那么你就要使用 <strong>--v=-1</strong> 或者更小的值来忽略它。这并没有什么帮助，因为大部分情形下默认我们并不想要详细的日志信息。宏<strong>VLOG</strong>通常记录从 <strong>INFO</strong> 级别开始的日志。</p>
+<p>详细日志可以通过命令行控制每个模块的等级：</p>
+<pre><code>--vmodule=mapreduce=2,file=1,gfs*=3 --v=0
+</code></pre>
+
+<p>会：
+a. 打印 mapreduce.{h,cc} 中 VLOG（2）以及以下的信息。
+b. 打印 file.{h,cc} 中 VLG(1) 及以下的信息。
+c. 打印用 “gfs” 作为前缀的文件中 VLOG(3) 及以下的信息。
+d. 打印所有文件中 VLOG(0) 以及以下的信息。</p>
+<p>c 中使用的通配符功能支持 ‘*’（匹配一个或多个字符）以及‘？’（匹配一个字符）。</p>
+<p>还有<strong>VLOG<em>IS</em>ON(n)</strong> 条件宏。当 <strong>--v</strong> 等于大于n的时候这个宏会返回真，例如：</p>
+<pre><code>if (VLOG_IS_ON(2)) {
+    // do some logging preparation and logging
+    // that can't be accomplished with just VLOG(2) &lt;&lt; ...;
+}
+</code></pre>
+
+<p>详细等级条件宏 <strong>VLOG<em>IF</strong>, <strong>VLOG</em>EVERY<em>N</strong> 以及 <strong>VLOG</em>IF<em>EVERY</em>N</strong> 和 <strong>LOG_IF</strong>, <strong>LOG<em>EVERY</em>N</strong>, <strong>LOF<em>IF</em>EVERY</strong> 类似，但接受一个数值详细等级，而不是严重级别。</p>
+<pre><code>VLOG_IF(1, (size &gt; 1024))
+    &lt;&lt; &quot;I'm printed when size is more than 1024 and when you run the &quot;
+    &quot;program with --v=1 or more&quot;;
+VLOG_EVERY_N(1, 10)
+    &lt;&lt; &quot;I'm printed every 10th occurrence, and when you run the program &quot;
+    &quot;with --v=1 or more. Present occurence is &quot; &lt;&lt; google::COUNTER;
+VLOG_IF_EVERY_N(1, (size &gt; 1024), 10)
+    &lt;&lt; &quot;I'm printed on every 10th occurence of case when size is more &quot;
+    &quot; than 1024, when you run the program with --v=1 or more. &quot;;
+    &quot;Present occurence is &quot; &lt;&lt; google::COUNTER;
+</code></pre>
+
+<h3>错误信号处理</h3>
+<p>该库还提供了一个非常方便的信号处理器，当程序由于类似 SIGSEGV 等信号导致崩溃时会导出有用的信息。可以通过 <strong>google::InstallFailureSignalHandler()</strong> 安装这个信号处理器。下面是信号处理器输出的事例：</p>
+<pre><code>*** Aborted at 1225095260 (unix time) try &quot;date -d @1225095260&quot; if you are using GNU date ***
+*** SIGSEGV (@0x0) received by PID 17711 (TID 0x7f893090a6f0) from PID 0; stack trace: ***
+PC: @   0x412eb1 TestWaitingLogSink::send()
+@ 0x7f892fb417d0 (unknown)
+@   0x412eb1 TestWaitingLogSink::send()
+@ 0x7f89304f7f06 google::LogMessage::SendToLog()
+@ 0x7f89304f35af google::LogMessage::Flush()
+@ 0x7f89304f3739 google::LogMessage::~LogMessage()
+@   0x408cf4 TestLogSinkWaitTillSent()
+@   0x4115de main
+@ 0x7f892f7ef1c4 (unknown)
+@   0x4046f9 (unknown)
+</code></pre>
+
+<p>默认情况下，信号处理器会把错误导出到标准错误。你可以通过 <strong>InstallFailureWriter()</strong>自定义目的地。</p>
+<h3>性能</h3>
+<p>glog 提供的条件记录宏(例如, <strong>CHECK</strong>, <strong>LOG_IF</strong>, <strong>VLOG</strong>, ...) 经过了很好的优化，当条件失败是不会去计算右边表达式的值。因此，下面的检查不会损害你应用程序的性能。</p>
+<pre><code>CHECK(obj.ok) &lt;&lt; obj.CreatePrettyFormattedStringButVerySlow();
+</code></pre>
+
+<h3>用户定义错误处理函数</h3>
+<p><strong>FATAL</strong> 等级的信息或者不满足的 <strong>CHECK</strong> 会终止你的程序。你可以通过 <strong>InstallFailureFunction</strong> 改变这种行为。</p>
+<pre><code>void YourFailureFunction() {
+    // Reports something...
+    exit(1);
+}
+
+int main(int argc, char* argv[]) {
+    google::InstallFailureFunction(&amp;YourFailureFunction);
+}
+</code></pre>
+
+<p>默认情况下，glog会尝试导出调用找并以返回值1结束程序。只有在glog 支持调用栈的体系结构上运行你的程序时才会导出调用找。（截至2008年9月, glog支持 x86 和 x86_64体系结构上的堆栈跟踪</p>
+<h3>原生日志</h3>
+<p>头文件 <strong>&lt;glog/raw_logging.h&gt;</strong> 能用于线程安全日志记录，它不需要分配任何内存或者获取任何锁。因此，该头文件里定义的宏能用于低层次的内存分配和同步代码。查看 <strong>src/glog/raw_logging.h</strong> 了解详细信息。</p>
+<h3>Google 样式的 perror()</h3>
+<p><strong>PLOG</strong> 和 <strong>PLOG_IF</strong> 以及 <strong>PCHECK</strong> 完全支持 <strong>LOG</strong>* 以及 <strong>CHECK</strong> 的功能，另外还在输出中增加了一个描述当前状态的 error。例如：</p>
+<pre><code>PCHECK(write(1, NULL, 2) &gt;= 0) &lt;&lt; &quot;Write NULL failed&quot;;
+</code></pre>
+
+<p>这个检查失败并输出下面的错误信息：</p>
+<pre><code>F0825 185142 test.cc:22] Check failed: write(1, NULL, 2) &gt;= 0 Write NULL failed: Bad address [14]
+</code></pre>
+
+<p>事例程序：<a href="https://github.com/ictlyh/Utils/blob/master/test-glog.cpp">test-glog.cpp</a></p>
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
+
+</body>
