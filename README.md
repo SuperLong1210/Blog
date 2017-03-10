@@ -1,2 +1,2 @@
 Source File of My Blog  
-Thanks for visiting：[http://www.mutouxiaogui.cn/blog/](http://www.mutouxiaogui.cn/blog "木头小鬼")
+Thanks for visiting：[http://www.stay-stupid.com](http://www.stay-stupid.com "木头小鬼")
