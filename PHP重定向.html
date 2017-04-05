@@ -1,0 +1,38 @@
+<p>最近由于更换了域名（原来是 <a href="http://mutouxiaogui.cn/blog" title="http://mutouxiaogui.cn/blog">http://mutouxiaogui.cn/blog</a>，现在更换为 <a href="http://stay-stupid.com" title="http://stay-stupid.com">http://stay-stupid.com</a>），发现博客空间访问量明显下降。分析发现是因为搜素引擎中索引信息是陈旧的，仍然使用了原来的域名。例如 Google 搜索 <code>Impala源码分析</code>，搜索结果中给出了一条记录：<a href="www.mutouxiaogui.cn/blog/?tag=源码" title="www.mutouxiaogui.cn/blog/?tag=源码">www.mutouxiaogui.cn/blog/?tag=源码</a>，但是点击该链接进去发现页面不存在，原因就是之前存放在<code>http://mutouxiaogui.cn/blog</code>下面的php文件我都转移到了<code>http://stay-stupid.com</code>。因此我希望当使用旧链接访问的时候能自动跳转到对应的新网页，例如<a href="http://stay-stupid.com?tag=源码" title="http://stay-stupid.com?tag=源码">http://stay-stupid.com?tag=源码</a>。</p>
+<p>显而易见，这可以通过网页重定向实现，但关键问题是如何获取后面的参数。通过查找资料发现，PHP中获取 POST 数据有以下几种方法：</p>
+<ol>
+<li>
+<p>$_POST['fieldname']<br />
+<strong>说明：</strong>当 HTTP POST 请求的 Content-Type 是 application/x-www-form-urlencoded 或 multipart/form-data 时，会将变量以关联数组形式传入当前脚本。 <br />
+<strong>解释：</strong>也就是表单POST过来的数据</p>
+</li>
+<li>
+<p>$GLOBALS['HTTP_RAW_POST_DATA']<br />
+<strong>说明：</strong>$HTTP_RAW_POST_DATA 包含 POST 提交的原始数据。<br />
+此变量仅在碰到未识别 MIME 类型的数据时产生。<br />
+$HTTP_RAW_POST_DATA  对于 enctype=&quot;multipart/form-data&quot;  表单数据不可用<br />
+如果post过来的数据不是PHP能够识别的，可以用 $GLOBALS['HTTP_RAW_POST_DATA']来接收，比如 text/xml 或者 soap 等等<br />
+<strong>解释：</strong>$GLOBALS['HTTP<em>RAW</em>POST_DATA']存放的是POST过来的原始数据。
+$_POST或$_REQUEST存放的是 PHP以key=&gt;value的形式格式化以后的数据。 <br />
+但$GLOBALS['HTTP_RAW_POST_DATA']中是否保存POST过来的数据取决于centent-Type的设置，即POST数据时 必须显式示指明Content-Type: application/x-www-form-urlencoded，POST的数据才会存放到 $GLOBALS['HTTP_RAW_POST_DATA']中  <br />
+<strong>警告：</strong>这个功能是在 PHP 5.6.0 已被弃用，在PHP 7.0.0已经删除。</p>
+</li>
+<li>
+<p>file_get_contents(&quot;php://input&quot;) <br />
+<strong>说明：</strong>允许读取 POST 的原始数据。
+和 $HTTP_RAW_POST_DATA 比起来，它给内存带来的压力较小，并且不需要任何特殊的 php.ini 设置。<br />
+php://input 不能用于 enctype=&quot;multipart/form-data&quot;。<br />
+<strong>解释：</strong>对于未指定 Content-Type 的POST数据，则可以使用file_get_contents(“php://input”);来获取原始数据。事实上，用PHP接收POST的任何数据都可以使用本方法。而不用考虑Content-Type,包括二进制文件流也可以。</p>
+</li>
+<li>
+<p><code>$_SERVER</code> <br />
+<strong>说明：</strong>$_SERVER 是一个包含了诸如头信息(header)、路径(path)、以及脚本位置(script locations)等等信息的数组。这个数组中的项目由 Web 服务器创建。不能保证每个服务器都提供全部项目；服务器可能会忽略一些，或者提供一些没有在这里列举出来的项目。这也就意味着大量的此类变量都会在<a href="http://www.faqs.org/rfcs/rfc3875" title="http://www.faqs.org/rfcs/rfc3875">» CGI 1.1</a> 规范中说明，所以应该仔细研究一下。<br />
+这个预定义数组里面有很多的信息，具体可以查看：<a href="http://php.net/manual/en/reserved.variables.server.php" title="http://php.net/manual/en/reserved.variables.server.php">http://php.net/manual/en/reserved.variables.server.php</a>，这里给出了一个例如如下：<script src="https://gist.github.com/ictlyh/0318331daafe8e23beeccb9d4121cb4e.js"></script>。可以点击<a href="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2" title="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2">http://mutouxiaogui.cn/blog/list<em>server</em>variable.php?v1=1&amp;v2=2</a>查看效果。</p>
+</li>
+</ol>
+<p>通过测试发现前面三个方法都不是特别好，最后使用了最后一个方法，代码如下：<script src="https://gist.github.com/ictlyh/0fab7a2da38e212cc62f3fe090fc2093.js"></script></p>
+<p>推荐一款功能强大的网页调试与发送网页HTTP请求的 Chrome 插件： <a href="https://www.getpostman.com/" title="https://www.getpostman.com/">Postman</a>，在Chrome浏览器上安装好后可以在 <a href="chrome://apps/" title="chrome://apps/">chrome://apps/</a>找到并打开。</p>
+<p>参考资料：<br />
+<a href="https://my.oschina.net/u/205403/blog/325595" title="PHP获取POST数据的几种方法">PHP获取POST数据的几种方法</a><br />
+<a href="shttp://php.net/manual/en/reserved.variables.php" title="PHP Predefined Variable">PHP Predefined Variable</a><br />
+<a href="http://ccm.net/faq/9296-php-redirect-to-another-page" title="PHP: Redirect to Another Page">PHP: Redirect to Another Page</a></p>
