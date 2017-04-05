@@ -12,7 +12,7 @@
 此变量仅在碰到未识别 MIME 类型的数据时产生。<br />
 $HTTP_RAW_POST_DATA  对于 enctype=&quot;multipart/form-data&quot;  表单数据不可用<br />
 如果post过来的数据不是PHP能够识别的，可以用 $GLOBALS['HTTP_RAW_POST_DATA']来接收，比如 text/xml 或者 soap 等等<br />
-<strong>解释：</strong>$GLOBALS['HTTP<em>RAW</em>POST_DATA']存放的是POST过来的原始数据。
+<strong>解释：</strong>$GLOBALS['HTTP_RAW_POST_DATA']存放的是POST过来的原始数据。
 $_POST或$_REQUEST存放的是 PHP以key=&gt;value的形式格式化以后的数据。 <br />
 但$GLOBALS['HTTP_RAW_POST_DATA']中是否保存POST过来的数据取决于centent-Type的设置，即POST数据时 必须显式示指明Content-Type: application/x-www-form-urlencoded，POST的数据才会存放到 $GLOBALS['HTTP_RAW_POST_DATA']中  <br />
 <strong>警告：</strong>这个功能是在 PHP 5.6.0 已被弃用，在PHP 7.0.0已经删除。</p>
@@ -27,7 +27,7 @@ php://input 不能用于 enctype=&quot;multipart/form-data&quot;。<br />
 <li>
 <p><code>$_SERVER</code> <br />
 <strong>说明：</strong>$_SERVER 是一个包含了诸如头信息(header)、路径(path)、以及脚本位置(script locations)等等信息的数组。这个数组中的项目由 Web 服务器创建。不能保证每个服务器都提供全部项目；服务器可能会忽略一些，或者提供一些没有在这里列举出来的项目。这也就意味着大量的此类变量都会在<a href="http://www.faqs.org/rfcs/rfc3875" title="http://www.faqs.org/rfcs/rfc3875">» CGI 1.1</a> 规范中说明，所以应该仔细研究一下。<br />
-这个预定义数组里面有很多的信息，具体可以查看：<a href="http://php.net/manual/en/reserved.variables.server.php" title="http://php.net/manual/en/reserved.variables.server.php">http://php.net/manual/en/reserved.variables.server.php</a>，这里给出了一个例如如下：<script src="https://gist.github.com/ictlyh/0318331daafe8e23beeccb9d4121cb4e.js"></script>。可以点击<a href="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2" title="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2">http://mutouxiaogui.cn/blog/list<em>server</em>variable.php?v1=1&amp;v2=2</a>查看效果。</p>
+这个预定义数组里面有很多的信息，具体可以查看：<a href="http://php.net/manual/en/reserved.variables.server.php" title="http://php.net/manual/en/reserved.variables.server.php">http://php.net/manual/en/reserved.variables.server.php</a>，这里给出了一个例如如下：<script src="https://gist.github.com/ictlyh/0318331daafe8e23beeccb9d4121cb4e.js"></script>。可以点击<a href="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2" title="http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2">http://mutouxiaogui.cn/blog/list_server_variable.php?v1=1&amp;v2=2</a>查看效果。</p>
 </li>
 </ol>
 <p>通过测试发现前面三个方法都不是特别好，最后使用了最后一个方法，代码如下：<script src="https://gist.github.com/ictlyh/0fab7a2da38e212cc62f3fe090fc2093.js"></script></p>
