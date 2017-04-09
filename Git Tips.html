@@ -1,0 +1,107 @@
+<meta charset="utf-8">
+<ul>
+<li>
+<p>合并最新的两个 commit<br />
+  <code>git reset --soft HEAD~</code><br />
+  <code>git commit --amend</code></p>
+</li>
+<li>
+<p>合并历史中间连续若干个 commit<br />
+  假设在分支 <strong>master</strong> 上有 commit 记录 <code>c1 --- c2 --- c3a --- c3b --- c3c --- c4 --- c5</code>，现在想把<code>c3a, c3b, c3c</code> 三个 commit 合并为一个。可以通过以下步骤实现：</p>
+<ol>
+<li>创建临时分支 <strong>tmp</strong>： <code>git checkout -b tmp</code></li>
+<li>在临时分支 <strong>tmp</strong> 上回滚到 c2：<code>git reset --hard commit-id-of-c2</code></li>
+<li>切换到 <strong>master</strong> 分支：<code>git checkout master</code> </li>
+<li>把 <strong>master</strong> 分支 rebase 到 <strong>tmp</strong> 分支：<code>git rebase -i tmp</code><br />
+   对于 <code>c3a,c4,c5</code> 选择 <code>pick</code>，而对于 <code>c3b, c3c</code> 选择 <code>squash</code> 或者 <code>fixup</code></li>
+<li>删除临时分支 <strong>tmp</strong>：<code>git branch -d tmp</code></li>
+</ol>
+</li>
+<li>
+<p>取消上一条 <code>git reset</code> 命令<br />
+  <code>git reset HEAD@{1}</code><br />
+  可以使用 <code>git reflog</code> 查看每一步操作历史</p>
+</li>
+<li>
+<p>查看某次 commit 更改的文件<br />
+  <code>git show commit-id --name-only</code></p>
+</li>
+<li>
+<p>查看某次 commit 更改的内容<br />
+  <code>git show commit-id</code></p>
+</li>
+<li>
+<p>查看某次 commit 增删行数<br />
+  <code>git show commit-id --stat</code></p>
+</li>
+<li>
+<p>获取远程分支<br />
+  <code>git fetch origin remote_branchname:local_branchname</code></p>
+</li>
+<li>
+<p>忽略已跟踪文件的更改<br />
+  <code>git update-index --assume-unchanged filename</code></p>
+</li>
+<li>
+<p>撤销上一步的忽略<br />
+  <code>git update-index --no-assume-unchanged filename</code></p>
+</li>
+<li>
+<p>生成最近的 n 次提交的 patch<br />
+  <code>git format-patch –n</code></p>
+</li>
+<li>
+<p>取消 <code>git commit</code><br />
+  vim 命令模式下输入<code>:cq!</code>(quit with a non-success code)</p>
+</li>
+<li>
+<p>从本地删除远程分支<br />
+  <code>git push origin --delete remote_branchname</code><br />
+  <strong>注意：</strong> Github 上也可以删除分支，查看 <a href="https://github.com/blog/1377-create-and-delete-branches" title="https://github.com/blog/1377-create-and-delete-branches">https://github.com/blog/1377-create-and-delete-branches</a></p>
+</li>
+<li>
+<p>在本地删除远程已不存在的分支 <code>upstream/tmpbranch</code><br />
+  <code>git fetch upstream --prune</code><br />
+  或者直接删除 <code>.git/refs/remotes/upstream/tmpbranch</code> 文件？</p>
+</li>
+<li>
+<p>git stash<br />
+  使用情景：在当前分支 <strong>branch1</strong> 上做了修改，此时想切换到别的分支 <strong>branch2</strong>，但还不想 commit 现有的修改。具体步骤如下：</p>
+<ol>
+<li>保存当前更改：<code>git stash</code></li>
+<li>切换到别的分支完成任务：<code>git checkout branch2</code></li>
+<li>返回 <strong>branch1</strong> 分支：<code>git checkout branch1</code></li>
+<li>恢复原来的更改：<code>git stash pop</code><br />
+<strong>注意：</strong> 使用 <code>git stash list</code> 查看现有 stash 列表<br />
+使用 <code>git stash apply stash@{num}</code> 应用第 num 个 stash</li>
+</ol>
+</li>
+<li>
+<p><code>git stash</code> 后不小心使用 <code>git stash clear</code> 清除了所有 stash<br />
+  使用 <code>git fsck --unreachable | grep commit</code> 列出不可达的 commit，然后 <code>git show</code> 每个 commit 查看修改的内容，找到想要恢复的位置后用 <code>git cherry-pick -m 1 &lt;sha1&gt;</code> 恢复误删的 stash。</p>
+</li>
+<li>
+<p>追踪代码来源<br />
+  <code>git blame filename</code></p>
+</li>
+</ul>
+<p><strong>Reference</strong><hr />
+<a href="https://git-scm.com/book/zh/v2" title="Pro Git">Pro Git</a><br />
+<a href="https://git-scm.com/docs" title="Git Reference">Git Reference</a><br />
+<a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" title="廖雪峰 Git 教程">廖雪峰 Git 教程</a></p>
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
