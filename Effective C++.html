@@ -1,0 +1,166 @@
+<h4>第一章、让自己习惯C++</h4>
+<ol>
+<li>视C++为一个语言联邦：<br />
+它具有多种次语言，主要的4个：C、面向对象C++、模板C++、以及STL</li>
+<li><strong>尽量以const、enum（单纯常量），inline（形似函数的宏）替换#define</strong><br />
+原因：便于调试、预防出错
+enum hack（模板元编程的基础技术）：不能取地址、不会导致非必要的内存分配</li>
+<li><strong>尽可能使用const</strong><br />
+如果const出现在星号左边，表示被指物是常量；<br />
+如果出现在星号右边，表示指针自身是常量；<br />
+如果出现在星号两边，表示被指物和指针两者都是常量。</li>
+<li><strong>确定对象被使用前已先被初始化</strong><br />
+内置类型手动初始化；其余类型通过构造函数初始化（每一个构造函数都要确保将对象的每一个成员初始化）</li>
+</ol>
+<h4>第二章、构造/析构/赋值运算</h4>
+<ol>
+<li><strong>了解C++默认编写并调用哪些函数</strong><br />
+编译器可以为class创建default构造函数、拷贝构造函数、析构函数和拷贝赋值操作符</li>
+<li>若不想使用编译器自动生成的函数，就应该明确拒绝<br />
+方法：将相应的成员函数声明为private并且不予实现</li>
+<li><strong>为多态基类声明virtual析构函数</strong><br />
+带有多态性质的基类应该声明一个virtual析构函数；<br />
+如果类带有任何虚函数，它就应该拥有一个虚析构函数<br />
+类的设计目的如果不是作为基类使用，或不是为了具备多态性，就不该声明虚析构函数</li>
+<li>别在析构函数中抛出异常<br />
+如果客户需要对某个操作函数运行期间抛出的异常作出反应，那么类应该提供一个普通函数（而非析构函数）执行该操作。</li>
+<li><strong>绝不在构造和析构函数中调用virtual函数</strong><br />
+原因：在构造和析构期间，对虚函数的调用不会下降至派生类</li>
+<li>令operator=返回一个*this的引用</li>
+<li>在operator=中处理自我赋值<br />
+确保当对象自我赋值时operator=有良好的行为。<br />
+方法包括：比较“来源对象”和“目标对象”的地址；精心周到的语句顺序；copy-and-swap</li>
+<li><strong>复制对象时勿丢失任何一个成分</strong>（拷贝函数应该确保复制“对象内的所有成员变量”以及“所有基类成分”）<br />
+确保（1）复制所有local成员变量，（2）调用所有基类内的切当拷贝函数</li>
+</ol>
+<h4>第三章、资源管理</h4>
+<ol>
+<li>以对象管理资源<br />
+把资源放进对象内，便可依赖C++的“析构函数自动调用机制”确保资源被释放。（析构函数中释放资源）</li>
+<li>在资源管理器中小心coping行为<br />
+拷贝构造函数和拷贝赋值操作符：注意深拷贝和浅拷贝</li>
+<li>在资源管理器中提供对原始资源的访问</li>
+<li><strong>成对使用new和delete时要采取相同形式</strong><br />
+最好不要对数组形式做typedef动作</li>
+<li>以独立语句将newed对象置入只能指针<br />
+编译器对于“跨越语句的各项操作”没有重新排列的自由（只有在语句内它才拥有那个自由度）</li>
+</ol>
+<h4>第四章、设计与声明</h4>
+<ol>
+<li>让接口容易被正确使用，不易被误用<br />
+接口一致性、与内置类型行为兼容；消除客户的资源管理责任</li>
+<li>
+设计class犹如设计type<br />
+设计新class之前考虑以下问题：  
+
+<ul>
+<li>新type的对象应该如何被创建和销毁？（构造函数、析构函数、内存分配和释放）  
+</li>
+<li>对象的初始化和赋值有什么区别？（构造函数、赋值操作符）  
+</li>
+<li>新type的对象如果以值传递，意味着什么？（拷贝构造函数）  
+</li>
+<li>什么是新type的“合法值”？  
+</li>
+<li>你的新type需要配合某个继承图系吗？（virtual、non-virtual）  
+</li>
+<li>你的新type需要什么样的转换？  
+</li>
+<li>什么样的操作符和函数对此新type而言是合理的？  
+</li>
+<li>什么样的标准函数应该驳回？（那些正是你必须声明为private的）  
+</li>
+<li>谁该取用新type的成员？（哪些是public、哪些是protected、private以及友元）  
+</li>
+<li>你的新type有多么一般化？（考虑是否应该定义一个新的class template）  
+</li>
+</ul>
+</li>
+<li><strong>以pass-by-reference-to-const替换pass-by-value</strong><br />
+尽量以常量引用传递代替值传递，前者通常比较高效，并可避免切割问题
+以上规则并不适用于内置类型、以及STL的迭代器和函数对象</li>
+<li>必须返回对象时，别妄想返回其reference<br />
+绝不要返回pointer或者reference指向一个local stack对象（野指针），或返回reference指向一个heap-allocated对象（资源泄漏），或返回pointer或reference指向一个local static对象而同时需要多个这样的对象。</li>
+<li><strong>将成员变量声明为private</strong></li>
+<li>以非成员、非友元替换成员函数<br />
+增加封装性、包裹弹性和机能扩充性</li>
+<li>若所有参数皆需类型转换，请为此采用非成员函数</li>
+<li>考虑写出一个不抛异常的swap函数</li>
+</ol>
+<h4>第五章、实现</h4>
+<ol>
+<li><strong>尽可能延伸变量定义式的出现时间</strong><br />
+避免构造非必要的对象，避免无意义的default构造行为</li>
+<li><strong>尽量少做转型动作（cast）</strong><br />
+尽量避免转型，尤其是dynamic_cast<br />
+如果转型是必须的，试着将它隐藏于某个函数背后，客户可以调用该函数，而不需将转型放进他们自己的代码内<br />
+宁可使用C++-Stype（新式）转型，不要使用旧式转型</li>
+<li><strong>避免返回handles（指针、引用、迭代器）指向对象内部成分</strong><br />
+容易产生野指针等问题</li>
+<li>为“异常安全”而努力是值得的<br />
+异常发生时，异常安全的函数会：不泄漏任何资源、不允许数据败坏</li>
+<li>透彻了解inline的里里外外<br />
+将大多数inline限制在小型、被频繁调用的函数身上</li>
+<li>将文件间的编译依存关系降至最低</li>
+</ol>
+<h4>第六章、继承与面向对象设计</h4>
+<ol>
+<li>确定你的public继承塑模出is-a关系</li>
+<li><strong>避免遮掩继承而来的名称</strong></li>
+<li>区分接口继承和实现继承<br />
+接口继承和实现继承不同。在public继承之下，derived class总是继承base class的接口<br />
+纯虚函数只具体指定接口继承<br />
+非纯虚函数具体指定接口继承及缺省实现继承<br />
+非虚函数具体指定接口继承以及强制性实现继承  </li>
+<li>考虑虚函数以外的其它选择<br />
+使用non-virtual interface（NVI）手法：非虚public成员函数调用private 虚成员函数，这是Template Method设计模式的一种特殊形式<br />
+将virtual函数替换为“函数指针成员变量”，这是Strategy设计模式的一种分解表现形式</li>
+<li><strong>绝不重新定义继承而来的非虚函数</strong></li>
+<li><strong>绝不重新定义继承而来的缺省参数值</strong>
+virtual函数是动态绑定，而缺省参数值却是静态绑定</li>
+<li>通过复合塑模出has-a</li>
+<li>明智而审慎地使用private继承</li>
+<li>明智而审慎地使用多重继承</li>
+</ol>
+<h4>第七章、模板与泛型编程</h4>
+<ol>
+<li>了解隐式接口和编译器多态</li>
+<li>了解typename的双重意义</li>
+<li>学习处理模板化基类内的名称</li>
+<li>将与参数无关的代码抽离templates</li>
+<li>运用成员函数模板接受所有兼容类型</li>
+<li>需要类型转换时请为模板定义非成员函数</li>
+<li>请使用traits classes 表现类型信息</li>
+<li>认识template元编程</li>
+</ol>
+<h4>第八章、定制new和delete</h4>
+<ol>
+<li><strong>了解new-handler的行为</strong><br />
+set<em>new</em>handler允许客户指定一个函数，在内存分配无法获得满足时调用</li>
+<li>了解new和delete的合理替换时机</li>
+<li>编写new和delete时需固守常规</li>
+<li>写了placement new也要写placement delete</li>
+</ol>
+<h4>第九章、杂项讨论</h4>
+<ol>
+<li><strong>不要轻易忽视编译器的警告</strong></li>
+<li>让自己熟悉包括TR1在内的标注程序库<br />
+TR1只是一份规范。为获得TR1提供的好处，需要一份实物：Boost</li>
+<li>让自己熟悉Boost</li>
+</ol>
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
