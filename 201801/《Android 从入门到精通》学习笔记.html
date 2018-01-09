@@ -1,0 +1,598 @@
+<h4>第1章 Android快速入门</h4>
+<ol>
+<li>
+<p>什么是Android</p>
+<p><a href="http://blog.csdn.net/test_soy/article/details/53202409">平台特性</a>、 <a href="http://blog.csdn.net/hellorichen/article/details/52583700">平台架构</a>、Android市场</p>
+</li>
+<li>
+<p>搭建Android开发环境</p>
+<p><a href="https://www.cnblogs.com/zoupeiyang/p/4034517.html">Eclipse</a>、 <a href="https://www.cnblogs.com/ganchuanpu/p/6683490.html">Android</a> <a href="https://www.cnblogs.com/ganchuanpu/p/6683490.html">Studio</a></p>
+</li>
+<li>
+<p>第一个Android程序</p>
+<p>创建Android应用程序</p>
+<p>Android项目结构说明： <a href="http://blog.csdn.net/zqixiao_09/article/details/50596038">Eclipse</a>、 <a href="http://blog.csdn.net/eastmoon502136/article/details/50596806">Android</a> <a href="http://blog.csdn.net/eastmoon502136/article/details/50596806">Studio</a>、 <a href="http://www.runoob.com/w3cnote/android-tutorial-project-src-analysis.html">Android Studio</a></p>
+<p>运行Android应用程序</p>
+<p>调试Android应用程序</p>
+<p>Android应用开发流程</p>
+</li>
+</ol>
+<h4>第2章 Android模拟器与常用命令</h4>
+<ol>
+<li>使用Android模拟器</li>
+<li>
+<a href="http://blog.csdn.net/janronehoo/article/details/6863772/">SDK</a> <a href="http://blog.csdn.net/janronehoo/article/details/6863772/">中常用命令</a><br />
+adb、android、emulator、mksdcard； <a href="http://blog.csdn.net/carter_yu/article/details/50809258">ADB</a> <a href="http://blog.csdn.net/carter_yu/article/details/50809258">基本命令</a>
+</li>
+</ol>
+<h4>第3章用户界面设计</h4>
+<ol>
+<li>
+<p>控制UI界面<br />
+XML布局文件、JAVA代码、XML与JAVA混合控制、自定义View</p>
+</li>
+<li>
+<p>布局管理器<br />
+<a href="https://developer.android.com/reference/android/widget/LinearLayout.html">LinearLayout</a>、 <a href="https://developer.android.com/reference/android/widget/TableLayout.html">TableLayout</a>、 <a href="https://developer.android.com/reference/android/widget/FrameLayout.html">FrameLayout</a>、 <a href="https://developer.android.com/reference/android/widget/RelativeLayout.html">RelativeLayout</a></p>
+</li>
+<li>
+<p>基本组件<br />
+文本框与编辑框： <a href="https://developer.android.com/reference/android/widget/TextView.html">TextView</a>、 <a href="https://developer.android.com/reference/android/widget/EditText.html">EditText</a></p>
+<p>按钮： <a href="https://developer.android.com/reference/android/widget/Button.html">Button</a></p>
+<p>单选按钮和复选框： <a href="https://developer.android.com/reference/android/widget/RadioGroup.html">RadioButton</a>、 <a href="https://developer.android.com/reference/android/widget/CheckBox.html">CheckBox</a></p>
+<p>图像视图： <a href="https://developer.android.com/reference/android/widget/ImageView.html">ImageView</a></p>
+<p>列表选择框： <a href="https://developer.android.com/reference/android/widget/Spinner.html">Spinner</a></p>
+<p>列表视图： <a href="https://developer.android.com/reference/android/widget/ListView.html">ListView</a></p>
+<p>日期、时间拾取器： <a href="https://developer.android.com/reference/android/widget/DatePicker.html">DatePicker</a>、 <a href="https://developer.android.com/reference/android/widget/TimePicker.html">TimePicker</a></p>
+<p>计时器： <a href="https://developer.android.com/reference/android/widget/Chronometer.html">Chronometer</a></p>
+</li>
+</ol>
+<h4>第4章高级用户界面设计</h4>
+<ol>
+<li>
+<p>高级组件<br />
+自动完成文本框： <a href="https://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a></p>
+<p>进度条： <a href="https://developer.android.com/reference/android/widget/ProgressBar.html">ProgressBar</a></p>
+<p>拖动条和星际评分条： <a href="https://developer.android.com/reference/android/widget/SeekBar.html">SeekBar</a>、 <a href="https://developer.android.com/reference/android/widget/RatingBar.html">RatingBar</a></p>
+<p>选项卡： <a href="https://developer.android.com/reference/android/widget/TabHost.html">TabHost</a>、 <a href="https://developer.android.com/reference/android/widget/TabWidget.html">TabWidget</a>、 <a href="https://developer.android.com/reference/android/view/LayoutInflater.html">LayoutInflater</a></p>
+<p>图像切换器： <a href="https://developer.android.com/reference/android/widget/ImageSwitcher.html">ImageSwitcher</a></p>
+<p>网格视图： <a href="https://developer.android.com/reference/android/widget/GridView.html">GridView</a>、 <a href="https://developer.android.com/reference/android/widget/SimpleAdapter.html">SimpleAdapter</a>、 <a href="https://developer.android.com/reference/android/widget/BaseAdapter.html">BaseAdapter</a></p>
+<p>画廊视图： <a href="https://developer.android.com/reference/android/widget/Gallery.html">Gallery</a></p>
+</li>
+<li>
+<p>消息提示框和对话框<br />
+消息提示框： <a href="https://developer.android.com/reference/android/widget/Toast.html">Toast</a></p>
+<p>通知： <a href="https://developer.android.com/reference/android/app/Notification.html">Notification</a>、 <a href="https://developer.android.com/reference/android/app/NotificationManager.html">NotificationManager</a></p>
+<pre><code>1）调用getSystemService()方法获取系统的NotificationManager服务  
+2）创建一个Notification对象，并为其设置各种属性  
+3）位Notification对象设置事件信息  
+4）通过NotificationManager类的notify()方法发送Notification通知
+</code></pre>
+
+<p>对话框： <a href="https://developer.android.com/reference/android/app/AlertDialog.html">AlertDialog</a>、 <a href="https://developer.android.com/reference/android/app/AlertDialog.Builder.html">AlterDialog.Builder</a></p>
+</li>
+</ol>
+<h4>第5章基本程序单元Activity</h4>
+<ol>
+<li>
+<p><a href="https://developer.android.com/reference/android/app/Activity.html">Activity</a> 概述</p>
+<p>四个状态：活动、暂停、停止、销毁（暂停和停止区别：内存低时能否被系统杀死）</p>
+<p>Activity 生命周期及回调方法：</p>
+<p><img src="https://developer.android.com/guide/components/images/activity_lifecycle.png" alt="Activity 生命周期及回调方法" /></p>
+</li>
+<li>
+<p>创建、配置、启动和关闭Activity</p>
+<p>创建Activity步骤：  
+</p>
+<ol>
+<li>创建一个Activity类（继承app.Activity或其子类）</li>
+<li>重写需要的回调方法</li>
+</ol>
+<p>配置Activity：  
+</p>
+<ol>
+<li>在xml文件中配置</li>
+</ol>
+<p>启动和关闭Activity：  
+</p>
+<ol>
+<li>startActivity()</li>
+<li>finish()</li>
+</ol>
+</li>
+<li>
+<p>多个Activity的使用<br />
+使用 <a href="https://developer.android.com/reference/android/os/Bundle.html">Bundle</a>在Activity之间交换数据：startActivity( <a href="https://developer.android.com/reference/android/content/Intent.html">intent</a>)</p>
+<p>调用另一个Activity并返回结果：startActivityForResult(intent, code)、onActivityResult(requestCode, resultCode, intent)</p>
+</li>
+<li>
+<p>使用 <a href="https://developer.android.com/reference/android/app/Fragment.html">Fragment</a><br />
+一个Activity中使用多个Fragent、一个Fragment可以在多个Activity中重用</p>
+<ol>
+<li>创建Fragment：创建一个Fragment的子类、重写nCreateView()方法</li>
+<li>在Activity中添加Fragment：1在布局文件中添加；2在Activity运行时将Fragment放入</li>
+</ol>
+</li>
+</ol>
+<h4>第6章 Android应用核心Intent</h4>
+<ol>
+<li>
+<p><a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a>对象<br />
+Intent用于激活或控制Activity、Service和BroadcastReceiver这3种核心组件。<br />
+Intent包含组件名称（ <a href="https://developer.android.com/reference/android/content/ComponentName.html">ComponentName</a>）、动作（Action）、数据（Data）、种类（Category）、额外（Extras）和标记（Flags）等内容  
+</p>
+<ol>
+<li>ComponentName：目标组件的名称，由完全限定的类名和包名组成</li>
+<li>Action：在Intent类中，定义了一系列动作常量，其目标组件包括Activity和Broadcast两类。 <a href="https://www.tutorialspoint.com/android/android_intent_standard_actions.htm">标准</a> <a href="https://www.tutorialspoint.com/android/android_intent_standard_actions.htm">Activity</a> <a href="https://www.tutorialspoint.com/android/android_intent_standard_actions.htm">动作说明</a>、 <a href="https://www.tutorialspoint.com/android/android_intent_standard_actions.htm">标准广播动作说明</a></li>
+<li>Data：操作数据的URI和MIME类型</li>
+<li>Category：一个字符串，包含了应当处理当前Intent的组件类型的附加信息。 <a href="https://www.tutorialspoint.com/android/android_intent_standard_categories.htm">标准种类说明</a></li>
+<li>Extras：是一组键值对时，其中包含了应该传递给处理Intent的组件的额外信息。</li>
+<li>Flags：表示不同来源的标记。多数用于指示Android系统如何启动Activity，以及启动后如何对待。</li>
+</ol>
+</li>
+<li>
+<p>Intent使用<br />
+显式Intent通过组件名称来指定目标组件，通常用于应用程序内部消息；<br />
+隐式Intent不指定组件名称，通常用于激活其它应用程序中的组件；隐式Intent通过比较Intent对象内容和Intent过滤器来实现。<br />
+如果组件中没有任何过滤器，则只能接收显式Intent；如果包含过滤器，则可以接收显式和隐式类型的Intent。<br />
+在使用Intent过滤器测试Intent对象时，对象中仅有动作、数据、种类3个方面与其有关。</p>
+</li>
+<li>
+<p><a href="https://developer.android.com/reference/android/content/IntentFilter.html">Intent</a> <a href="https://developer.android.com/reference/android/content/IntentFilter.html">过滤器</a><br />
+Activity、Service、BroadcastReceiver通过定义Intent过滤器来通知系统它们可以处理哪些隐式Intent；</p>
+<p>过滤器并不干预显式Intent，无论其内容如何，总可以发送给其目标。</p>
+<p>过滤器对于动作、数据、种类3个方面分别进行测试，仅有通过全部测试时，Intent对象才能发送给拥有该过滤器的组件；</p>
+<p>通过动作测试的条件：</p>
+<p>通过数据测试的条件：</p>
+<p>通过种类测试的条件：</p>
+</li>
+</ol>
+<h4>第7章 Android事件处理</h4>
+<ol>
+<li>
+<p>事件处理概述</p>
+<p>通过事件实现人机交互，事件主要包括键盘事件和触摸事件两大类；键盘事件包括按下、弹起等，触摸事件包括按下、弹起、滑动、双击，等。</p>
+</li>
+<li>
+<p>处理键盘事件</p>
+<p><a href="http://blog.csdn.net/u010312937/article/details/53560403">Android</a> <a href="http://blog.csdn.net/u010312937/article/details/53560403">设备可用物理按键及触发事件</a>、处理物理按键时，提供的回调方法有onKeyUp()、onKeyDown()、onKeyLongPress()。</p>
+<p><a href="https://developer.android.com/reference/android/view/KeyEvent.html">KeyEvent</a>、 <a href="https://developer.android.com/reference/android/view/MotionEvent.html">MotionEvent</a>、 <a href="http://blog.csdn.net/ccpat/article/details/45176665">Android</a> <a href="http://blog.csdn.net/ccpat/article/details/45176665">拦截返回键事件</a></p>
+</li>
+<li>
+<p>处理触摸事件</p>
+<p>触摸屏上的按钮：onClickListener()、onLongClickListener()</p>
+</li>
+<li>
+<p>手势的创建和识别</p>
+<p><a href="https://developer.android.com/reference/android/gesture/GestureLibrary.html">GestureLibrary</a>、 <a href="https://developer.android.com/reference/android/gesture/GestureOverlayView.OnGesturePerformedListener.html">OnGesturePerformedListener</a>、 <a href="https://developer.android.com/reference/android/gesture/GestureOverlayView.html">GestureOverlayView</a></p>
+</li>
+</ol>
+<h4>第8章资源访问</h4>
+<pre><code>资源是指可以在代码中使用的外部文件，这些文件作为应用程序的一部分被编译到应用程序中。各种资源都被保存到res目录下的各个子目录中。
+
+资源可以被java文件使用，也可以被其它xml文件使用。
+
+资源包括：字符串、颜色、尺寸、布局、数组、图片、StateListDrawable、样式、主题、菜单资源，等。
+</code></pre>
+
+<ol>
+<li>
+<p>字符串（string）资源</p>
+<p>定义： <strong>res\values\strings.xml\&lt;resources&gt;&lt;string name=&quot;name&quot;&gt;string-content&lt;/string&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：getResources().getString(<strong>[&lt;package&gt;.]R.string.name</strong>);</li>
+<li>在xml文件中：<strong>@[&lt;package&gt;:]string/name</strong></li>
+</ol>
+</li>
+<li>
+<p>颜色（color）资源</p>
+<p>颜色值的定义： <strong>#RGB</strong>** 、 <strong><strong>#ARGB</strong></strong> 、 <strong><strong>#RRGGBB</strong></strong> 、 **<strong>#AARRGGBB</strong> （都是十六进制）</p>
+<p>定义： <strong>res\values\colors.xml\&lt;resources&gt;&lt;color name=&quot;name&quot;&gt;</strong><strong>颜色值</strong><strong>&lt;/color&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>getResources().getColor([package.]R.color.name);</strong></li>
+<li>在xml文件中：<strong>@[&lt;package&gt;:]color/name</strong></li>
+</ol>
+</li>
+<li>
+<p>尺寸（dimen）资源</p>
+<p>Android支持的尺寸单位：px（像素）、in（英尺）、pt（磅）、dip（设置独立像素）、sp（比例像素）、mm（毫米）</p>
+<p>定义： <strong>res\values\dimens.xml\&lt;resources&gt;&lt;dimen</strong> <strong>name=&quot;name&quot;&gt;</strong> <strong>尺寸值</strong> <strong>&lt;/dimen&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>getResources().getDimension([package.]R.dimen.name);</strong></li>
+<li>在xml文件中：<strong>@[&lt;package&gt;:]dimen/name</strong></li>
+</ol>
+</li>
+<li>
+<p>布局（layout）资源</p>
+<p>定义： <strong>res\layout\</strong><strong>文件名</strong><strong>.xml</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>[package.]R.layout.</strong><strong>文件名</strong></li>
+<li>在xml文件中：<strong>@[&lt;package&gt;:]layout/</strong><strong>文件名</strong></li>
+</ol>
+</li>
+<li>
+<p>数组（array）资源</p>
+<p>&lt;array&gt;：用于定义普通类型的数组</p>
+<p>&lt;integer-array&gt;：用于定义整数数组</p>
+<p>&lt;string-array&gt;：用于定义字符串数组</p>
+<p>定义： <strong>res\values\</strong>**文件名<strong><strong>.xml\&lt;resources&gt;&lt;array name=&quot;</strong></strong>数组名 ** <strong>&quot;&gt;&lt;item&gt;item1&lt;/item&gt;&lt;item&gt;item2&lt;/item&gt;…&lt;item&gt;item-n&lt;/item&gt;&lt;/array&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>String[] arr=getResources().getStringArray([package.]R.array.</strong><strong>数组名</strong><strong>)</strong></li>
+<li>在xml文件中：<strong>@[&lt;package&gt;:]array/</strong><strong>数组名</strong></li>
+</ol>
+</li>
+<li>
+<p>Drawable资源</p>
+<p>图片资源：</p>
+<p>定义： <strong>res/drawable-{hdpi, mdpi, ldpi}/</strong><strong>文件名</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>[package.]R.drawable.</strong><strong>文件名</strong></li>
+<li>在xml文件中： <strong>@[&lt;package&gt;:]drawable/文件名</strong></li>
+</ol>
+<p>注意：使用9-Patch图片时不需要加扩展名.9.png</p>
+<p>StateListDrawable资源：</p>
+<p>根据状态来呈现不同的图像</p>
+<p>定义： <strong>res/drawable/</strong><strong>文件名</strong><strong>.xml/&lt;selector&gt;&lt;item /&gt;&lt;item /&gt;…&lt;item /&gt;&lt;/selector&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在java文件中：<strong>[package.]R.drawable.</strong><strong>文件名</strong></li>
+<li>在xml文件中： <strong>@</strong><strong>[&lt;package&gt;:]drawable/文件名</strong></li>
+</ol>
+</li>
+<li>
+<p>样式（style）和主题（theme）资源</p>
+<p>样式资源：</p>
+<p>定义： <strong>res/values/styles.xml/</strong><strong>&lt;resources&gt;&lt;style name=&quot;name&quot; parent=&quot;父样式&quot;&gt;&lt;item name=&quot;&quot;&gt;value&lt;/item&gt;&lt;item name=&quot;&quot;&gt;value&lt;/item&gt;&lt;/style&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在xml文件中： <strong>@</strong><strong>[&lt;package&gt;:]style/name</strong></li>
+</ol>
+<p>主题资源：</p>
+<p>和样式资源类型，但不能作用于单个view组件，而是对所有（或单个）Activity起作用</p>
+<p>定义： <strong>res/values/theme.xml/&lt;resources&gt;&lt;style name=&quot;name&quot;&gt;&lt;item name=&quot;&quot;&gt;value&lt;/item&gt;&lt;/style&gt;&lt;/resources&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>在AndroidManifest.xml文件中使用主题资源： <strong>android:theme=&quot;@style/name&quot;</strong></li>
+<li>在java文件中使用主题资源：<strong>setTheme([package.]R.sytle.name);</strong>（注意：要在setContentView()之前设置主题）</li>
+</ol>
+</li>
+<li>
+<p>原始XML资源</p>
+<p>定义： <strong>res/xml</strong><strong>/文件名.xml</strong></p>
+<p>使用：<strong>Resources.getXml(R.xml.文件名)</strong></p>
+<p>解析：XmlResourceParser类</p>
+</li>
+<li>
+<p>菜单资源</p>
+<p>Android提供了两种实现菜单的方法：通过Java代码和通过菜单资源文件</p>
+<p>定义： <strong>res/menu/menus.xml</strong><strong>/&lt;menu&gt;&lt;item&gt;&lt;/item&gt;&lt;group&gt;&lt;item&gt;&lt;/item&gt;&lt;item&gt;&lt;/item&gt;&lt;/group&gt;&lt;/menu&gt;</strong></p>
+<p>使用：</p>
+<ol>
+<li>选项菜单（Option Menu）：点击菜单按钮弹出来的菜单</li>
+</ol>
+<p>在onCreate()中重写Activity中的onCreateOptionMenu()方法</p>
+<p>在onCreate()中重写Activity中的onOptionsItemSelected()方法</p>
+<ol>
+<li>上下文菜单（Context Menu）：长时间按键不放时弹出的菜单</li>
+</ol>
+<p>在onCreate()中注册上下文菜单registerForContextMenu()</p>
+<p>在onCreate()中重写onCreateContextMenu()方法</p>
+<p>在onCreate()中重写onContextItemSelected()方法</p>
+</li>
+<li>
+<p>Android程序国际化</p>
+<p>定义： <strong>res/values/values-zh-rCN</strong><strong>.xml、values-zh-rTW.xml、values-en-rUS.xml</strong> 等</p>
+</li>
+</ol>
+<h4>第9章图形图像处理技术</h4>
+<ol>
+<li>
+<p>常用绘图类<br />
+<a href="https://developer.android.com/reference/android/graphics/Paint.html">Paint</a>：画笔、用来描述图形的颜色和风格，如线宽、颜色、透明度和填充效果等信息<br />
+<a href="https://developer.android.com/reference/android/graphics/Canvas.html">Canvas</a>：画布<br />
+<a href="https://developer.android.com/reference/android/graphics/Bitmap.html">Bitmap</a>：位图，可以获取文件信息，进行图像剪切、旋转、缩放等操作，还可以指定格式保存图像文件<br />
+<a href="https://developer.android.com/reference/android/graphics/BitmapFactory.html">BitmapFactory</a>：工具类，用于从不同的数据源来解析、创建Bitmap对象</p>
+</li>
+<li>
+<p>绘制2D图像  
+</p>
+<ol>
+<li>绘制几何图形：Canvas类提供的绘制几何图形的方法</li>
+<li>绘制文本：Canvas. <a href="https://developer.android.com/reference/android/graphics/Canvas.html#drawText(java.lang.String,%20float,%20float,%20android.graphics.Paint)">drawText</a>()、Canvas. <a href="https://developer.android.com/reference/android/graphics/Canvas.html#drawPosText(char%5B%5D,%20int,%20int,%20float%5B%5D,%20android.graphics.Paint)">drawPosText</a>()</li>
+<li>绘制路径：使用android.graphics. <a href="https://developer.android.com/reference/android/graphics/Path.html">Path</a>类来创建路径，使用Canvas. <a href="https://developer.android.com/reference/android/graphics/Canvas.html#drawPath(android.graphics.Path,%20android.graphics.Paint)">drawPath</a>()绘制路径</li>
+<li>绘制图片： <a href="https://developer.android.com/reference/android/graphics/Canvas.html#drawBitmap(android.graphics.Bitmap,%20android.graphics.Matrix,%20android.graphics.Paint)">drawBitmap</a>()</li>
+</ol>
+</li>
+<li>
+为图形添加特效  
+
+<ol>
+<li>旋转图像：graphics. <a href="https://developer.android.com/reference/android/graphics/Matrix.html">Matrix</a>类的 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#setRotate(float,%20float,%20float)">setRotate</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#postRotate(float,%20float,%20float)">postRotate</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#preRotate(float)">preRotate</a>()方法，Canvas.drawBitmap(Bitmap, Matrix, Paint)</li>
+<li>缩放图像：android.graphics.Matrix类的 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#setScale(float,%20float)">setScale</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#postScale(float,%20float,%20float,%20float)">postScale</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#preScale(float,%20float)">preScale</a>()方法</li>
+<li>倾斜图像：android.graphics.Matrix类的 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#setSkew(float,%20float)">setSkew</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#postSkew(float,%20float)">postSkew</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#preSkew(float,%20float)">preSkew</a>()方法</li>
+<li>平移图像：android.graphics.Matrix类的 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#setTranslate(float,%20float)">setTranslate</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#postTranslate(float,%20float)">postTranslate</a>()、 <a href="https://developer.android.com/reference/android/graphics/Matrix.html#preTranslate(float,%20float)">preTranslate</a>()方法</li>
+<li>使用 <a href="https://developer.android.com/reference/android/graphics/BitmapShader.html">BitmapShader</a>渲染图像：创建BitmapShader类的对象，setShader()方法设置Shader对象，使用设置了Shader对象的Paint</li>
+</ol>
+</li>
+<li>
+<p>Android中的动画</p>
+<ol>
+<li>实现逐帧动画（顺序播放事先准备好的静态图像）</li>
+<li>实现补间动画（通过对场景里的对象不断进行图像变化来产生动画效果）</li>
+</ol>
+<p>透明度渐变（ <a href="https://developer.android.com/reference/android/view/animation/AlphaAnimation.html">Alpha</a> <a href="https://developer.android.com/reference/android/view/animation/AlphaAnimation.html">Animation</a>）、旋转（ <a href="https://developer.android.com/reference/android/view/animation/RotateAnimation.html">RotateAnimation</a>）、缩放（ <a href="https://developer.android.com/reference/android/view/animation/ScaleAnimation.html">ScaleAnimation</a>）、平移（ <a href="https://developer.android.com/reference/android/view/animation/TranslateAnimation.html">TranslateAnimation</a>）</p>
+</li>
+</ol>
+<h4>第10章多媒体应用开发</h4>
+<ol>
+<li>
+<p>播放音频与视频</p>
+<ol>
+<li>使用 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html">MediaPlayer</a>类播放音频</li>
+</ol>
+<p>静态方法 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#create(android.content.Context,%20android.net.Uri,%20android.view.SurfaceHolder,%20android.media.AudioAttributes,%20int)">create</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#prepare()">prepare</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#start()">start</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#stop()">stop</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#pause()">pause</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#reset()">reset</a>()、 <a href="https://developer.android.com/reference/android/media/MediaPlayer.html#setOnCompletionListener(android.media.MediaPlayer.OnCompletionListener)">setOnCompletionListener</a>()</p>
+</li>
+<li>
+<p>使用 <a href="https://developer.android.com/reference/android/media/SoundPool.html">SoundPool</a>播放音频</p>
+<p>构造函数、 <a href="https://developer.android.com/reference/android/media/SoundPool.html#load(android.content.Context,%20int,%20int)">load</a>()、 <a href="https://developer.android.com/reference/android/media/SoundPool.html#play(int,%20float,%20float,%20int,%20int,%20float)">play</a>()</p>
+</li>
+<li>
+<p>使用 <a href="https://developer.android.com/reference/android/widget/VideoView.html">VideoView</a>播放视频</p>
+<p><a href="https://developer.android.com/reference/android/widget/MediaController.html">MediaController</a>组件用于通过图形控制界面来控制视频的播放</p>
+<p>在XML布局文件中添加VideoView、setVideoURI()、setVideoPath()、start()、stop()、pause()、setOnCompletionListener()</p>
+</li>
+<li>
+<p>使用MediaPlayer和 <a href="https://developer.android.com/reference/android/view/SurfaceView.html">SurfaceView</a>播放视频</p>
+<p>MediaPlayer除可以播放音频外，还可以播放视频文件，只不过使用MediaPlayer播放视频时，没有提供图像输出的界面。这时，可以用SurfaceView组件来显示视频图像。  
+</p>
+<ul>
+<li>定义SurfaceView组件;  
+</li>
+<li>创建MediaPlayer对象;  
+</li>
+<li>将所播放的视频画面输出到SurfaceView：MediaPlayer.setDisplay(SurfaceView.getHolder());  
+</li>
+<li>调用MediaPlayer对象的相应方法控制视频的播放</li>
+</ul>
+</li>
+<li>
+<p>控制相机拍照：Camera类已弃用、使用 <a href="https://developer.android.com/reference/android/hardware/camera2/package-summary.html">Camera</a> <a href="https://developer.android.com/reference/android/hardware/camera2/package-summary.html">2</a></p>
+<p><a href="https://developer.android.com/reference/android/hardware/Camera.html">Camera</a>.open()、getParameters()、setParameters()、setPreviewDisplay()、startPreview()、stopPreview()、takePicture()、release()</p>
+</li>
+</ol>
+<h4>第11章 ContentProvider 实现数据共享</h4>
+<p><a href="https://developer.android.com/reference/android/content/ContentProvider.html">ContentProvider</a> 用于保存和获取数据、并使其对所有应用程序可见。这是不同应用程序间共享数据的唯一方式。</p>
+<ol>
+<li>
+<p>ContentProvider概述</p>
+<p>通过 <a href="https://developer.android.com/reference/android/content/ContentResolver.html">ContentResolver</a>对象实现对ContentProvider的操作。Activity中通过 <a href="https://developer.android.com/reference/android/content/Context.html#getContentResolver()">getContentResolver</a>()方法来获得ContentResolver对象。</p>
+<ol>
+<li>数据模型：</li>
+</ol>
+<p>ContentProvider使用基于数据库模型的简单表格来提供其中的数据。</p>
+<ol>
+<li>URI的用法</li>
+</ol>
+<p>每个ContentProvider提供公共的URI来唯一标识其数据集。管理多个数据集的ContentProvider为每个数据集提供了单独的URI。</p>
+<pre><code>content://com.mingrisoft.employeeprovider/dba/001  
+contnet:// : 标准前缀，无需修改  
+com.mingrisoft.employeeprovider : authority部分，完整的类名  
+dba : ContentProvider的路径部分  
+001 : 被请求的特定记录的ID值，如果请求不仅限于单条记录，应删除该部分及前面的斜线
+</code></pre>
+
+</li>
+<li>
+<p>预定义ContentProvider</p>
+<p><a href="https://developer.android.com/reference/android/provider/Browser.html">Browser</a>、 <a href="https://developer.android.com/reference/android/provider/CallLog.html">CallLog</a>、 <a href="https://developer.android.com/reference/android/provider/Contacts.html">Contacts</a>、 <a href="https://developer.android.com/reference/android/provider/LiveFolders.html">LiveFolders</a>、 <a href="https://developer.android.com/reference/android/provider/MediaStore.html">MediaStore</a>、 <a href="https://developer.android.com/reference/android/provider/Settings.html">Setting</a>、 <a href="https://developer.android.com/reference/android/provider/SyncStateContract.html">SyncStateContact</a>、 <a href="https://developer.android.com/reference/android/provider/UserDictionary.html">UserDictionary</a></p>
+<ol>
+<li>
+<p>查询数据</p>
+<p>要查询ContentProvider中的数据，需要以下3个信息：<br />
+1）标识该ContentProvider的URI<br />
+2）需要查询的数据字段名称<br />
+3）字段中的数据类型<br />
+4）如果要查询特定记录，还需要记录的ID值<br />
+ContentResolver. <a href="https://developer.android.com/reference/android/content/ContentResolver.html#query(android.net.Uri,%20java.lang.String%5B%5D,%20android.os.Bundle,%20android.os.CancellationSignal)">query</a>()、Activity. <a href="https://developer.android.com/reference/android/app/Activity.html#managedQuery(android.net.Uri,%20java.lang.String%5B%5D,%20java.lang.String,%20java.lang.String%5B%5D,%20java.lang.String)">managedQuery</a>()，两者都返回Cursor；后者导致Activity管理Cursor的生命周期。</p>
+</li>
+<li>
+<p>增加记录<br />
+<a href="https://developer.android.com/reference/android/content/ContentValues.html">ContentValues</a>对象中建立ContentProvider列名到值的键值对映射，然后调用ContentResolver. <a href="https://developer.android.com/reference/android/content/ContentResolver.html#insert(android.net.Uri,%20android.content.ContentValues)">insert</a>()方法  
+</p>
+<ol>
+<li>增加新值</li>
+<li>批量更新记录<br />
+ContentResolver. <a href="https://developer.android.com/reference/android/content/ContentResolver.html#update(android.net.Uri,%20android.content.ContentValues,%20java.lang.String,%20java.lang.String%5B%5D)">update</a>()</li>
+</ol>
+</li>
+<li>
+<p>删除记录<br />
+ContentResolver. <a href="https://developer.android.com/reference/android/content/ContentResolver.html#delete(android.net.Uri,%20java.lang.String,%20java.lang.String%5B%5D)">delete</a>()</p>
+</li>
+</ol>
+</li>
+<li>
+<p>自定义ContentProvider</p>
+<p>1）建立数据存储系统<br />
+2）继承ContentProvider类来提供数据访问方式<br />
+3）在应用程序中的AndroidManifest文件中声明ContentProvider</p>
+<ol>
+<li>
+<p>继承ContentProvider类<br />
+需要实现ContentProvider类定义的6个抽象方法（由于这些方法能被位于不同线程、进程的不同ContentResolver对象调用，因此必须以线程安全的方式实现）</p>
+</li>
+<li>
+<p>声明ContentProvider<br />
+在AndroidManifest.xml文件中定义&lt;provider&gt;元素</p>
+</li>
+</ol>
+</li>
+</ol>
+<h4>第12章线程与消息处理</h4>
+<p>在Android中，默认情况下，所有的操作都在主线程中进行，主线程负责管理与UI相关的事件，而在用户自己创建的子线程中，不能对UI组件进行操作。</p>
+<ol>
+<li>
+<p>实现多线程</p>
+<p>创建线程：</p>
+<ol>
+<li>通过 <a href="https://developer.android.com/reference/java/lang/Thread.html">Thread</a>类构造方法创建线程对象并重写run()方法</li>
+<li>通过实现 <a href="https://developer.android.com/reference/java/lang/Runnable.html">Runnable</a>接口实现。</li>
+</ol>
+<p>开启线程： <a href="https://developer.android.com/reference/java/lang/Thread.html#start()">start</a>()</p>
+<p>线程休眠： <a href="https://developer.android.com/reference/java/lang/Thread.html#sleep(long,%20int)">sleep</a>()</p>
+<p>中断线程： <a href="https://developer.android.com/reference/java/lang/Thread.html#interrupt()">interrupt</a>()</p>
+</li>
+<li>
+<p>Handler消息传递机制</p>
+<p>在Android中，一个线程对应一个Looper对象，而一个Looper对象又对应一个 <a href="https://developer.android.com/reference/android/os/MessageQueue.html">MessageQueue</a>。MessageQueue被封装到了Looper里面。但是一个线程中可以有多个Handler，这些Handler可以共享同一个Looper和MessageQueue。</p>
+<p>循环者（ <a href="https://developer.android.com/reference/android/os/Looper.html">Looper</a>）</p>
+<p>用来为线程开启一个消息循环，从而操作MessageQueue。默认情况下，除了主线程，Android中新创建的线程是没有开启消息循环的。</p>
+<p>开启消息循环：</p>
+<ol>
+<li>使用prepare()初始化一个Looper对象</li>
+<li>创建Handler对象</li>
+<li>使用loop()方法启动Looper，从队列中获取和处理消息。</li>
+</ol>
+<p>Looper类提供的常用方法： <a href="https://developer.android.com/reference/android/os/Looper.html#prepare()">prepare</a>()、 <a href="https://developer.android.com/reference/android/os/Looper.html#loop()">loop</a>()、 <a href="https://developer.android.com/reference/android/os/Looper.html#myLooper()">myLooper</a>()、 <a href="https://developer.android.com/reference/android/os/Looper.html#getThread()">getThread</a>()、 <a href="https://developer.android.com/reference/android/os/Looper.html#quit()">quit</a>()</p>
+<p>写在Looper.loop()之后的代码不会被执行，该函数内部是一个循环，当调用Handler.getLooper().quit()方法之后，loop()方法才会终止。</p>
+<p>消息处理类（ <a href="https://developer.android.com/reference/android/os/Handler.html">Handler</a>）</p>
+<p>Handler允许发送和处理 <a href="https://developer.android.com/reference/android/os/Message.html">Message</a>或者Runnable对象到其所在线程中的MessageQueue()中。Handler主要有以下两个作用：</p>
+<ol>
+<li>将Message或Runnable对象应用post()或sendMessage()方法发送到MessageQueue中</li>
+<li>在子线程与主线程进行通信</li>
+</ol>
+<p>Handler类提供的发送和处理消息的常用方法：</p>
+<p><a href="https://developer.android.com/reference/android/os/Handler.html#handleMessage(android.os.Message)">handleMessage</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#post(java.lang.Runnable)">post</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#postAtTime(java.lang.Runnable,%20long)">postAtTime</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable,%20long)">postDelayed</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessage(int)">sendEmptyMessage</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#sendMessage(android.os.Message)">sendMessage</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#sendMessageAtTime(android.os.Message,%20long)">sendMessageAtTime</a>()、 <a href="https://developer.android.com/reference/android/os/Handler.html#sendMessageDelayed(android.os.Message,%20long)">sendMessageDelayed</a>()</p>
+<p>消息类（ <a href="https://developer.android.com/reference/android/os/Message.html">Message</a>）</p>
+<p>每个Message对象可以通过Message. <a href="https://developer.android.com/reference/android/os/Message.html#obtain()">obtain</a>()或Handler. <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage()">obtainMessage</a>()方法获得。</p>
+</li>
+</ol>
+<h4>第13章 Service应用</h4>
+<p><a href="https://developer.android.com/reference/android/app/Service.html">Service</a>用于在后台完成用户指定的操作。</p>
+<ol>
+<li>
+<p>Service概述</p>
+<p>Service是能够在后台执行长时间运行操作并且不提供用户界面的应用程序组件。</p>
+<p>分类：</p>
+<ol>
+<li>Started：通过 <a href="https://developer.android.com/reference/android/content/Context.html#startService(android.content.Intent)">startService</a>()启动服务。能在后台无限期运行，不受启动它的组件生命周期影响。同常，启动服务执行单个操作，并且不会向调用者返回结果。需要停止自身</li>
+<li>Bound：通过 <a href="https://developer.android.com/reference/android/content/Context.html#bindService(android.content.Intent,%20android.content.ServiceConnection,%20int)">bindService</a>()绑定服务。绑定服务允许组件和服务交互、发送请求、获取结果，及进程间通信。多个组件可以一次绑定到一个服务，都解绑时，服务停止。</li>
+</ol>
+<p>重要方法： <a href="https://developer.android.com/reference/android/app/Service.html#onStartCommand(android.content.Intent,%20int,%20int)">onStartCommand</a>()、 <a href="https://developer.android.com/reference/android/app/Service.html#onBind(android.content.Intent)">onBind</a>()、 <a href="https://developer.android.com/reference/android/app/Service.html#onCreate()">onCreate</a>()、 <a href="https://developer.android.com/reference/android/app/Service.html#onDestroy()">onDestroy</a>()、 <a href="https://developer.android.com/reference/android/app/Service.html#stopSelf()">stopSelf</a>()、 <a href="https://developer.android.com/reference/android/content/Context.html#stopService(android.content.Intent)">stopService</a>()</p>
+<p>声明：AndroidManifest.xml/&lt;application&gt;&lt;service android:xxx=&quot;yyy&quot;&gt;&lt;/service&gt;&lt;/application&gt;</p>
+</li>
+<li>
+<p>创建Started Service</p>
+<ol>
+<li>
+<p>Service：</p>
+<p>如果需要让服务处理多线程（替代使用工作队列处理启动请求），则可以继承Service类来处理各个Intent。</p>
+</li>
+<li>
+<p>IntentService：</p>
+<p><a href="https://developer.android.com/reference/android/app/IntentService.html">IntentService</a>可完成如下任务：</p>
+<p>1）创建区别于应用程序主线程的默认工作线程来执行发送到onStartCommand()方法的全部Intent</p>
+<p>2）创建工作队列，每次传递一个Intent到 <a href="https://developer.android.com/reference/android/app/IntentService.html#onHandleIntent(android.content.Intent)">onHandleIntent</a>()方法实现，从而不必担心多线程</p>
+<p>3）所有启动请求处理完毕后停止服务，不必调用stopSelf()方法</p>
+<p>4）提供onBind()方法的默认实现，返回值为null</p>
+<p>5）提供onStartCommand()方法的默认实现，它先发送Intent到工作队列，然后到 <a href="https://developer.android.com/reference/android/app/IntentService.html#onHandleIntent(android.content.Intent)">onHandleIntent</a>()方法实现</p>
+<p>因此，开发者只需要实现onHandleIntent()方法来完成客户端提供的任务。</p>
+<p>实现IntentService类所必需的的全部操作：无参构造方法和onHandleIntent()方法。</p>
+</li>
+</ol>
+</li>
+<li>
+<p>创建Bound Service</p>
+<p>在实现绑定服务时，最重要的是定义onBind()回调方法返回的接口，有以下三种方式：继承Binder类、使用Messenger、使用AIDL</p>
+<ol>
+<li>
+<p>继承Binder类</p>
+<p>1）在服务中，创建 <a href="https://developer.android.com/reference/android/os/Binder.html">Binder</a>类实例来完成下列操作之一：包含客户端能调用的公共方法、返回当前Service实例、返回服务管理的其它类的实例</p>
+<p>2）从onBind()回调方法中返回Binder类实例</p>
+<p>3）在客户端，从 <a href="https://developer.android.com/reference/android/content/ServiceConnection.html#onServiceConnected(android.content.ComponentName,%20android.os.IBinder)">onServiceConnected</a>()回调方法接收Binder类实例，并且使用提供的方法调用绑定服务。</p>
+</li>
+<li>
+<p>使用Messenger类</p>
+<p>使用 <a href="https://developer.android.com/reference/android/os/Messenger.html">Messenger</a>时需要注意：</p>
+<p>1）实现Handler的服务因为每次从客户端调用而收到回调</p>
+<p>2） <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.Handler)">Handler</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.Handler)">用于创建</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.Handler)">Messenger</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.Handler)">对象</a>（它是Handler的引用）</p>
+<p>3） <a href="https://developer.android.com/reference/android/os/Messenger.html#getBinder()">Messenger</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#getBinder()">创建</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#getBinder()">IBinder</a>，服务从onBind()方法将其返回到客户端</p>
+<p>4）客户端 <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.IBinder)">使用</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.IBinder)">IBinder</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.IBinder)">来实例化</a> <a href="https://developer.android.com/reference/android/os/Messenger.html#Messenger(android.os.IBinder)">Messenger</a>，然后用它来发送Message对象到服务</p>
+<p>5）服务在其Handler的handleMessage()方法接收Message</p>
+</li>
+</ol>
+</li>
+<li>
+<p>绑定到服务</p>
+<p>如果需要从客户端绑定到服务，需要完成以下操作：</p>
+<p>1）实现 <a href="https://developer.android.com/reference/android/content/ServiceConnection.html">ServiceConnection</a>，这需要重写 <a href="https://developer.android.com/reference/android/content/ServiceConnection.html#onServiceConnected(android.content.ComponentName,%20android.os.IBinder)">onServiceConnected</a>()和 <a href="https://developer.android.com/reference/android/content/ServiceConnection.html#onServiceDisconnected(android.content.ComponentName)">onServiceDisconnected</a>()两个回调方法</p>
+<p>2）调用 <a href="https://developer.android.com/reference/android/content/Context.html#bindService(android.content.Intent,%20android.content.ServiceConnection,%20int)">bindService</a>()方法，传递ServiceConnection实现</p>
+<p>3）当系统调用onServiceConnected()回调方法时，就可以使用接口定义的方法调用服务</p>
+<p>4）调用 <a href="https://developer.android.com/reference/android/content/Context.html#unbindService(android.content.ServiceConnection)">unbindService</a>()方法解除绑定</p>
+</li>
+<li>
+<p>管理 <a href="https://www.tutorialspoint.com/android/android_services.htm">Service</a> <a href="https://www.tutorialspoint.com/android/android_services.htm">的生命周期</a></p>
+</li>
+</ol>
+<p><img src="https://www.tutorialspoint.com/android/images/services.jpg" alt="Service 的生命周期" /></p>
+<h4>第14章网络编程及Internet应用</h4>
+<ol>
+<li>
+<p>通过 <a href="https://developer.android.com/reference/java/net/HttpURLConnection.html">HttpURLConnection</a>访问网络</p>
+<p>创建 <a href="https://developer.android.com/reference/java/net/URL.html">URL</a>对象、通过URL. <a href="https://developer.android.com/reference/java/net/URL.html#openConnection()">openConnection</a>()获取HttpURLConnection对象，发送请求</p>
+<p>发送POST请求时常用的方法：</p>
+<p><a href="https://developer.android.com/reference/java/net/URLConnection.html#setDoInput(boolean)">setDoInput</a>()、 <a href="https://developer.android.com/reference/java/net/URLConnection.html#setDoOutput(boolean)">setDoOutput</a>()、 <a href="https://developer.android.com/reference/java/net/URLConnection.html#setUseCaches(boolean)">setUseCaches</a>()、 <a href="https://developer.android.com/reference/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">setInstanceFollowRedirects</a>()、 <a href="https://developer.android.com/reference/java/net/URLConnection.html#setRequestProperty(java.lang.String,%20java.lang.String)">setRequestProperty</a>()</p>
+</li>
+<li>
+<p>使用HttpClient访问网络( <a href="https://developer.android.com/about/versions/marshmallow/android-6.0-changes.html">Andorid 6.0之后已经移除</a>）</p>
+<p><a href="https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/">HttpClient</a>实际上是对Java提供的访问网路的方法进行了封装</p>
+<p>发送GET/POST请求大致可以分为以下几个步骤：</p>
+<p>1）创建HttpClient对象</p>
+<p>2）创建HttpGet/HttpPost对象</p>
+<p>3）如果需要发送请求参数，可以将参数连接到URL中，或调用HttpGet/HttpPost.setParams()方法</p>
+<p>4）调用HttpClient对象的execute()方法发送请求，返回一个HttpResponse对象</p>
+<p>5）调用HttpResponse对象的getEntity()方法，获得包含服务区响应内容的HttpEntity对象</p>
+</li>
+<li>
+<p>使用WebView组件浏览网页</p>
+<ol>
+<li>
+<p>WebView组件的常用方法：<br />
+loadUrl()、loadData()、loadDataWithBaseURL()、goBack()、goForward()、stopLoading()、reload()</p>
+</li>
+<li>
+<p>让WebView支持JavaScript<br />
+WebView.getSettings.setJavaScriptEnabled(true);<br />
+WebView.setWebChromeClient(new WebChromeClient());</p>
+</li>
+</ol>
+</li>
+</ol>
+<h4>第N章参考资料</h4>
+<ol>
+<li><a href="https://developer.android.com/reference/packages.html">Android</a> <a href="https://developer.android.com/reference/packages.html">API</a>  </li>
+<li><a href="http://www.runoob.com/w3cnote/android-tutorial-contents.html">Android</a> <a href="http://www.runoob.com/w3cnote/android-tutorial-contents.html">基础入门教程</a> </li>
+<li><a href="https://www.tutorialspoint.com/android_online_training/index.asp">Android Online Training</a></li>
+</ol>
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
