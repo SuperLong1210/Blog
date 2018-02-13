@@ -1,0 +1,349 @@
+<h4>第1章 OpenCV的探险之旅</h4>
+<p><a href="http://blog.csdn.net/miss1128726/article/details/51131877">安装</a> <a href="http://blog.csdn.net/miss1128726/article/details/51131877">OpenCV</a></p>
+<h4>第2章 OpenCV基础知识介绍</h4>
+<p>CMake</p>
+<ol>
+<li>基本配置文件</li>
+<li>创建库</li>
+<li>管理依赖关系</li>
+<li>脚本复杂化</li>
+<li>
+<p>图像和矩阵</p>
+<p>OpenCV用 <a href="https://docs.opencv.org/3.0.0/d3/d63/classcv_1_1Mat.html">Mat</a>类来实现，访问像素：value = Row_i * num_cols * num_channels + Col_j * num_channels + Channel_k</p>
+</li>
+<li>
+<p>读写图像</p>
+<p><a href="https://docs.opencv.org/3.0.0/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56">imread</a>、 <a href="https://docs.opencv.org/3.0.0/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce">imwrite</a>、 <a href="javascript:searchResults.Toggle(%22SR_imshow%22)">imshow</a></p>
+</li>
+<li>
+<p>读取视频和摄像头</p>
+<p><a href="https://docs.opencv.org/3.0.0/d8/dfe/classcv_1_1VideoCapture.html">VideoCapture</a>、imshow、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga5afdf8410934fd099df85c75b2e0888b">namedWindow</a></p>
+</li>
+<li>
+<p>其它基本对象类型</p>
+<p><a href="https://docs.opencv.org/3.0.0/d6/dcf/classcv_1_1Vec.html">Vec</a>、 <a href="https://docs.opencv.org/3.0.0/db/d4e/classcv_1_1Point__.html">Point</a>_、 <a href="https://docs.opencv.org/3.0.0/d1/da0/classcv_1_1Scalar__.html">Scalar</a>、 <a href="https://docs.opencv.org/3.0.0/dc/d84/group__core__basic.html#ga1e83eafb2d26b3c93f09e8338bcab192">Point</a>、 <a href="https://docs.opencv.org/3.0.0/d6/d50/classcv_1_1Size__.html">Size</a>、 <a href="https://docs.opencv.org/3.0.0/d2/d44/classcv_1_1Rect__.html">Rect</a>、 <a href="https://docs.opencv.org/3.0.0/db/dd6/classcv_1_1RotatedRect.html">Rotated</a> <a href="https://docs.opencv.org/3.0.0/db/dd6/classcv_1_1RotatedRect.html">Rect</a>、 <a href="https://docs.opencv.org/3.0.0/d3/d3c/classcv_1_1reg_1_1Map.html">Map</a></p>
+</li>
+<li>
+<p>矩阵的基本运算</p>
+<p>与标量乘法：*</p>
+<p>每个元素乘法： <a href="https://docs.opencv.org/3.0.0/d3/d63/classcv_1_1Mat.html#a3e28b860465f278f13f34ab3f0b3e9d1">.mul</a></p>
+<p>矩阵乘法：*</p>
+</li>
+<li>
+<p>基本数据的持久性和存储</p>
+<p><a href="https://docs.opencv.org/3.0.0/da/d56/classcv_1_1FileStorage.html">FileStorage</a></p>
+</li>
+</ol>
+<h4>第3章 图形用户界面和基本滤波</h4>
+<ol>
+<li>
+<p>OpenCV的用户界面</p>
+<p>基于本地用户界面的基本界面和基于QT库且略微高级的跨平台用户界面</p>
+</li>
+<li>
+<p>使用OpenCV实现基本的用户界面</p>
+<p><a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga5afdf8410934fd099df85c75b2e0888b">namedWindow</a>、 <a href="javascript:searchResults.Toggle(%22SR_imshow%22)">imshow</a>、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga9e80e080f7ef33f897e415358aee7f7e">resizeWindow</a>、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga8d86b207f7211250dbe6e28f76307ffb">moveWindow</a>、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga851ccdd6961022d1d5b4c4f255dbab34">destroyWindow</a>、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga6b7fc1c1a8960438156912027b38f481">destroyAllWindows</a>、 <a href="https://docs.opencv.org/3.0.0/df/d24/group__highgui__opengl.html#ga21b41f9217e40eb64eed79b4cecf595d">updateWindow</a></p>
+</li>
+<li>
+<p>QT的图形用户界面</p>
+<p>三个主要区域：工具栏、图像区域、状态栏<br />
+displayOverlay、displayStatusBar</p>
+</li>
+<li>
+<p>在界面上添加滑动条和鼠标事件</p>
+<p>滑动条的回调函数、鼠标的回调函数、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#gaf78d2155d30b728fc413803745b67a9b">createTrackBar</a>、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga89e7806b0a616f6f1d502bd8c183ad3e">setMouseCallback</a></p>
+</li>
+<li>
+<p>在用户界面上添加按钮（仅适用于QT窗口）</p>
+<p>QT_CHECKBOX、QT_RADIOBOX、QT_PUSH_BUTTON</p>
+<p><a href="javascript:searchResults.Toggle(%22SR_cvtcolor%22)">cvtColor</a>：输入图像、输出图像、色彩空间转换类型</p>
+</li>
+<li>
+<p>支持OpenGL</p>
+<p>OpenGL是一个以显卡为标准的图形库，允许绘制从二维到复杂三维的场景</p>
+</li>
+</ol>
+<h4>第4章 深入研究直方图和滤波器</h4>
+<ol>
+<li>生成CMake脚本文件</li>
+<li>
+<p>创建图形用户界面</p>
+<p><a href="https://docs.opencv.org/3.0.0/d0/d2e/classcv_1_1CommandLineParser.html">CommandLineParser</a>、imread、namedWindow、imshow、 <a href="https://docs.opencv.org/3.0.0/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7">waitKey</a></p>
+</li>
+<li>
+<p>绘制直方图</p>
+<p><a href="https://docs.opencv.org/3.0.0/d2/de8/group__core__array.html#ga0547c7fed86152d7e9d0096029c8518a">split</a>、 <a href="javascript:searchResults.Toggle(%22SR_calchist%22)">calcHist</a>、 <a href="https://docs.opencv.org/3.0.0/dc/d84/group__core__basic.html#ga1b6a396a456c8b6c6e4afd8591560d80">normalize</a>、 <a href="https://docs.opencv.org/3.0.0/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2">line</a>、 <a href="https://docs.opencv.org/3.0.0/db/de0/group__core__utils.html#ga47ead185bfeefb70d09e90d8fe8afde7">cvRound</a></p>
+</li>
+<li>
+<p>图像的色彩均衡化</p>
+<p>图像均衡化和直方图均衡化尝试获取一个值均匀分布的直方图</p>
+<p>cvColor、split、 <a href="https://docs.opencv.org/3.0.0/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e">equalizeHist</a>、merge、imshow</p>
+</li>
+<li>
+<p>LOMO效果</p>
+<p><a href="https://docs.opencv.org/3.0.0/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f">LUT</a>、 <a href="https://docs.opencv.org/3.0.0/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670">circle</a>、 <a href="https://docs.opencv.org/3.0.0/d4/d86/group__imgproc__filter.html#ga8c45db9afe636703801b0b2e440fce37">blur</a>、Mat.convertTo、 <a href="https://docs.opencv.org/3.0.0/d2/de8/group__core__array.html#ga979d898a58d7f61c53003e162e7ad89f">multiply</a></p>
+</li>
+<li>
+<p>卡通效果</p>
+<p>边缘检测和色彩滤波</p>
+<p><a href="https://docs.opencv.org/3.0.0/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9">medianBlur</a>、 <a href="https://docs.opencv.org/3.0.0/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de">Canny</a>、 <a href="https://docs.opencv.org/3.0.0/d4/d86/group__imgproc__filter.html#gac342a1bb6eabf6f55c803b09268e36dc">getStructuringElement</a>、 <a href="https://docs.opencv.org/3.0.0/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c">dilate</a>、 <a href="https://docs.opencv.org/3.0.0/d4/d86/group__imgproc__filter.html#ga9d7064d478c95d60003cf839430737ed">bilateralFilter</a>、</p>
+</li>
+</ol>
+<h4>第5章 自动光学检测、目标分隔和检测</h4>
+<ol>
+<li>
+<p>隔离场景中的目标</p>
+<p>预处理（去噪、去除光亮、二值化），分割（轮廓提取、连通分量提取）</p>
+</li>
+<li>
+<p>创建AOI应用程序</p>
+</li>
+<li>
+<p>输入图像的预处理</p>
+<ol>
+<li>
+去除噪声<br />
+中值滤波通常用于去除椒盐噪声
+</li>
+<li>使用光纹删除背景来分割</li>
+<li>
+阈值操作<br />
+threshold
+</li>
+</ol>
+</li>
+<li>
+<p>分割输入图像</p>
+<p>用于分割阈值图像的两种技术：连通区域、findContours函数</p>
+<ol>
+<li>
+<p>连通区域算法</p>
+<p><a href="https://docs.opencv.org/3.0.0/d3/dc0/group__imgproc__shape.html#gac2718a64ade63475425558aa669a943a">connectedComponents</a>、 <a href="https://docs.opencv.org/3.0.0/d3/dc0/group__imgproc__shape.html#gae57b028a2b2ca327227c2399a9d53241">connectedComponentsWithStats</a>、Mat::zeros、Mat.setTo、 <a href="https://docs.opencv.org/3.0.0/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576">putText</a></p>
+</li>
+<li>
+<p><a href="https://docs.opencv.org/3.0.0/d3/dc0/group__imgproc__shape.html#ga17ed9f5d79ae97bd4c7cf18403e1689a">findContours</a>算法</p>
+<p><a href="https://docs.opencv.org/3.0.0/d6/d6e/group__imgproc__draw.html#ga746c0625f1781f1ffc9056259103edbc">drawContours</a></p>
+</li>
+</ol>
+</li>
+</ol>
+<h4>第6章 学习目标分类</h4>
+<ol>
+<li>
+<p>介绍机器学习的概念</p>
+<p>机器学习包含了模式识别和人工智能的学习理论，并且和计算机统计学相关</p>
+<p>根据机器学习算法如何从数据或样本中学习，可以将其分为：监督学习、无监督学习、强化学习等</p>
+<p>根据所需的结果，可以分为：分类算法、回归算法、聚类算法、密度估计算法</p>
+<p>OpenCV实现了8种机器学习算法，都集成自 <a href="https://docs.opencv.org/3.0.0/db/d7d/classcv_1_1ml_1_1StatModel.html">StatModel</a>类：</p>
+<ol>
+<li>人工神经网络</li>
+<li>提升算法（boosting）</li>
+<li>随机树</li>
+<li>最大期望</li>
+<li>K近邻</li>
+<li>logistic回归分析</li>
+<li>一般的贝叶斯分类器</li>
+<li>支持向量机</li>
+</ol>
+<p>StatModel是需要通过它的每个具体实现来实现的接口，它的两个关键函数是 <a href="https://docs.opencv.org/3.0.0/db/d7d/classcv_1_1ml_1_1StatModel.html#af96a0e04f1677a835cc25263c7db3c0c">train</a>和 <a href="https://docs.opencv.org/3.0.0/db/d7d/classcv_1_1ml_1_1StatModel.html#a1a7e49e1febd10392452727498771bc1">predict</a></p>
+</li>
+<li>
+<p>计算机视觉和机器学习的工作流程</p>
+<p>预处理（去除光亮条件和噪声、阈值、模糊等）-分割-特征提取-机器学习分类-后期处理</p>
+</li>
+<li>
+<p>自动检测目标分类的示例</p>
+<ol>
+<li>预处理、分割图像</li>
+<li>对图像中的每个物体提取特征、将带标签的物体添加到训练特征向量中</li>
+<li>创建SVM模型</li>
+<li>通过训练特征向量训练我们的SVM模型</li>
+<li>对预处理输入图像进行分类</li>
+<li>分割输入图像</li>
+<li>对检测到的每个物体提取特征、预测SVM模型、在输出图像中绘制结果</li>
+</ol>
+</li>
+<li>
+<p>特征提取</p>
+<p>Mat.clone、 <a href="https://docs.opencv.org/3.0.0/d1/dd6/classcv_1_1RNG.html">RNG</a>、Mat::zeros、findContours、drawContours、sum、 <a href="https://docs.opencv.org/3.0.0/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9">minAreaRect</a>、</p>
+<ol>
+<li>
+<p>训练 <a href="https://docs.opencv.org/3.0.0/d1/d2d/classcv_1_1ml_1_1SVM.html">SVM</a>模型</p>
+<p>预处理、特征提取、训练模型<br />
+SVM::Create、SVM.setType、SVM.setKernel、SVM.setTermCriteria、SVM.train、SVM.predict、countNonZero</p>
+</li>
+<li>
+<p>预测输入图像</p>
+<p>预处理、特征提取、预测、结果展示</p>
+</li>
+</ol>
+</li>
+</ol>
+<h4>第7章 识别人脸部分并覆盖面具</h4>
+<ol>
+<li>
+<p>理解Haar级联</p>
+<p>Haar级联是一个基于Haar特征的级联分类器。级联分类器是一个把弱分类器串联成强分类器的过程。弱分类器是一个性能受限的分类器，它们无法正确地区分所有事物。强分类器可以正确地对数据进行分类。</p>
+<p>多重尺度法：把图像缩小再次计算同样的特征</p>
+<p>提取Haar特征，需要计算图像中封闭矩形区域的像素值总和。为了不改变比例，需要计算多重尺度区域</p>
+</li>
+<li>
+<p>积分图</p>
+</li>
+<li>
+<p>在实时视频中覆盖上面具</p>
+<p>resize、cvtColor、equalizeHist、threshold、bitwise_not、bitwise_and、add</p>
+</li>
+<li>
+<p>戴上太阳镜</p>
+</li>
+<li>跟踪鼻子、嘴和耳朵</li>
+</ol>
+<h4>第8章 视频监控、背景建模和形态学操作</h4>
+<ol>
+<li>
+<p>理解背景差分</p>
+<p>背景差分技术能很好地在一个静态场景中探测移动对象</p>
+<p>背景建模：尝试探测场景中的静态部分，然后更新背景模型。可以根据现场调整的自适应技术</p>
+<ol>
+<li>简单背景差分法</li>
+<li>
+<p>帧差值法</p>
+<p>计算当前帧与前一帧、当前帧与下一帧之间的绝对差，然后取这些帧差值并使用按位与运算</p>
+</li>
+<li>
+<p>混合高斯方法</p>
+<p>一种混合模型只是一个统计模型，可以用来表示数据中的子群的存在。用高斯函数表示每个子群，它就称为高斯混合</p>
+</li>
+</ol>
+</li>
+<li>
+<p>形态学操作</p>
+<p>形态学图像操作用于处理图像的形状特征。</p>
+<p>形态学运算使用结构元素来修改图像。结构元素总的来说是一个小的形状，它可以用来检查图像中的一个小区域</p>
+<ol>
+<li>图像细化</li>
+<li>图像加粗</li>
+<li>
+<p>其它形态学运算</p>
+<p>形态学开运算：先腐蚀后膨胀</p>
+<p>形态学毕运算：先膨胀后腐蚀</p>
+<p>绘制边界：形态学梯度</p>
+<p>白顶帽变换：计算输入图像和形态学开运算结果之间的差</p>
+<p>黑顶帽变换：计算输入图像和形态学闭运算结果之间的差</p>
+</li>
+</ol>
+</li>
+</ol>
+<h4>第9章 学习对象跟踪</h4>
+<ol>
+<li>
+<p>跟踪特定颜色的对象</p>
+<p>（颜色信息对照明条件很敏感）</p>
+<p>HSV：色相、饱和度和色值</p>
+</li>
+<li>
+<p>建立交互式对象跟踪器</p>
+<p><a href="https://docs.opencv.org/3.0.0/dc/d6b/group__video__track.html#ga432a563c94eaf179533ff1e83dbb65ea">Meanshift</a>算法：</p>
+<p><a href="https://docs.opencv.org/3.0.0/dc/d6b/group__video__track.html#gaef2bd39c8356f423124f1fe7c44d54a1">CAMShift</a>算法：</p>
+<p>Meanshift问题是边界框的大小不允许改变。当对象远离镜头时，在人眼中对象会变小，但是Meanshift不会考虑这个现象。在整个跟踪会话中，边界框的大小将保持不变。</p>
+<p>CAMShift的有点是它可以根据对象边界框的大小来调整大小，除此之外，它还可以跟踪对象的移动方向。</p>
+<p>Mat.copyTo、cvtColor、resize、inRange、mixChannels、calcHist、normalize、calcBackProject、CamShift、ellipse、bitwise_not</p>
+</li>
+<li>
+<p>使用Harris角点检测器检测点</p>
+<p>角点是指两个特征值将有较大值的一个点</p>
+<p>Mat::zeros、cvtColor、cornerHarries、normalize、convertScaleAbs</p>
+</li>
+<li>
+<p>Shi-Tomasi角点检测器</p>
+<p><a href="https://docs.opencv.org/3.0.0/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541">goodFeaturesToTrack</a></p>
+</li>
+<li>
+<p>基于特征的跟踪</p>
+<p>基于特征的跟踪是指在视频的连续帧中跟踪单个特征点</p>
+</li>
+<li>
+<p>Lucas-Kanade算法</p>
+<p>用于稀疏光流跟踪。稀疏指的是特征点数目相对较少</p>
+<p><a href="https://docs.opencv.org/3.0.0/dc/d6b/group__video__track.html#ga473e4b886d0bcc6b65831eb88ed93323">calcOpticalFlowPyrLK</a>、 <a href="https://docs.opencv.org/3.0.0/dd/d1a/group__imgproc__feature.html#ga354e0d7c86d0d9da75de9b9701a9a87e">cornerSubPix</a></p>
+</li>
+<li>
+<p>FarneBack算法</p>
+<p>用于密集光流跟踪。</p>
+<p>第一步：对两个帧中的每个邻域多项式逼近</p>
+<p>第二步：通过全局位移来构造一个新的信号</p>
+<p>第三步：用二次多项式收益率中的等值系数计算整体位移</p>
+<p><a href="https://docs.opencv.org/3.0.0/dc/d6b/group__video__track.html#ga5d10ebbd59fe09c5f650289ec0ece5af">calcOpticalFlowFarneback</a>、</p>
+</li>
+</ol>
+<h4>第10章 文本识别中的分割算法</h4>
+<ol>
+<li>OCR简介</li>
+<li>
+<p>预处理步骤</p>
+<ol>
+<li>图像阈值化：threshold</li>
+<li>
+<p>文本分割：使用连通分量分析，搜索图像组的连续像素；或使用分类器来搜索先前熟知的字母纹理图案</p>
+<p>对于方法1：</p>
+<ol>
+<li>创建连通区域：膨胀形态学dilate</li>
+<li>识别段落快：findContours</li>
+<li>确定每个轮廓最小边界旋转矩形：minAreaRect</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>文本提取和倾斜调整：getRotationMatrix2D、warpAffine、getRectSubPix、copyMakeBorder</p>
+</li>
+<li>
+<p>在你的操作系统上安装 <a href="https://github.com/tesseract-ocr/tesseract/wiki/Documentation">Tesseract OCR</a></p>
+</li>
+<li>使用Tesseract OCR库</li>
+</ol>
+<h4>第11章 使用 Tesseract 识别文本</h4>
+<ol>
+<li>
+<p>文本识别API工作原理</p>
+<ol>
+<li>实时文字检测问题</li>
+<li>极值区域</li>
+</ol>
+</li>
+</ol>
+<p>极值区域是通过均匀强度和环绕的对比度背景特征识别的连接区域</p>
+<ol>
+<li>
+<p>极值区域滤镜</p>
+</li>
+<li>
+<p>使用文本识别API</p>
+<ol>
+<li>文本检测</li>
+<li>文本提取</li>
+<li>文字识别</li>
+</ol>
+</li>
+</ol>
+<h4>Reference</h4>
+<p><a href="https://docs.opencv.org/3.0.0/index.html">https://docs.opencv.org/3.0.0/index.html</a></p>
+站长需要在每个页面的HTML代码中包含以下自动推送JS代码：
+
+<script>
+
+(function(){
+
+ var bp = document.createElement('script');
+
+ bp.src = '//push.zhanzhang.baidu.com/push.js';
+
+ var s = document.getElementsByTagName("script")[0];
+
+ s.parentNode.insertBefore(bp, s);
+
+ })();
+
+</script>
+
